@@ -294,8 +294,7 @@
                             @if(isset($fuenteCampos['direccion_texto']))
                                 <span class="badge bg-success-subtle text-success-emphasis ms-1">padrón</span>
                             @endif
-                            <input id="alta-direccion" wire:model="direccionTexto" type="text" class="form-control form-control-sm"
-                                   placeholder="Texto libre — se normalizará automáticamente" />
+                            <livewire:ciudadania.domicilio-callejero wire:model="domicilio" id-campo="alta-direccion" wire:key="alta-domicilio" />
                         </div>
                     @endif
                     <div class="col-md-6">

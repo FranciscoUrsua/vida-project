@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-11-25 — Callejero oficial de Madrid: autocompletado del domicilio (paso 3)
+
+- **Componente** `ciudadania.domicilio-callejero` en el alta (`AltaCiudadano`) y en la edición de la ficha (`FichaCiudadanoPage`): vía desde 3 letras, número, y portal, escalera, piso y puerta aparte; «Escribir la dirección a mano» para el texto libre. Sustituye al campo de texto libre `direccionTexto` (las dos pantallas guardan ahora el estado `domicilio`).
+- **Servicio** `SeleccionDomicilio`: búsqueda de vías (con distritos) y números, estado desde el modelo y paso a atributos. Elegido en el callejero: normalizado, origen `callejero` (nuevo en `OrigenDireccion`), texto compuesto («Avenida de la Albufera 120, 3º izq») y sin geocodificador de texto. Texto libre: origen `profesional`, lo intenta el adaptador. Vacío: sin códigos.
+- `ResultadoGeocodificacion::atributosDireccion()` y `CallejeroMadridGeocodificador::resultadoDePortal()` / `claseParaMostrar()`, compartidos.
+- **Ficha:** el domicilio solo se reescribe si cambia.
+- **Tests:** `Modules/Ciudadania/tests/Feature/Livewire/DomicilioCallejeroTest.php`, TF-CAL-10 (con bis y ter) y TF-CAL-11 (con bis, ter y cuater), en verde; 3 negativos comprobados (el observer no geocodifica lo elegido, la ficha no reescribe sin cambios, no se elige un número de otra vía). Siguen en verde los tests Livewire de Ciudadanía, los del callejero, `RelacionesAltaTest` y `DireccionObserverTest` (116). `ui:auditar` sin infracciones; PHPStan limpio en lo tocado.
+- Con el callejero real de staging la búsqueda de vías responde en unos 20 ms.
+
+---
+
 ## 2026-11-24 — Callejero oficial de Madrid: asignación de centro y activación (paso 5)
 
 - **Comprobado sin cambiar código:** con el adaptador del callejero, una persona sin centro queda asignada por la sección oficial; con asignación geográfica vigente, un domicilio de otro centro no la reasigna y deja la propuesta en la bandeja del supervisor (RN-10); una dirección que no casa no asigna nada. Las asignaciones por elección o manuales no generan propuesta (diseño de `modulo-asignacion.md` §3.5).

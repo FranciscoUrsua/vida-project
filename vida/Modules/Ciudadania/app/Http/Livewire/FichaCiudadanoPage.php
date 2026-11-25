@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Queries\AccesosExpedienteQuery;
 use App\Services\AccesoExpediente;
 use App\Services\EnlacePersona;
+use App\Services\Geocodificacion\Callejero\SeleccionDomicilio;
 use App\Services\PresentacionPersona;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Collection;
@@ -21,6 +22,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -114,6 +116,13 @@ class FichaCiudadanoPage extends Component
     public string $alias = '';
 
     public string $direccionTexto = '';
+
+    /** @var array<string, mixed> Domicilio en edición (callejero o texto libre; ver SeleccionDomicilio). */
+    public array $domicilio = [];
+
+    /** @var array<string, mixed> Domicilio al abrir la edición: si no cambia, no se reescribe. */
+    #[Locked]
+    public array $domicilioInicial = [];
 
     public string $telefono = '';
 
@@ -221,6 +230,7 @@ class FichaCiudadanoPage extends Component
         $this->sexo = $c->sexo ?? '';
         $this->alias = $c->alias ?? '';
         $this->direccionTexto = $c->direccion_texto ?? '';
+        $this->cargarDomicilio($c);
         $this->telefono = $c->telefono ?? '';
         $this->email = $c->email ?? '';
 
@@ -734,6 +744,7 @@ class FichaCiudadanoPage extends Component
         $this->sexo = $c->sexo ?? '';
         $this->alias = $c->alias ?? '';
         $this->direccionTexto = $c->direccion_texto ?? '';
+        $this->cargarDomicilio($c);
         $this->telefono = $c->telefono ?? '';
         $this->email = $c->email ?? '';
         $this->modoEdicion = false;
@@ -761,7 +772,11 @@ class FichaCiudadanoPage extends Component
             'fechaNacimiento' => 'nullable|date|before:today',
             'sexo' => ['required', Rule::in(array_keys($this->opcionesSexo))],
             'alias' => 'nullable|string|max:200',
-            'direccionTexto' => 'nullable|string|max:500',
+            'domicilio.texto' => 'nullable|string|max:500',
+            'domicilio.portal' => 'nullable|string|max:20',
+            'domicilio.escalera' => 'nullable|string|max:20',
+            'domicilio.piso' => 'nullable|string|max:20',
+            'domicilio.puerta' => 'nullable|string|max:20',
             'telefono' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
         ]);
@@ -781,13 +796,30 @@ class FichaCiudadanoPage extends Component
             'fecha_nacimiento' => $this->fechaNacimiento ?: null,
             'sexo' => $this->sexo,
             'alias' => $this->alias ?: null,
-            'direccion_texto' => $this->direccionTexto ?: null,
             'telefono' => $norm['telefono'] ?? ($this->telefono ?: null),
             'email' => $norm['email'] ?? ($this->email ?: null),
+            // El domicilio solo se reescribe si ha cambiado: guardar otros datos no debe
+            // convertir en texto libre un domicilio elegido en el callejero
+            ...($this->domicilio != $this->domicilioInicial ? app(SeleccionDomicilio::class)->atributos($this->domicilio) : []),
         ]);
 
+        $this->direccionTexto = $this->ciudadano->direccion_texto ?? '';
+        $this->cargarDomicilio($this->ciudadano);
         $this->modoEdicion = false;
         $this->dispatch('ciudadano-actualizado');
+    }
+
+    /**
+     * Prepara el campo de domicilio con el guardado y recuerda cómo estaba.
+     *
+     * @param Ciudadano $ciudadano
+     *
+     * @return void
+     */
+    private function cargarDomicilio(Ciudadano $ciudadano): void
+    {
+        $this->domicilio = app(SeleccionDomicilio::class)->desdeModelo($ciudadano);
+        $this->domicilioInicial = $this->domicilio;
     }
 
     // -------------------------------------------------------------------------

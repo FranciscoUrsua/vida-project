@@ -111,7 +111,7 @@ class CallejeroMadridGeocodificador implements GeocodificadorInterface
             return $this->fallo("Dirección ambigua: casa con {$portales->count()} números del callejero.");
         }
 
-        return $this->resultado($portales->first(), $direccion);
+        return self::resultadoDePortal($portales->first(), $direccion->tipoVia, $direccion->portal, $direccion->escalera, $direccion->piso, $direccion->puerta);
     }
 
     /**
@@ -302,26 +302,38 @@ class CallejeroMadridGeocodificador implements GeocodificadorInterface
     }
 
     /**
-     * Resultado con los datos del callejero y las partes del domicilio escritas a mano.
+     * Resultado con los datos de un número del callejero y las partes del domicilio que
+     * no están en él (portal, escalera, piso, puerta). Lo usan este adaptador y el
+     * autocompletado del domicilio.
      *
-     * @param CallejeroPortal $portal Número del callejero con el que casa.
-     * @param DireccionAnalizada $direccion Piso, puerta… del texto.
+     * @param CallejeroPortal $portal Número del callejero.
+     * @param string|null $tipoVia Tipo de vía como se escribió; si no, el del callejero.
+     * @param string|null $portalInterior Portal dentro del número.
+     * @param string|null $escalera
+     * @param string|null $piso
+     * @param string|null $puerta
      *
      * @return ResultadoGeocodificacion
      */
-    private function resultado(CallejeroPortal $portal, DireccionAnalizada $direccion): ResultadoGeocodificacion
-    {
+    public static function resultadoDePortal(
+        CallejeroPortal $portal,
+        ?string $tipoVia = null,
+        ?string $portalInterior = null,
+        ?string $escalera = null,
+        ?string $piso = null,
+        ?string $puerta = null,
+    ): ResultadoGeocodificacion {
         return new ResultadoGeocodificacion(
             exito: true,
-            tipoVia: $direccion->tipoVia ?? mb_convert_case(mb_strtolower($portal->clase_via), MB_CASE_TITLE),
+            tipoVia: $tipoVia ?? self::claseParaMostrar($portal->clase_via),
             // Con la partícula, que es parte del nombre oficial: «Paseo de la Castellana»
             nombreVia: trim(mb_strtolower((string) $portal->particula_via).' '.self::nombreParaMostrar($portal->nombre_via_mostrar)),
             tipoNumeracion: $portal->clase_numero,
             numero: $portal->numero.($portal->calificador !== null ? ' '.$portal->calificador : ''),
-            portal: $direccion->portal,
-            escalera: $direccion->escalera,
-            piso: $direccion->piso,
-            puerta: $direccion->puerta,
+            portal: $portalInterior,
+            escalera: $escalera,
+            piso: $piso,
+            puerta: $puerta,
             codigoPostal: $portal->codigo_postal,
             municipio: 'Madrid',
             latitud: $portal->lat,
@@ -332,6 +344,20 @@ class CallejeroMadridGeocodificador implements GeocodificadorInterface
             codigoBarrio: $portal->barrio_codigo,
             seccionCensal: $portal->seccion_censal_codigo,
         );
+    }
+
+    /**
+     * Clase de vía del callejero para mostrar («TRAVESIA» → «Travesía»).
+     *
+     * @param string $clase Clase como viene en el fichero, en mayúsculas sin tildes.
+     *
+     * @return string
+     */
+    public static function claseParaMostrar(string $clase): string
+    {
+        $conTilde = ['TRAVESIA' => 'Travesía', 'CALLEJON' => 'Callejón', 'AUTOVIA' => 'Autovía', 'GALERIA' => 'Galería'];
+
+        return $conTilde[$clase] ?? mb_convert_case(mb_strtolower($clase), MB_CASE_TITLE);
     }
 
     /**

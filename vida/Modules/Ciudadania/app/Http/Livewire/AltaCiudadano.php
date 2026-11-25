@@ -2,13 +2,13 @@
 
 namespace Modules\Ciudadania\Http\Livewire;
 
-use App\Enums\OrigenDireccion;
 use App\Models\CatalogoSistema;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use App\Services\EnlacePersona;
+use App\Services\Geocodificacion\Callejero\SeleccionDomicilio;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -104,7 +104,8 @@ class AltaCiudadano extends Component
 
     public string $valorDocumento = '';
 
-    public string $direccionTexto = '';
+    /** @var array<string, mixed> Domicilio elegido en el callejero o escrito a mano (ver SeleccionDomicilio). */
+    public array $domicilio = [];
 
     public string $telefono = '';
 
@@ -147,6 +148,7 @@ class AltaCiudadano extends Component
     public function mount(): void
     {
         Gate::authorize('create', Ciudadano::class);
+        $this->domicilio = app(SeleccionDomicilio::class)->vacio();
     }
 
     /**
@@ -258,7 +260,10 @@ class AltaCiudadano extends Component
             $this->apellido2 = $datos['apellido2'] ?? $this->apellido2;
             $this->fechaNacimiento = $datos['fecha_nacimiento'] ?? $this->fechaNacimiento;
             $this->sexo = $datos['sexo'] ?? $this->sexo;
-            $this->direccionTexto = $datos['direccion_texto'] ?? $this->direccionTexto;
+            // El domicilio del padrón llega como texto: lo intentará casar el geocodificador
+            if (! empty($datos['direccion_texto'])) {
+                $this->domicilio = array_merge(app(SeleccionDomicilio::class)->vacio(), ['texto' => $datos['direccion_texto'], 'manual' => true, 'portal_id' => null]);
+            }
 
             foreach (['nombre', 'apellido1', 'apellido2', 'fecha_nacimiento', 'sexo', 'direccion_texto'] as $campo) {
                 if (! empty($datos[$campo])) {
@@ -370,8 +375,8 @@ class AltaCiudadano extends Component
                 'apellido2' => $this->apellido2 ?: null,
                 'fecha_nacimiento' => $this->fechaNacimiento ?: null,
                 'sexo' => $this->sexo,
-                'direccion_texto' => $this->direccionTexto ?: null,
-                'origen_direccion' => $this->direccionTexto ? OrigenDireccion::Profesional : null,
+                // Elegido en el callejero (ya normalizado) o escrito a mano; sin domicilio para PSH
+                ...app(SeleccionDomicilio::class)->atributos($this->excepcionPadron === 'psh' ? [] : $this->domicilio),
                 'telefono' => $this->telefono ?: null,
                 'telefono_hash' => $telefonoHash,
                 'email' => $this->email ?: null,
@@ -474,7 +479,11 @@ class AltaCiudadano extends Component
             'alias' => $esPsh ? 'required|string|max:200' : 'nullable|string|max:200',
             'tipoDocumento' => 'nullable|string|in:nif,nie,pasaporte',
             'valorDocumento' => 'nullable|string|max:20',
-            'direccionTexto' => 'nullable|string|max:500',
+            'domicilio.texto' => 'nullable|string|max:500',
+            'domicilio.portal' => 'nullable|string|max:20',
+            'domicilio.escalera' => 'nullable|string|max:20',
+            'domicilio.piso' => 'nullable|string|max:20',
+            'domicilio.puerta' => 'nullable|string|max:20',
             'telefono' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'primeraDemanda' => 'nullable|string|max:2000',

@@ -205,9 +205,7 @@
                     <div class="col-12">
                         <label for="ficha-direccion" class="form-label small text-body-secondary mb-1">Domicilio</label>
                         @if($modoEdicion)
-                            <input id="ficha-direccion" type="text" wire:model="direccionTexto"
-                                placeholder="Texto libre — se normaliza al guardar"
-                                class="form-control form-control-sm">
+                            <livewire:ciudadania.domicilio-callejero wire:model="domicilio" id-campo="ficha-direccion" wire:key="ficha-domicilio-{{ $ciudadanoId }}" />
                         @else
                             <div>{{ $direccionTexto ?: '—' }}</div>
                         @endif

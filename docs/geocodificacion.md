@@ -56,7 +56,7 @@ class ResultadoGeocodificacion
 |---|---|---|
 | `ninguno` | Sin geocodificador: la dirección queda como texto libre sin normalizar | Implementado; **por defecto fuera de los tests** (25 nov 2026) |
 | `mock` | Parser de texto libre + coordenadas aleatorias y sección censal inventada | Implementado; **solo en los tests** |
-| `callejero` | Callejero oficial del Ayuntamiento de Madrid (conjunto 200075 de datos.madrid.es), cargado en `callejero_portales` con `callejero:importar` | Implementado y **activo en staging** (24 nov 2026; migración `2026_11_25_100004`, solo con el callejero importado); autocompletado pendiente (`docs/instrucciones-cli/2026-11-callejero-madrid.md`) |
+| `callejero` | Callejero oficial del Ayuntamiento de Madrid (conjunto 200075 de datos.madrid.es), cargado en `callejero_portales` con `callejero:importar` | Implementado y **activo en staging** (24 nov 2026; migración `2026_11_25_100004`, solo con el callejero importado); con autocompletado del domicilio en el alta y la ficha (`docs/instrucciones-cli/2026-11-callejero-madrid.md`) |
 | `bdc` | Base de Datos Ciudad del Ayuntamiento de Madrid (API interna) | Pendiente |
 | `osm` | OpenStreetMap / Nominatim | Descartado (25 nov 2026): datos de personas a un tercero; la política del servicio público desaconseja el uso continuo |
 | `gmaps` | Google Maps Geocoding API | Descartado (25 nov 2026): datos de personas a un tercero; solo permite guardar coordenadas 30 días |
@@ -106,7 +106,7 @@ La geocodificación define el modelo canónico de dirección en VIDA. Este model
 | `coordenadas_lat` | decimal(10,7) nullable | Latitud WGS84. |
 | `coordenadas_lng` | decimal(10,7) nullable | Longitud WGS84. |
 | `geocoder_proveedor` | string nullable | Qué adaptador normalizó esta dirección. Trazabilidad. |
-| `origen_direccion` | enum | `profesional` / `padron` / `geocodificacion` |
+| `origen_direccion` | enum | `profesional` / `padron` / `geocodificacion` / `callejero` |
 | `codigo_ndp` | string nullable | Identificador del portal (NDP de la BDC). Permite recalcular la asignación de centro si cambian los límites sin volver a geocodificar, y saber que dos personas viven en el mismo portal. Desde el 2026-09-30. |
 | `distrito_codigo` | string(2) nullable | Código de distrito. |
 | `barrio_codigo` | string(3) nullable | Código de barrio: distrito + barrio (el número de barrio solo es único dentro de su distrito). |
@@ -139,6 +139,7 @@ Cuando la dirección proviene del padrón municipal, llega ya estructurada y con
 | Introducida por el profesional | `profesional` | Sí |
 | Importada del padrón | `padron` | No |
 | Normalizada posteriormente por job | `geocodificacion` | — (es el resultado) |
+| Elegida en el autocompletado del callejero | `callejero` | No: llega normalizada (desde el 25 nov 2026) |
 
 ---
 

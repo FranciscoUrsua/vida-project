@@ -1,6 +1,6 @@
 # Domicilio con el callejero oficial de Madrid
 
-**Fecha:** 25 nov 2026 · **Estado:** en curso (pasos 0, 1, 2 y 5 hechos el 24 nov 2026; fuente corregida) · **Módulos:** Ciudadanía, Centro (asignación), infraestructura de geocodificación
+**Fecha:** 25 nov 2026 · **Estado:** en curso (pasos 0, 1, 2, 3 y 5 hechos el 24-25 nov 2026; falta el paso 4) · **Módulos:** Ciudadanía, Centro (asignación), infraestructura de geocodificación
 
 Instrucciones para sustituir la «normalización» de direcciones, que hoy no existe, por un geocodificador local basado en el callejero oficial del Ayuntamiento de Madrid, con autocompletado del domicilio en los formularios.
 
@@ -62,6 +62,12 @@ Instrucciones para sustituir la «normalización» de direcciones, que hoy no ex
 - `geocoder.proveedor = callejero` en la configuración del sistema de staging cuando esté importado.
 
 ## Paso 3 — Autocompletado del domicilio
+
+**Hecho el 25 nov 2026.** Componente `ciudadania.domicilio-callejero` (`Modules\Ciudadania\Http\Livewire\DomicilioCallejero`, `#[Modelable]`) en el alta y en la edición de la ficha; servicio `App\Services\Geocodificacion\Callejero\SeleccionDomicilio` (búsqueda de vías y números, estado del campo y paso a atributos); `OrigenDireccion::Callejero`; `ResultadoGeocodificacion::atributosDireccion()`; `CallejeroMadridGeocodificador::resultadoDePortal()` compartido con el adaptador. Decisiones de implementación:
+- Vías por fragmento del nombre (índice trigram), primero las que empiezan por él, con los distritos que recorren para distinguir homónimas. Números en orden numérico; dentro de cada número, primero portal y parcela; se indica el tipo si no es portal.
+- En la ficha, el domicilio solo se reescribe si ha cambiado: guardar otros datos no convierte en texto libre un domicilio elegido cuyo número ya no está en el callejero.
+- «Escribir la dirección a mano» parte de lo elegido. El padrón rellena el texto libre. PSH sigue sin domicilio. Sin callejero cargado, solo texto libre.
+- Sin clases nuevas: Bootstrap y `op-lista-scroll`; `ui:auditar` sin infracciones.
 
 - Componente Livewire compartido (`ciudadania.domicilio-callejero`) para el alta (`AltaCiudadano`) y la edición del domicilio en la ficha: búsqueda de vía desde 3 caracteres (debounce), lista de vías y, elegida la vía, sus números. Piso, puerta, escalera y portal se escriben aparte.
 - Al elegir un portal se guardan los campos estructurados y territoriales y `origen_direccion` con un valor nuevo `callejero` en el enum `OrigenDireccion` (el observer no debe volver a geocodificar ese origen). `direccion_texto` se compone a partir del portal elegido.

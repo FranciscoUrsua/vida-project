@@ -124,6 +124,32 @@ final class ResultadoGeocodificacion
     }
 
     /**
+     * Atributos del modelo de dirección (trait TieneDireccion) de una normalización con éxito.
+     *
+     * @return array<string, mixed>
+     */
+    public function atributosDireccion(): array
+    {
+        return [
+            'direccion_normalizada' => true,
+            'tipo_via' => $this->tipoVia,
+            'nombre_via' => $this->nombreVia,
+            'tipo_numeracion' => $this->tipoNumeracion,
+            'numero' => $this->numero,
+            'portal' => $this->portal,
+            'escalera' => $this->escalera,
+            'piso' => $this->piso,
+            'puerta' => $this->puerta,
+            'codigo_postal' => $this->codigoPostal,
+            'municipio' => $this->municipio,
+            'coordenadas_lat' => $this->latitud,
+            'coordenadas_lng' => $this->longitud,
+            'geocoder_proveedor' => $this->proveedor,
+            ...$this->codigosTerritoriales(),
+        ];
+    }
+
+    /**
      * Códigos territoriales como atributos de las columnas del modelo de dirección.
      *
      * @return array{codigo_ndp: string|null, distrito_codigo: string|null, barrio_codigo: string|null, seccion_censal_codigo: string|null}

@@ -7,6 +7,7 @@ use Livewire\Livewire;
 use Modules\Ciudadania\Contracts\FuenteIdentidadInterface;
 use Modules\Ciudadania\Http\Livewire\ActividadesPersona;
 use Modules\Ciudadania\Http\Livewire\AltaCiudadano;
+use Modules\Ciudadania\Http\Livewire\DomicilioCallejero;
 use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
 use Modules\Ciudadania\Services\MotorMatching;
 use Modules\Ciudadania\Services\Padron\MockFuenteIdentidad;
@@ -46,6 +47,7 @@ class CiudadaniaServiceProvider extends ServiceProvider
 
         Livewire::component('ciudadania.alta-ciudadano', AltaCiudadano::class);
         Livewire::component('ciudadania.ficha-ciudadano-page', FichaCiudadanoPage::class);
+        Livewire::component('ciudadania.domicilio-callejero', DomicilioCallejero::class);
         Livewire::component('ciudadania.actividades-persona', ActividadesPersona::class);
     }
 }

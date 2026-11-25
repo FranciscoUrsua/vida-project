@@ -6,7 +6,8 @@ namespace App\Enums;
  * Origen de la dirección almacenada en una entidad.
  *
  * El DireccionObserver toma decisiones basadas en este valor (solo geocodifica
- * cuando el origen es 'profesional'). Ver docs/geocodificacion.md § 3.3.
+ * cuando el origen es 'profesional'; una dirección elegida en el callejero ya llega
+ * normalizada). Ver docs/geocodificacion.md § 3.3.
  */
 enum OrigenDireccion: string
 {
@@ -16,9 +17,13 @@ enum OrigenDireccion: string
     case Padron = 'padron';
     /** Normalizada posteriormente por el job de reintento. */
     case Geocodificacion = 'geocodificacion';
+    /** Elegida en el autocompletado del callejero oficial: ya normalizada, no se geocodifica. */
+    case Callejero = 'callejero';
 
     /**
      * Devuelve la etiqueta legible del origen de la dirección.
+     *
+     * @return string
      */
     public function label(): string
     {
@@ -26,6 +31,7 @@ enum OrigenDireccion: string
             self::Profesional => 'Introducida por profesional',
             self::Padron => 'Importada del padrón',
             self::Geocodificacion => 'Normalizada por geocoder',
+            self::Callejero => 'Elegida en el callejero',
         };
     }
 }

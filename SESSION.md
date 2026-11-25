@@ -4,6 +4,8 @@
 
 ---
 
+**Última tarea (25 nov, 1):** callejero, paso 3: autocompletado del domicilio (`ciudadania.domicilio-callejero`) en el alta y la ficha, `SeleccionDomicilio`, origen `callejero`. TF-CAL-10 y 11 en verde con negativos; `ui:auditar` sin infracciones. Sin probar a mano en el navegador. **Siguiente paso:** el desarrollador prueba el alta y la ficha en staging; después, paso 4 (`vida:normalizar-direcciones --pendientes` sobre las direcciones de texto libre, en la BD compartida) y cierre de las instrucciones.
+
 **Última tarea (24 nov, 9):** callejero, paso 5: TF-CAL-12 de punta a punta (asigna por la sección oficial; con asignación vigente propone el traslado en la bandeja, no reasigna), sin cambios de código. Adaptador activado en staging con la migración `2026_11_25_100004` (solo si el callejero está importado). **Siguiente paso:** paso 3, autocompletado del domicilio (`ciudadania.domicilio-callejero`, TF-CAL-10 y 11); después el paso 4.
 
 **Última tarea (24 nov, 8):** callejero, paso 2: `ParserDireccion` (extraído del simulador) y `CallejeroMadridGeocodificador` (solo con un único número del callejero; erratas por distancia de edición, no por trigramas; ambigua/inexistente/otro municipio sin normalizar), `ResultadoGeocodificacion::$reintentable`. TF-CAL-04 a 09 en verde con negativos. Callejero cargado en staging (215.605 números). **No activado** (`geocoder.proveedor`): normalizar dispara la asignación de centro. **Siguiente paso:** paso 3 (autocompletado `ciudadania.domicilio-callejero`, TF-CAL-10 y 11) o, antes, el paso 5 para poder activar el adaptador en staging.
