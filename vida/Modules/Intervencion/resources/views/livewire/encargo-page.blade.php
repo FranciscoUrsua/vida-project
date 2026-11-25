@@ -49,6 +49,45 @@
                         </div>
                     </div>
                 @endif
+
+                @if($this->puedeCitar)
+                    <div class="card card-body mb-3" id="encargo-citar">
+                        <h3 class="h6 fw-semibold d-flex align-items-center gap-2 mb-2">
+                            <x-heroicon-o-calendar-days class="icon-16" aria-hidden="true"/>
+                            Citar a la persona
+                        </h3>
+                        <div class="d-flex flex-wrap align-items-end gap-2">
+                            <div class="flex-grow-1">
+                                <label for="encargo-tipo-cita" class="form-label small mb-1">Tipo de cita</label>
+                                <select id="encargo-tipo-cita" wire:model="tipoCitaId" class="form-select form-select-sm @error('tipoCitaId') is-invalid @enderror">
+                                    <option value="">— Elige el tipo —</option>
+                                    @foreach($this->tiposCita as $id => $nombre)
+                                        <option value="{{ $id }}">{{ $nombre }}</option>
+                                    @endforeach
+                                </select>
+                                @error('tipoCitaId') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            </div>
+                            <button type="button" wire:click="buscarHuecos" class="btn btn-outline-primary btn-sm">Buscar huecos</button>
+                        </div>
+                        <p class="form-text mb-0">En tu agenda, en {{ $encargo->centroDestino?->nombre }}.</p>
+                        @error('citar') <div class="alert alert-danger py-2 px-3 mt-2 mb-0 small" role="alert">{{ $message }}</div> @enderror
+
+                        @if($huecos !== null)
+                            @if($huecos === [])
+                                <p class="small text-body-secondary mt-2 mb-0">No tienes huecos libres para este tipo de cita en el plazo ordinario.</p>
+                            @else
+                                <ul class="list-group list-group-flush mt-2">
+                                    @foreach($huecos as $hueco)
+                                        <li class="list-group-item d-flex align-items-center justify-content-between gap-2 px-0" wire:key="hueco-{{ $hueco['slot_id'] }}">
+                                            <span class="small">{{ $hueco['fecha'] }} · {{ $hueco['hora'] }}</span>
+                                            <button type="button" wire:click="citar({{ $hueco['slot_id'] }})" class="btn btn-primary btn-sm">Citar</button>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        @endif
+                    </div>
+                @endif
             </div>
 
             <div class="col-lg-4">

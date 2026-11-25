@@ -198,6 +198,10 @@ class RolesSeeder extends Seeder
             'derivacion.ver_asignadas',
             'derivacion.registrar_resultado',
             'documento.subir',
+            // Agenda y citas del profesional de encargo (EP-9, bloque E)
+            'agenda.ver_propia',
+            'citas.solicitar',
+            'citas.atender',
         ],
 
         // -----------------------------------------------------------------

@@ -20,6 +20,11 @@ use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
+use LogicException;
+use InvalidArgumentException;
+use Modules\Agenda\Models\Slot;
+use Modules\Agenda\Models\TipoCita;
+use Modules\Agenda\Services\Citas\PropuestaHueco;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Documentos\Data\DatosIngesta;
 use Modules\Documentos\Enums\CanalCaptura;
@@ -31,6 +36,7 @@ use Modules\Documentos\Services\CicloVidaDocumentoService;
 use Modules\Documentos\Services\LecturaDocumentoService;
 use Modules\Intervencion\Enums\EstadoDerivacion;
 use Modules\Intervencion\Models\Derivacion;
+use Modules\Intervencion\Services\CitasEncargo;
 use Modules\Intervencion\Services\EncargoService;
 
 /**
@@ -43,6 +49,9 @@ use Modules\Intervencion\Services\EncargoService;
  * de la persona y quedan vinculados al encargo; sin el límite del día de la consulta básica.
  * Los abre por AccesoDocumentosEncargo.
  *
+ * También cita a la persona en sus propios huecos del centro del encargo (bloque E, EP-9):
+ * elige el tipo de cita, VIDA propone huecos y él elige uno (CitasEncargo).
+ *
  * Solo lo abre el profesional asignado y con el encargo aceptado o cerrado; el resto, 403.
  * Restricción de dominio (EP-7, RN-17 ampliada): si la persona es protegida y el encargo
  * ya está cerrado, deja de verla (salvo acceso protegido aprobado) y la página responde 403,
@@ -54,6 +63,8 @@ use Modules\Intervencion\Services\EncargoService;
  * @property-read bool $puedeCerrar
  * @property-read bool $puedeSubir
  * @property-read Collection<int, TipoDocumental> $tipos
+ * @property-read bool $puedeCitar
+ * @property-read array<int, string> $tiposCita
  */
 #[Layout('layouts.operativo')]
 class EncargoPage extends Component
@@ -73,6 +84,12 @@ class EncargoPage extends Component
 
     /** Mensaje de rechazo de la tubería de entrada. */
     public ?string $errorIngesta = null;
+
+    /** Tipo de cita elegido para citar desde el encargo. */
+    public ?int $tipoCitaId = null;
+
+    /** @var list<array{slot_id: int, fecha: string, hora: string}>|null Huecos propuestos; null sin buscar. */
+    public ?array $huecos = null;
 
     /** @var int Encargo (parámetro de ruta). */
     #[Locked]
@@ -209,7 +226,7 @@ class EncargoPage extends Component
 
         $this->resultado = '';
         $this->aviso = 'Encargo cerrado. El resultado ya está en la Historia Social y el TSR tiene un aviso.';
-        unset($this->encargo, $this->puedeCerrar, $this->puedeSubir);
+        unset($this->encargo, $this->puedeCerrar, $this->puedeSubir, $this->puedeCitar);
     }
 
     /**
@@ -309,6 +326,89 @@ class EncargoPage extends Component
         $this->reset(['fichero', 'tipoId', 'titulo', 'fechaEmision', 'organoEmisor']);
         $this->aviso = 'Documento guardado en la carpeta de la persona y vinculado al encargo.';
         unset($this->documentos);
+    }
+
+    /**
+     * Si se ofrece citar desde el encargo (CitasEncargo::puedeCitar()).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeCitar(): bool
+    {
+        return app(CitasEncargo::class)->puedeCitar($this->encargo, auth()->user());
+    }
+
+    /**
+     * Tipos de cita activos, con el nombre que ve el usuario.
+     *
+     * @return array<int, string>
+     */
+    #[Computed]
+    public function tiposCita(): array
+    {
+        return TipoCita::activos()->orderBy('nombre')->get()
+            ->mapWithKeys(fn (TipoCita $tipo) => [$tipo->id => $tipo->nombreParaUsuario(auth()->user())])
+            ->all();
+    }
+
+    /**
+     * Propone huecos propios del centro del encargo para el tipo de cita elegido.
+     *
+     * @return void
+     */
+    public function buscarHuecos(): void
+    {
+        abort_unless($this->puedeCitar, 403);
+        $this->validate(['tipoCitaId' => ['required', 'integer']], ['tipoCitaId.required' => 'Elige el tipo de cita.']);
+
+        try {
+            $propuestas = app(CitasEncargo::class)->huecos($this->encargo, (int) $this->tipoCitaId, auth()->user());
+        } catch (ValidationException $e) {
+            // Reglas de la solicitud (tipo inactivo, requiere Historia Social...): al campo del tipo
+            $this->addError('tipoCitaId', collect($e->errors())->flatten()->first());
+            $this->huecos = null;
+
+            return;
+        }
+
+        $this->huecos = $propuestas
+            ->map(fn (PropuestaHueco $p) => [
+                'slot_id' => $p->slot->id,
+                'fecha' => $p->slot->fecha->locale('es')->isoFormat('ddd D MMM YYYY'),
+                'hora' => substr((string) $p->slot->hora_inicio, 0, 5),
+            ])
+            ->all();
+    }
+
+    /**
+     * Cita a la persona en uno de los huecos propuestos.
+     *
+     * @param int $slotId
+     *
+     * @return void
+     */
+    public function citar(int $slotId): void
+    {
+        abort_unless($this->puedeCitar, 403);
+        // Solo un hueco de los propuestos: el resto de comprobaciones las repite el servicio
+        $propuesta = collect($this->huecos ?? [])->firstWhere('slot_id', $slotId);
+        if ($propuesta === null || $this->tipoCitaId === null) {
+            return;
+        }
+
+        try {
+            app(CitasEncargo::class)->citar($this->encargo, $this->tipoCitaId, Slot::findOrFail($slotId), auth()->user());
+        } catch (LogicException|InvalidArgumentException $e) {
+            // DomainException es LogicException: hueco ocupado entretanto o ya no válido
+            $this->addError('citar', $e->getMessage().' Vuelve a buscar huecos.');
+            $this->huecos = null;
+
+            return;
+        }
+
+        $this->reset(['tipoCitaId', 'huecos']);
+        $this->aviso = "Cita dada el {$propuesta['fecha']} a las {$propuesta['hora']}. Está en tu agenda.";
     }
 
     /**

@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-11-25 — Encargo profesional: agenda y citas de `consulta_profesional` (bloque E)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloque E.
+
+- **E1, permisos:** `consulta_profesional` recibe `agenda.ver_propia`, `citas.solicitar` y `citas.atender` (migración `2026_11_25_200003`, aditiva; `RolesSeeder`). «Mis casos» y «Recursos» exigen además `plan.leer`, en el menú (`RegistroMenu`) y en la ruta. Con la agenda, el rol ve también Alertas, Avisos y Mensajes en el menú.
+- **Página de inicio (decisión del desarrollador, 25 nov):** sigue siendo «Mis derivaciones». La agenda solo es inicio por defecto para quien además tiene `plan.leer` (`Superficie::inicioPorDefectoPara()`, usada por `DestinoInicial`). Como preferencia sí puede elegir la agenda.
+- **E2, cita desde el encargo:** tarjeta «Citar a la persona» en `EncargoPage` (tipo de cita, huecos propuestos, citar), con `CitasEncargo` (Intervención): solo el profesional asignado, con el encargo en curso, RN-15 y huecos suyos del centro del encargo. La cita la crea el nuevo `CitacionService::citarEnAgendaPropia()` (solicitud con destino «profesional concreto» él mismo, canal interno y el encargo como contexto), autorizado por `CitaPolicy::citarEnAgendaPropia` (slot propio, centro de su UO, `citas.solicitar`, `citas.atender` y `derivacion.registrar_resultado`). El cuerpo de `citar()` pasa a un `darCita()` privado común. La ventanilla le cita con la bandeja y la cita directa de siempre, porque ya aparece como «profesional concreto» gracias a `citas.atender`.
+- **E3, «Atender» lleva al encargo:** `EnlaceAtencionCita` manda al encargo cuando el profesional de la cita no abre la Historia Social: al encargo desde el que se dio la cita o, si la dio la ventanilla, al suyo sobre esa historia (el que está en curso antes que uno cerrado).
+- **Tests:** `AgendaEncargoTest` (TF-ENC-34 a 37, más 35 bis: encargo cerrado, hueco ajeno, encargo ajeno y hueco de otro centro). Negativos comprobados: sin `plan.leer` en el menú o en la ruta falla 34; con la prioridad anterior, 34, 20 y 20 bis; sin «slot propio» en la policy, 35 bis; sin la rama del encargo en `EnlaceAtencionCita`, 37. Regresión de citas, menú, página de inicio, supervisión y encargo (340 tests) en verde salvo TF-AUTH-17, inestable y anterior a este cambio (pasa al repetirlo; BACKLOG). `npm run build` y `ui:auditar` sin infracciones.
+- **Decisiones no previstas en las instrucciones:** cita con urgencia ordinaria y motivo «Encargo profesional»; RN-05 quater en `docs/modulo-citas.md`. Queda en el BACKLOG que las citas del encargo no se cierran solas (no hay apunte ni registro de atención que las complete).
+
+---
+
 ## 2026-11-25 — Encargo profesional: documentos del encargo y personas protegidas (bloque D)
 
 Instrucciones: `docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloque D.

@@ -15,6 +15,7 @@ use Modules\Agenda\Enums\AccionCitaEvento;
 use Modules\Agenda\Enums\ActorTipoCitaEvento;
 use Modules\Agenda\Enums\CanalCitaEvento;
 use Modules\Agenda\Enums\CanalSolicitudCita;
+use Modules\Agenda\Enums\DestinoCita;
 use Modules\Agenda\Enums\EstadoCita;
 use Modules\Agenda\Enums\EstadoSlot;
 use Modules\Agenda\Enums\EstadoSolicitudCita;
@@ -76,48 +77,7 @@ class CitacionService
         Gate::forUser($usuario)->authorize('gestionar', $solicitud);
         Gate::forUser($usuario)->authorize('citar', [Cita::class, $slot]);
 
-        return DB::transaction(function () use ($solicitud, $slot, $modo, $usuario) {
-            $solicitud = SolicitudCita::whereKey($solicitud->id)->lockForUpdate()->firstOrFail();
-
-            if ($solicitud->estado === EstadoSolicitudCita::EnGestion && $solicitud->gestionada_por_id !== $usuario->id && ! $usuario->can('citas.supervisar')) {
-                throw new LogicException('Esta solicitud la está gestionando otra persona.');
-            }
-
-            if (! in_array($solicitud->estado, [EstadoSolicitudCita::Pendiente, EstadoSolicitudCita::EnGestion], true)) {
-                throw new LogicException('La solicitud ya no admite cita.');
-            }
-
-            $slot = $this->bloquearSlot($slot, $solicitud->urgencia->admiteSlotsUrgencia());
-            $this->exigirCompatible($solicitud->tipoCita, $slot, $solicitud->centro_id);
-            $eraUrgencia = $slot->estado === EstadoSlot::BloqueadoUrgencia;
-
-            $cita = $this->crearCita($slot, $solicitud->tipoCita, $modo, [
-                'solicitud_cita_id' => $solicitud->id,
-                'ciudadano_id' => $solicitud->ciudadano_id,
-                'origen' => OrigenCita::Interno,
-                'creado_por_id' => $usuario->id,
-            ]);
-
-            $antes = $solicitud->estado;
-            $solicitud->update(['estado' => EstadoSolicitudCita::Citada, 'resuelta_en' => now(), 'gestionada_por_id' => $usuario->id]);
-
-            $this->eventos->registrar(
-                AccionCitaEvento::CitaCreada,
-                cita: $cita,
-                solicitud: $solicitud,
-                actor: $usuario,
-                canal: CanalCitaEvento::Interno,
-                estadoAntes: $antes->value,
-                estadoDespues: EstadoSolicitudCita::Citada->value,
-                datos: RegistroEventosCita::datosSlot($cita) + ['modo_asignacion' => $modo->value, 'slot_urgencia' => $eraUrgencia],
-            );
-
-            if ($eraUrgencia) {
-                $this->avisos->slotUrgenciaConsumido($cita);
-            }
-
-            return $cita;
-        });
+        return DB::transaction(fn () => $this->darCita($solicitud, $slot, $modo, $usuario));
     }
 
     /**
@@ -146,6 +106,95 @@ class CitacionService
 
             return $this->citar($solicitud, $slot, $modo, $usuario);
         });
+    }
+
+    /**
+     * Cita en la agenda propia de quien la da: solicitud y cita a la vez, o ninguna. La usa el
+     * profesional de encargo desde el encargo (EP-9), sin `citas.gestionar`
+     * (CitaPolicy::citarEnAgendaPropia). La solicitud nace con destino «profesional concreto»
+     * (él mismo) y canal interno.
+     *
+     * @param array<string, mixed> $datos Datos de la solicitud (ver SolicitudCitaService::crear()).
+     * @param Slot $slot Slot libre del propio usuario.
+     * @param User $usuario
+     *
+     * @return Cita
+     *
+     * @throws AuthorizationException
+     * @throws ValidationException
+     * @throws LogicException Si el slot ya no está libre: no queda ni la solicitud.
+     */
+    public function citarEnAgendaPropia(array $datos, Slot $slot, User $usuario): Cita
+    {
+        // RN-15: dar una cita exige adscripción al centro de la cita
+        app(CentroDeUsuario::class)->exigirAtencion($usuario, $slot->centro);
+
+        Gate::forUser($usuario)->authorize('citarEnAgendaPropia', [Cita::class, $slot]);
+
+        $datos = ['destino' => DestinoCita::ProfesionalConcreto->value, 'profesional_destino_id' => $usuario->id, 'canal' => CanalSolicitudCita::Interno->value] + $datos;
+
+        return DB::transaction(function () use ($datos, $slot, $usuario) {
+            $solicitud = $this->solicitudes->crear($datos, $usuario, avisar: false);
+
+            return $this->darCita($solicitud, $slot, ModoAsignacionCita::ProfesionalConcreto, $usuario);
+        });
+    }
+
+    /**
+     * Da la cita de la solicitud en el slot, ya autorizada, dentro de la transacción de quien
+     * llama: bloquea solicitud y slot, crea la cita y su evento.
+     *
+     * @param SolicitudCita $solicitud
+     * @param Slot $slot
+     * @param ModoAsignacionCita $modo
+     * @param User $usuario
+     *
+     * @return Cita
+     *
+     * @throws LogicException Si la solicitud ya no admite cita o el slot no es válido o ya está ocupado.
+     */
+    private function darCita(SolicitudCita $solicitud, Slot $slot, ModoAsignacionCita $modo, User $usuario): Cita
+    {
+        $solicitud = SolicitudCita::whereKey($solicitud->id)->lockForUpdate()->firstOrFail();
+
+        if ($solicitud->estado === EstadoSolicitudCita::EnGestion && $solicitud->gestionada_por_id !== $usuario->id && ! $usuario->can('citas.supervisar')) {
+            throw new LogicException('Esta solicitud la está gestionando otra persona.');
+        }
+
+        if (! in_array($solicitud->estado, [EstadoSolicitudCita::Pendiente, EstadoSolicitudCita::EnGestion], true)) {
+            throw new LogicException('La solicitud ya no admite cita.');
+        }
+
+        $slot = $this->bloquearSlot($slot, $solicitud->urgencia->admiteSlotsUrgencia());
+        $this->exigirCompatible($solicitud->tipoCita, $slot, $solicitud->centro_id);
+        $eraUrgencia = $slot->estado === EstadoSlot::BloqueadoUrgencia;
+
+        $cita = $this->crearCita($slot, $solicitud->tipoCita, $modo, [
+            'solicitud_cita_id' => $solicitud->id,
+            'ciudadano_id' => $solicitud->ciudadano_id,
+            'origen' => OrigenCita::Interno,
+            'creado_por_id' => $usuario->id,
+        ]);
+
+        $antes = $solicitud->estado;
+        $solicitud->update(['estado' => EstadoSolicitudCita::Citada, 'resuelta_en' => now(), 'gestionada_por_id' => $usuario->id]);
+
+        $this->eventos->registrar(
+            AccionCitaEvento::CitaCreada,
+            cita: $cita,
+            solicitud: $solicitud,
+            actor: $usuario,
+            canal: CanalCitaEvento::Interno,
+            estadoAntes: $antes->value,
+            estadoDespues: EstadoSolicitudCita::Citada->value,
+            datos: RegistroEventosCita::datosSlot($cita) + ['modo_asignacion' => $modo->value, 'slot_urgencia' => $eraUrgencia],
+        );
+
+        if ($eraUrgencia) {
+            $this->avisos->slotUrgenciaConsumido($cita);
+        }
+
+        return $cita;
     }
 
     /**

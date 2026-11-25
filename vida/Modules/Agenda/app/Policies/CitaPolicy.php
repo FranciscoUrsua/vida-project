@@ -60,6 +60,29 @@ class CitaPolicy
     }
 
     /**
+     * Dar una cita en un slot de la agenda propia sin gestionar citas: el profesional de
+     * encargo cita a la persona de su encargo (EP-9 de 2026-11-encargo-profesional.md).
+     *
+     * Excepción acotada a la matriz de citas (dar citas es de `citas.gestionar`): solo en sus
+     * propios slots, en un centro de su UO y con el permiso del encargo profesional. RN-05
+     * sigue en pie: no mueve ni anula sus citas. Que la persona sea de un encargo suyo en curso
+     * lo comprueba quien llama (Intervención, CitasEncargo).
+     *
+     * @param User $user
+     * @param Slot $slot
+     *
+     * @return bool
+     */
+    public function citarEnAgendaPropia(User $user, Slot $slot): bool
+    {
+        return $slot->usuario_id === $user->id
+            && $user->can('citas.solicitar')
+            && $user->can('citas.atender')
+            && $user->can('derivacion.registrar_resultado')
+            && $this->delCentro($user, $slot->centro_id);
+    }
+
+    /**
      * Reprogramar: gestión del centro y no en la agenda propia (salvo supervisión).
      *
      * @param User $user

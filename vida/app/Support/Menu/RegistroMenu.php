@@ -56,6 +56,9 @@ final class RegistroMenu
         $permiso = fn (string $permiso) => fn (User $u) => $u->can($permiso);
         $supervisa = $permiso('supervision.panel');
         $trabajoPropio = $permiso('agenda.ver_propia');
+        // Casos y recursos son de quien lleva planes: la agenda sola (profesional de encargo,
+        // bloque E de 2026-11-encargo-profesional.md) no basta
+        $llevaCasos = fn (User $u) => $u->can('agenda.ver_propia') && $u->can('plan.leer');
         $tienePlazas = fn () => (bool) app(ConfiguracionService::class)->get('tiene_plazas', false);
 
         return [
@@ -63,14 +66,14 @@ final class RegistroMenu
             new EntradaMenu('agenda', 'mi_trabajo', 'Agenda', 'calendar',
                 fn () => route('intervencion.agenda.index'), $ruta('intervencion.agenda*'), $trabajoPropio),
             new EntradaMenu('casos', 'mi_trabajo', 'Mis casos', 'users',
-                fn () => route('intervencion.casos.index'), $ruta('intervencion.casos*'), $trabajoPropio, 'casos'),
+                fn () => route('intervencion.casos.index'), $ruta('intervencion.casos*'), $llevaCasos, 'casos'),
             // Encargos profesionales asignados (EP-10 de 2026-11-encargo-profesional.md)
             new EntradaMenu('encargos', 'mi_trabajo', 'Mis derivaciones', 'clipboard-document-list',
                 fn () => route('intervencion.encargos.index'), $ruta('intervencion.encargos*'), $permiso('derivacion.ver_asignadas')),
             ...self::bandeja($supervisa, $trabajoPropio),
             new EntradaMenu('recursos', 'mi_trabajo', 'Recursos', 'building-office-2',
                 fn () => route('intervencion.recursos.index'), $ruta('intervencion.recursos*'),
-                fn (User $u) => $u->can('agenda.ver_propia') && $tienePlazas()),
+                fn (User $u) => $llevaCasos($u) && $tienePlazas()),
 
             // Personas
             new EntradaMenu('buscador', 'personas', 'Buscar ciudadano/a', 'magnifying-glass',

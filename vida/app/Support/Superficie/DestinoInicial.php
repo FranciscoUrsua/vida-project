@@ -46,7 +46,7 @@ final class DestinoInicial
         }
 
         foreach (Superficie::prioridad() as $superficie) {
-            if ($superficie->accesiblePara($usuario)) {
+            if ($superficie->inicioPorDefectoPara($usuario)) {
                 return $superficie;
             }
         }

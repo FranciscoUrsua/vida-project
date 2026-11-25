@@ -1,8 +1,10 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-25 (encargo profesional: bloque D)
+**Última actualización:** 2026-11-25 (encargo profesional: bloque E)
 
 ---
+
+**Última tarea (25 nov, 10):** encargo profesional, bloque E. `consulta_profesional` tiene agenda (`agenda.ver_propia`, `citas.solicitar`, `citas.atender`; migración `2026_11_25_200003`, se aplica con el despliegue) sin «Mis casos» ni «Recursos» (exigen `plan.leer`) y sigue entrando en «Mis derivaciones» (decisión del 25 nov). Cita desde el encargo en sus propios huecos del centro del encargo (`CitasEncargo`, `CitacionService::citarEnAgendaPropia`, `CitaPolicy::citarEnAgendaPropia`); la ventanilla también le cita; «Atender» lleva al encargo. TF-ENC-34 a 37 (más 35 bis) en verde con negativos. **Pendiente de decisión (BACKLOG):** cómo se cierran las citas del encargo. **Siguiente paso:** bloque F (contexto `encargo` en el panel de mensajes con el TSR sugerido; `centroActivo()` por la hora; TF-ENC-38 a 40) y el cierre de las instrucciones.
 
 **Última tarea (25 nov, 9):** encargo profesional, bloque D. `AccesoDocumentosEncargo` (vía adicional de `DocumentoPolicy`): el profesional de encargo abre los documentos de sus encargos y los que sube él sobre sus personas, nunca de una protegida con el encargo cerrado. Subida desde `EncargoPage` (carpeta de la persona y vínculo al encargo, RN-15). En el histórico de «Mis derivaciones», la protegida cerrada sale enmascarada con «Solicitar acceso» (`ResolucionAccesoProtegido::solicitar()`, compartido con el buscador). TF-ENC-30 a 33 (más 31 bis y 33 bis) en verde con negativos; `ui:auditar` sin infracciones. Sin migraciones. **Siguiente paso:** bloque E (agenda y citas de `consulta_profesional`: `agenda.ver_propia`, `citas.solicitar`, `citas.atender`; «Mis casos» y «Recursos» exigen además `plan.leer`; cita desde el encargo; atender lleva al encargo; TF-ENC-34 a 37); después F.
 

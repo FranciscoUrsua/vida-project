@@ -221,9 +221,11 @@ El rol depende del servicio, no de la titulación: las abogadas integradas en el
 - Ficha en lectura de las personas de sus encargos (`ciudadano.leer_por_encargo`): identificación, contacto, unidad de convivencia y relaciones. Sin centro y referencia, prestaciones, actividades, atenciones ni carpeta.
 - Buscador limitado a las personas de sus encargos.
 - Sin Historia Social, apuntes, planes ni carpeta completa: no tiene `ciudadano.leer`, `historia.leer`, `apunte.*`, `plan.leer` ni `documento.ver_carpeta` (migración `2026_11_25_200002`).
-- Pendiente: documentos del encargo (bloque D), agenda y citas (bloque E), mensajes y centro activo por la hora (bloque F).
+- Documentos del encargo (bloque D): ve los que el TSR vincula al encargo y los que sube él sobre las personas de sus encargos (`AccesoDocumentosEncargo`); sube desde el encargo, sin el límite del día.
+- Agenda y citas (bloque E, 25 nov 2026, migración `2026_11_25_200003`): agenda propia (`agenda.ver_propia`), sin «Mis casos» ni «Recursos», que exigen además `plan.leer`. Cita desde el encargo en sus propios huecos del centro del encargo (`CitaPolicy::citarEnAgendaPropia`, excepción acotada a la matriz de citas: no gestiona citas ni mueve o anula las suyas, RN-05); la ventanilla también le cita (`citas.atender`). «Atender» lleva al encargo. Con agenda, su página de inicio sigue siendo «Mis derivaciones»: la agenda solo es inicio por defecto para quien además tiene `plan.leer` (decisión del 25 nov 2026); puede elegirla como preferencia.
+- Pendiente: mensajes y centro activo por la hora (bloque F). Con `agenda.ver_propia` ya ve Alertas, Avisos y Mensajes en el menú.
 
-**Permisos:** `ciudadano.ver_ficha`, `ciudadano.leer_por_encargo`, `derivacion.ver_asignadas`, `derivacion.registrar_resultado`, `documento.subir`.
+**Permisos:** `ciudadano.ver_ficha`, `ciudadano.leer_por_encargo`, `derivacion.ver_asignadas`, `derivacion.registrar_resultado`, `documento.subir`, `agenda.ver_propia`, `citas.solicitar`, `citas.atender`.
 
 **Ámbito:** las personas de los encargos en los que es o ha sido el profesional asignado (aceptados o cerrados), con histórico (`EncargosDeUsuario`). Una persona protegida, solo mientras el encargo está aceptado (RN-17 ampliada, EP-7); cerrado, aparece enmascarada.
 
@@ -263,13 +265,13 @@ Decidida por el Delegado Digital el 23 nov 2026 e implementada el 24 nov (`docs/
    | Permiso | Superficie | Roles que lo reciben |
    |---|---|---|
    | `supervision.panel` | Supervisión (rutas `supervision.*` y `agenda.supervisor.*`) | `supervision` |
-   | `agenda.ver_propia` | Mi trabajo: agenda, casos, bandeja y recursos | `intervencion` |
+   | `agenda.ver_propia` | Mi trabajo: agenda y bandeja; casos y recursos, además con `plan.leer` | `intervencion`, `consulta_profesional` |
    | `tramitacion.bandeja` | Bandeja de tramitación (la ruta admite además `supervision.panel`, como antes) | `tramitacion` |
    | `ciudadano.buscar` | Buscador y alta de personas (rutas `ciudadania.*`) | `intervencion`, `supervision`, `tramitacion`, `consulta_basica` |
    | `citas.gestionar` / `citas.supervisar` | Bandeja de citación (ya existían) | — |
 
    Lo que depende de una persona (Historia Social, ficha, plan) va por policy. Las rutas de la Historia Social y del plan siguen con `role:intervencion` hasta el barrido de rutas (BACKLOG).
-5. **Página de inicio por defecto**, por prioridad: Inicio de Supervisión (`supervision.panel`) → Agenda (`agenda.ver_propia`) → Bandeja de tramitación (`tramitacion.bandeja`) → Bandeja de citación (`citas.gestionar` o `citas.supervisar`) → Administración, solo sin ninguna superficie operativa → página «Tu usuario no tiene un perfil de trabajo configurado. Contacta con la administración de tu centro.» (`/sin-rol`, también para quien no tiene roles).
+5. **Página de inicio por defecto**, por prioridad: Inicio de Supervisión (`supervision.panel`) → Agenda (`agenda.ver_propia` y `plan.leer`) → Mis derivaciones (`derivacion.ver_asignadas`) → Bandeja de tramitación (`tramitacion.bandeja`) → Bandeja de citación (`citas.gestionar` o `citas.supervisar`) → Administración, solo sin ninguna superficie operativa → página «Tu usuario no tiene un perfil de trabajo configurado. Contacta con la administración de tu centro.» (`/sin-rol`, también para quien no tiene roles).
 6. **Preferencia de página de inicio** («Página de inicio» en el menú de usuario): «Automática» (por defecto) o una de las superficies a las que el usuario tiene acceso, entre Inicio de Supervisión, Agenda, Bandeja de tramitación, Bandeja de citación y Buscador. Administración no es elegible. Solo se ofrece con más de una superficie operativa de las del punto 5: el buscador es elegible, pero no cuenta como una más (la ventanilla, con citación y buscador, no ve la opción). Se guarda en `users.pagina_inicio` (`null` = Automática), solo la cambia el propio usuario y el servidor rechaza cualquier valor no accesible. Si la superficie guardada deja de ser accesible se aplica la prioridad sin aviso; la preferencia no se borra. No decide el centro (D1.6).
 7. **Un único resolutor**, `App\Support\Superficie\DestinoInicial::para()`: preferencia válida → prioridad → administración → página informativa. Lo usan el login, el primer acceso, la ruta `/` (logo de la barra superior) y «Volver al inicio» de las páginas de error.
 8. **Los enlaces directos mandan:** tras el login, si había un destino solicitado (enlace de una alerta o de un correo), se va a él. El primer acceso termina siempre en la página de inicio. El destino solicitado solo vale para el usuario que lo dejó: si en ese navegador entró antes otro usuario (cookie cifrada `vida_ultimo_usuario`, que sobrevive a la sesión), se descarta y se va a la página de inicio. Evita que, tras caducar la sesión de un profesional con una ficha abierta, el siguiente que entra en el mismo equipo aterrice en ella (staging, 25 nov 2026).

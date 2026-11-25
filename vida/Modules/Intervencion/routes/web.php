@@ -28,8 +28,9 @@ use Modules\Mensajes\Http\Livewire\BandejaAlertasYMensajes;
 Route::middleware(['web', 'auth', 'tiene.rol', 'permission:agenda.ver_propia'])->prefix('intervencion')->name('intervencion.')->group(function () {
     Route::get('/', fn () => redirect()->route('intervencion.agenda.index'));
     Route::get('/agenda', AgendaPage::class)->name('agenda.index');
-    Route::get('/recursos', RecursosPage::class)->name('recursos.index');
-    Route::get('/casos', MisCasosPage::class)->name('casos.index');
+    // Casos y recursos exigen además llevar planes (bloque E del encargo profesional)
+    Route::get('/recursos', RecursosPage::class)->name('recursos.index')->middleware('permission:plan.leer');
+    Route::get('/casos', MisCasosPage::class)->name('casos.index')->middleware('permission:plan.leer');
     Route::get('/mensajes/{pestana?}', BandejaAlertasYMensajes::class)
         ->whereIn('pestana', ['alertas', 'avisos', 'mensajes'])
         ->name('mensajes.index');

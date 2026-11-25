@@ -48,6 +48,25 @@ enum Superficie: string
     }
 
     /**
+     * Si la superficie puede ser la página de inicio por defecto del usuario (sin preferencia).
+     *
+     * La agenda solo lo es para quien lleva casos (`plan.leer`): el profesional de encargo tiene
+     * agenda (bloque E) pero entra en «Mis derivaciones» (EP-10, decisión del 25 nov 2026). Como
+     * preferencia sí puede elegir la agenda: para eso basta accesiblePara().
+     *
+     * @param User $usuario
+     *
+     * @return bool
+     */
+    public function inicioPorDefectoPara(User $usuario): bool
+    {
+        return match ($this) {
+            self::Agenda => $this->accesiblePara($usuario) && $usuario->can('plan.leer'),
+            default => $this->accesiblePara($usuario),
+        };
+    }
+
+    /**
      * Nombre visible de la superficie en el menú de usuario.
      *
      * @return string

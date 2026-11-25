@@ -37,6 +37,8 @@ Tres ideas vertebran el diseño:
 
 **RN-05 — Un profesional no gestiona su propia agenda.** No reasigna sus slots ni mueve o anula sus citas. Si necesita un cambio, lo pide al supervisor desde la pantalla de agenda.
 
+**RN-05 quater — Profesional de encargo (25 nov 2026, EP-9 de `docs/instrucciones-cli/2026-11-encargo-profesional.md`).** Sin `citas.gestionar`, cita a la persona de un encargo suyo en curso en sus propios huecos del centro del encargo (`CitaPolicy::citarEnAgendaPropia`, `CitacionService::citarEnAgendaPropia`). No reprograma ni cancela sus citas (RN-05). «Atender» lleva al encargo (`EnlaceAtencionCita`).
+
 **RN-05 bis — Usuarios con `intervencion` y `consulta_basica` (combinación sugerida para auxiliares de servicios sociales).** Pueden dar citas desde la bandeja, también en su propia agenda, pero no pueden reprogramar ni cancelar citas propias: para eso rige RN-05.
 
 **RN-05 ter — La gestión de citas se ejerce en la UO del usuario.** `consulta_basica` y `tramitacion` solo dan, reprograman y cancelan citas en slots de centros de su UO. Pueden consultar el historial de citas de cualquier ciudadano (§6 bis), aunque sus citas sean de otro centro, para informarle y orientarle.
