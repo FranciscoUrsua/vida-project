@@ -4,6 +4,8 @@
 
 ---
 
+**Última tarea (25 nov, 3):** solo intervención abre Historias Sociales y es profesional de referencia (policy, invariante en `AsignacionProfesional`, reparto por rol, `tramitacion` sin `historia.abrir`/`historia.crear`, migración `2026_11_25_100005`; TF-REF-01 a 06; documentación corregida). Suite completa en verde tras corregir un test. **Siguiente paso:** decisión del desarrollador sobre las 5 referencias vigentes sin intervención de staging y sobre `historia.cerrar` en tramitación (BACKLOG).
+
 **Última tarea (25 nov, 2):** callejero, paso 4 y cierre de `docs/instrucciones-cli/2026-11-callejero-madrid.md` (pasos 0 a 5 hechos). `vida:normalizar-direcciones` corregido (códigos territoriales, origen, aviso a la asignación, sin tocar el padrón; TF-CAL-13 a 15) y ejecutado en staging: 73 de 171 normalizadas. **Siguiente paso:** configurar en Filament los ámbitos territoriales de CSS Arganzuela y CSS Entrevías (sin ellos la asignación por domicilio no resuelve a nadie) y reevaluar a las personas con domicilio normalizado; después, el encargo que siga (barrido `role:` → permisos, BACKLOG).
 
 **Última tarea (25 nov, 1):** callejero, paso 3: autocompletado del domicilio (`ciudadania.domicilio-callejero`) en el alta y la ficha, `SeleccionDomicilio`, origen `callejero`. TF-CAL-10 y 11 en verde con negativos; `ui:auditar` sin infracciones. Sin probar a mano en el navegador. **Siguiente paso:** el desarrollador prueba el alta y la ficha en staging; después, paso 4 (`vida:normalizar-direcciones --pendientes` sobre las direcciones de texto libre, en la BD compartida) y cierre de las instrucciones.
