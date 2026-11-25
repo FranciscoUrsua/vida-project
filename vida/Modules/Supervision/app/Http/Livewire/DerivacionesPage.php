@@ -18,6 +18,7 @@ use Modules\Centro\Models\Centro;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Intervencion\Models\Derivacion;
 use Modules\Intervencion\Services\DerivacionService;
+use Modules\Intervencion\Services\EncargoService;
 
 /**
  * Bandeja de derivaciones del centro de destino (fase 3, B4.2).
@@ -28,6 +29,10 @@ use Modules\Intervencion\Services\DerivacionService;
  * de intervención del centro) o rechazan con motivo la dirección y la supervisión
  * adscritas al centro; la supervisión de UO superiores la ve, pero no resuelve.
  *
+ * Encargos profesionales (bloque B de docs/instrucciones-cli/2026-11-encargo-profesional.md):
+ * aparecen como «Encargo profesional»; aceptarlos es asignarlos a un profesional del centro
+ * con `derivacion.registrar_resultado` (EncargoService), sin abrir plan.
+ *
  * Personas protegidas (RN-19 de la addenda): su identidad solo la ve la supervisión
  * adscrita al centro de destino; el resto ve «Persona con protección especial».
  *
@@ -35,6 +40,7 @@ use Modules\Intervencion\Services\DerivacionService;
  * @property-read bool $resuelve
  * @property-read Collection<int, array{derivacion: Derivacion, persona: string, origen: string, tsr: string, tipo: string, motivo: string, antiguedad: string}> $pendientes
  * @property-read Collection<int, User> $profesionales
+ * @property-read Derivacion|null $enAceptacion
  */
 #[Layout('layouts.supervision')]
 class DerivacionesPage extends Component
@@ -98,7 +104,7 @@ class DerivacionesPage extends Component
 
         return Derivacion::query()->pendientes()
             ->where('centro_destino_id', $this->centro->id)
-            ->with(['historia', 'planOrigen.centro', 'derivadaPor.profesional', 'tipoPlan'])
+            ->with(['historia.centro', 'planOrigen.centro', 'derivadaPor.profesional', 'tipoPlan'])
             ->oldest()
             ->get()
             ->map(function (Derivacion $derivacion) use ($usuario): array {
@@ -107,10 +113,11 @@ class DerivacionesPage extends Component
                 return [
                     'derivacion' => $derivacion,
                     'persona' => $this->nombrePersona($persona, $usuario),
-                    'origen' => $derivacion->planOrigen?->centro?->nombre ?? '—',
+                    // Un encargo puede nacer de la Historia Social sin plan: su centro es el de la historia
+                    'origen' => $derivacion->planOrigen->centro->nombre ?? $derivacion->historia->centro->nombre ?? '—',
                     'tsr' => $derivacion->derivadaPor?->nombreVisible() ?? '—',
-                    // Un encargo profesional no tiene tipo de plan (EP-1); la bandeja completa es el bloque B
-                    'tipo' => $derivacion->tipoPlan?->nombre ?? $derivacion->modalidad->label(),
+                    // Un encargo profesional no tiene tipo de plan (EP-1)
+                    'tipo' => $derivacion->esEncargo() ? $derivacion->modalidad->label() : ($derivacion->tipoPlan->nombre ?? '—'),
                     'motivo' => $derivacion->motivo,
                     'antiguedad' => $derivacion->created_at->diffForHumans(),
                 ];
@@ -157,7 +164,21 @@ class DerivacionesPage extends Component
     }
 
     /**
-     * Profesionales de intervención adscritos al centro, posibles responsables del plan.
+     * Derivación que se está aceptando, para saber si es un encargo.
+     *
+     * @return Derivacion|null
+     */
+    #[Computed]
+    public function enAceptacion(): ?Derivacion
+    {
+        return $this->aceptarId !== null && $this->centro !== null
+            ? Derivacion::where('centro_destino_id', $this->centro->id)->find($this->aceptarId)
+            : null;
+    }
+
+    /**
+     * Profesionales que se ofrecen al aceptar: para una derivación, los de intervención del
+     * centro (responsables del plan); para un encargo, los que reciben encargos (EP-3).
      *
      * @return Collection<int, User>
      */
@@ -166,6 +187,10 @@ class DerivacionesPage extends Component
     {
         if ($this->centro === null) {
             return collect();
+        }
+
+        if ($this->enAceptacion?->esEncargo()) {
+            return app(EncargoService::class)->profesionalesDe($this->centro);
         }
 
         return User::query()
@@ -189,6 +214,7 @@ class DerivacionesPage extends Component
         $this->reset(['rechazarId', 'responsableId', 'aviso']);
         $this->resetErrorBag();
         $this->aceptarId = $derivacionId;
+        unset($this->enAceptacion, $this->profesionales);
     }
 
     /**
@@ -200,8 +226,14 @@ class DerivacionesPage extends Component
     {
         $this->validate(['responsableId' => ['required', 'integer']], [], ['responsableId' => 'profesional responsable']);
 
+        $derivacion = $this->derivacionDelCentro($this->aceptarId);
+
         try {
-            app(DerivacionService::class)->aceptar($this->derivacionDelCentro($this->aceptarId), User::findOrFail($this->responsableId), auth()->user());
+            if ($derivacion->esEncargo()) {
+                app(EncargoService::class)->aceptar($derivacion, User::findOrFail($this->responsableId), auth()->user());
+            } else {
+                app(DerivacionService::class)->aceptar($derivacion, User::findOrFail($this->responsableId), auth()->user());
+            }
         } catch (DomainException $e) {
             $this->addError('responsableId', $e->getMessage());
 
@@ -209,7 +241,9 @@ class DerivacionesPage extends Component
         }
 
         $this->aceptarId = null;
-        $this->aviso = 'Derivación aceptada: se ha abierto el plan en borrador con su responsable.';
+        $this->aviso = $derivacion->esEncargo()
+            ? 'Encargo asignado: el profesional lo tiene en «Mis derivaciones».'
+            : 'Derivación aceptada: se ha abierto el plan en borrador con su responsable.';
         unset($this->pendientes);
     }
 

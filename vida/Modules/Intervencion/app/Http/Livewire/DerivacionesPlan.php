@@ -16,6 +16,7 @@ use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Intervencion\Enums\EstadoDerivacion;
 use Modules\Intervencion\Enums\EstadoPlan;
+use Modules\Intervencion\Enums\ModalidadDerivacion;
 use Modules\Intervencion\Models\Derivacion;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\PlanObjetivo;
@@ -136,7 +137,8 @@ class DerivacionesPlan extends Component
     }
 
     /**
-     * Derivaciones hechas desde este plan, las más recientes primero.
+     * Derivaciones a atención especializada hechas desde este plan, las más recientes primero.
+     * Los encargos profesionales tienen su propia sección (EncargosProfesionales).
      *
      * @return Collection<int, Derivacion>
      */
@@ -144,6 +146,7 @@ class DerivacionesPlan extends Component
     public function derivaciones(): Collection
     {
         return Derivacion::where('plan_origen_id', $this->planId)
+            ->where('modalidad', ModalidadDerivacion::PlanEspecializado->value)
             ->with(['centroDestino', 'tipoPlan', 'prestacion', 'objetivo', 'eventos.actor.profesional', 'profesionalResponsable.profesional'])
             ->latest()
             ->get();

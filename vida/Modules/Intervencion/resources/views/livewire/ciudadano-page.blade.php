@@ -18,12 +18,14 @@
         ['id' => 'valoracion', 'label' => 'Valoración',  'icon' => 'clipboard-document-check', 'fullpage' => true],
         ['id' => 'escala',     'label' => 'Escala',      'icon' => 'chart-bar',                'fullpage' => true],
         ['id' => 'informes',   'label' => 'Informes',    'icon' => 'document-text',            'fullpage' => true],
+        ['id' => 'encargo',    'label' => 'Encargo profesional', 'icon' => 'briefcase',        'fullpage' => false],
     ];
     $historiaAbierta = $historia->estado !== 'cerrada';
     // R1: sin ningún centro, la Historia Social se consulta sin ninguna actuación
     $modoLectura = $this->modoLectura;
     if ($modoLectura) {
-        $herramientas = array_values(array_filter($herramientas, fn (array $h): bool => $h['id'] === 'informes'));
+        // Informes y encargos se consultan; encargar exige poder actuar (lo decide el componente)
+        $herramientas = array_values(array_filter($herramientas, fn (array $h): bool => in_array($h['id'], ['informes', 'encargo'], true)));
     }
 @endphp
 
@@ -626,6 +628,15 @@
                                    class="btn btn-primary btn-sm">Abrir en pantalla completa</a>
                             @endif
                             <button type="button" wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cancelar</button>
+                        </div>
+                    </div>
+
+                @elseif($herramientaActiva === 'encargo')
+                    {{-- Encargos profesionales de la persona (encargo profesional, bloque B) --}}
+                    <div class="mb-3">
+                        @livewire('intervencion.encargos-profesionales', ['historiaId' => $historia->id], key('encargos-hs-'.$historia->id))
+                        <div class="mt-2">
+                            <button type="button" wire:click="cancelarHerramienta" class="btn btn-outline-secondary btn-sm">Cerrar</button>
                         </div>
                     </div>
 

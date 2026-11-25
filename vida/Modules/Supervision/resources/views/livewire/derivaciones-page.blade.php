@@ -29,7 +29,7 @@
                                 <x-op.th-orden columna="persona" :actual="$ordenarPor" :direccion="$direccion">Persona</x-op.th-orden>
                                 <x-op.th-orden columna="origen" :actual="$ordenarPor" :direccion="$direccion">Centro de origen</x-op.th-orden>
                                 <x-op.th-orden columna="tsr" :actual="$ordenarPor" :direccion="$direccion">Deriva</x-op.th-orden>
-                                <x-op.th-orden columna="tipo" :actual="$ordenarPor" :direccion="$direccion">Plan</x-op.th-orden>
+                                <x-op.th-orden columna="tipo" :actual="$ordenarPor" :direccion="$direccion">Tipo</x-op.th-orden>
                                 <th scope="col">Motivo</th>
                                 <x-op.th-orden columna="antiguedad" :actual="$ordenarPor" :direccion="$direccion">Antigüedad</x-op.th-orden>
                                 @if($this->resuelve)<th scope="col"><span class="visually-hidden">Acciones</span></th>@endif
@@ -56,7 +56,8 @@
                                 @if($aceptarId === $id)
                                     <tr wire:key="aceptar-{{ $id }}">
                                         <td colspan="7" class="bg-body-tertiary">
-                                            <label for="responsable-{{ $id }}" class="form-label small fw-semibold mb-1">Profesional responsable del plan</label>
+                                            @php($esEncargo = $fila['derivacion']->esEncargo())
+                                            <label for="responsable-{{ $id }}" class="form-label small fw-semibold mb-1">{{ $esEncargo ? 'Profesional que hará el encargo' : 'Profesional responsable del plan' }}</label>
                                             <div class="d-flex flex-wrap gap-2 align-items-start">
                                                 <div class="flex-grow-1">
                                                     <select id="responsable-{{ $id }}" wire:model="responsableId" class="form-select form-select-sm @error('responsableId') is-invalid @enderror">
@@ -67,7 +68,7 @@
                                                     </select>
                                                     @error('responsableId') <div class="invalid-feedback">{{ $message }}</div> @enderror
                                                 </div>
-                                                <button type="button" wire:click="aceptar" class="btn btn-primary btn-sm">Aceptar y abrir el plan</button>
+                                                <button type="button" wire:click="aceptar" class="btn btn-primary btn-sm">{{ $esEncargo ? 'Asignar el encargo' : 'Aceptar y abrir el plan' }}</button>
                                                 <button type="button" wire:click="cancelar" class="btn btn-outline-secondary btn-sm">Cancelar</button>
                                             </div>
                                         </td>

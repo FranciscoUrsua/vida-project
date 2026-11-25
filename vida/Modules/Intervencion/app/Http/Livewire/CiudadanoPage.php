@@ -1025,8 +1025,8 @@ class CiudadanoPage extends Component
         $herramienta = request()->query('herramienta');
 
         // «informes»: vuelta desde el asistente de informes (fase 5)
-        // Una herramienta de actuación solo se abre a quien puede actuar (R1); los informes se consultan
-        if ($herramienta === 'informes' || (in_array($herramienta, ['entrevista', 'valoracion', 'anotacion'], true) && $this->puedeActuar)) {
+        // Una herramienta de actuación solo se abre a quien puede actuar (R1); informes y encargos se consultan
+        if (in_array($herramienta, ['informes', 'encargo'], true) || (in_array($herramienta, ['entrevista', 'valoracion', 'anotacion'], true) && $this->puedeActuar)) {
             $this->seleccionarHerramienta($herramienta);
         }
 

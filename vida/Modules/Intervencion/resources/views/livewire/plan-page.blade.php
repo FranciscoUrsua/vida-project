@@ -352,7 +352,7 @@
                         @foreach($this->derivacionesPorObjetivo->get($og->id, collect()) as $derivacionObjetivo)
                         <div class="small mt-2" wire:key="deriv-og-{{ $derivacionObjetivo->id }}">
                             <span class="badge rounded-pill {{ $derivacionObjetivo->estado->tono()->clasesSuave() }}">{{ $derivacionObjetivo->estado->label() }}</span>
-                            Derivación a {{ $derivacionObjetivo->centroDestino->nombre }}
+                            {{ $derivacionObjetivo->esEncargo() ? 'Encargo profesional a' : 'Derivación a' }} {{ $derivacionObjetivo->centroDestino->nombre }}
                         </div>
                         @endforeach
 
@@ -376,6 +376,10 @@
                         <button type="button" wire:click="$dispatch('abrir-derivacion', { objetivoId: {{ $og->id }} })" class="btn btn-outline-secondary btn-sm">
                             <x-heroicon-o-arrow-right-circle class="icon-14"/>
                             Derivar
+                        </button>
+                        <button type="button" wire:click="$dispatch('abrir-encargo', { objetivoId: {{ $og->id }} })" class="btn btn-outline-secondary btn-sm">
+                            <x-heroicon-o-briefcase class="icon-14"/>
+                            Encargo
                         </button>
                         @endif
                         @if($editable)
@@ -456,6 +460,8 @@
     {{-- Derivaciones del plan principal (fase 3, B4.1) --}}
     @if($this->plan?->esPrincipal())
     @livewire('intervencion.derivaciones-plan', ['planId' => $this->plan->id], key('derivaciones-'.$this->plan->id))
+    {{-- Encargos profesionales desde el plan principal (encargo profesional, bloque B) --}}
+    @livewire('intervencion.encargos-profesionales', ['historiaId' => $this->plan->historia_id, 'planId' => $this->plan->id], key('encargos-'.$this->plan->id))
     @endif
 
     {{-- SECCIÓN 3: Compromisos del Ayuntamiento --}}

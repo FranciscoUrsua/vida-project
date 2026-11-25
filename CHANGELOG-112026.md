@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-11-25 — Encargo profesional: interfaz del TSR y bandeja (bloque B) y tests del bloque A
+
+Instrucciones: `docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloques A (tests) y B.
+
+- **B1, `EncargosProfesionales`** (Livewire, Intervención): lista de encargos (estado, centro, quien encarga, objetivo, profesional asignado, motivo de rechazo, resultado si está cerrado, historial y anulación del pendiente propio) y modal «Encargo profesional» (centro de destino de `EncargoService::centrosDestino()`, objetivo opcional en el plan, motivo y contexto, documentos de la carpeta de la persona que el usuario puede ver). Encarga quien gestiona la historia abierta (`update`) o edita el plan principal activo, con RN-15 en su centro; `abrir()` rechaza sin centro (R1).
+- **Historia Social:** herramienta «Encargo profesional» en la caja (todos los encargos de la historia). Se consulta también en modo lectura, como «Informes», y admite `?herramienta=encargo`.
+- **Plan principal:** sección «Encargos profesionales» tras «Derivaciones» (solo los encargos hechos desde el plan) y botón «Encargo» en cada objetivo (evento `abrir-encargo`); el objetivo muestra «Encargo profesional a …».
+- **B2, `DerivacionesPage`:** columna «Tipo» («Encargo profesional» o el tipo de plan); centro de origen el de la historia si el encargo no sale de un plan; al aceptar un encargo se ofrecen los profesionales de `EncargoService::profesionalesDe()` y se asigna con `EncargoService::aceptar()` («Asignar el encargo»), sin abrir plan.
+- **Corrección:** `DerivacionesPlan` listaba todo lo que tenía `plan_origen_id` del plan; con un encargo hecho desde el plan, la vista fallaba al pintar `tipoPlan->nombre`. Ahora solo lista las derivaciones de plan especializado.
+- **Tests:** `EncargoServiceTest` (TF-ENC-01 a 13) e `InterfazEncargoTest` (TF-ENC-14 a 18, más 14 bis, «sin gestión no encarga», y 15 bis, «plan no principal»). En verde, con negativos comprobados: sin RN-15 fallan 03 y 10; sin el filtro de centros, 16; sin la rama de encargo de la bandeja, 17; con `puedeEncargar` siempre cierto, 14 bis y 15 bis; sin el filtro de modalidad de `DerivacionesPlan`, 15. En verde también `DerivacionTest`, `BandejaDerivacionesTest`, `UsuarioSinCentroTest` y `SuperficieEncargoTest` (70 tests). `npm run build` y `ui:auditar` sin infracciones.
+- **Decisiones no previstas en las instrucciones:** en el plan, el componente va como sección propia junto a «Derivaciones», no dentro de ella; la herramienta de la Historia Social es de consulta (no está entre las de actuación) y el botón de encargar lo decide el componente.
+
+---
+
 ## 2026-11-25 — ESLint de seguridad: configuración plana y en funcionamiento
 
 - **Problema:** el análisis de seguridad del JS no se hacía en ningún sitio. El hook de pre-commit (`vida/security-check.sh`) solo avisaba («configura eslint-plugin-security en eslint.config.js») y el job «JS Security» de `.github/workflows/security.yml` usaba flags de ESLint 8 (`--ext`, `--plugin`, `--rule` en línea) que ESLint 9 eliminó; el paso salía en verde sin analizar nada.

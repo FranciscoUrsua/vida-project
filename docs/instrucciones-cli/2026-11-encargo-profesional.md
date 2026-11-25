@@ -187,8 +187,8 @@ Diseño del 23 nov 2026 y pendientes resueltos por el desarrollador el 25 nov 20
 
 | Grupo | Tests | Estado |
 |---|---|---|
-| A — Modelo y servicio | TF-ENC-01..13 | Código hecho (25 nov); tests pendientes |
-| B — Interfaz del TSR y bandeja | TF-ENC-14..18 | Pendiente |
+| A — Modelo y servicio | TF-ENC-01..13 | Hecho (25 nov) |
+| B — Interfaz del TSR y bandeja | TF-ENC-14..18 | Hecho (25 nov), con 14 bis y 15 bis |
 | C — Superficie, ámbito y permisos | TF-ENC-19..29 | Hecho (25 nov), con 19 bis y 20 bis |
 | D — Documentos y protegidas | TF-ENC-30..33 | Pendiente |
 | E — Agenda y citas | TF-ENC-34..37 | Pendiente |
