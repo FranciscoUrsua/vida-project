@@ -167,6 +167,8 @@ class MisCasosPageTest extends TestCase
             'email_verified_at' => now(),
             'primer_acceso' => false,
         ]);
+        // Solo intervención puede ser profesional de referencia (RN-03 bis)
+        $otro->assignRole('intervencion');
 
         // Plan del profesional autenticado
         $this->crearPlan($usuario);

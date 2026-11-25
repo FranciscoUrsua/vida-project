@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-11-25 — Solo intervención abre Historias Sociales y es profesional de referencia
+
+Origen: prueba en staging del desarrollador. `adm1.ciam@vida.local` (`tramitacion`) dio de alta a una persona, le asignó el centro y le abrió la Historia Social desde la ficha (HS 962), quedando como profesional de referencia (centro «quien abre»).
+
+- **Causa:** `HistoriaSocialPolicy::create` solo comprobaba el permiso `historia.crear`, que `RolesSeeder` daba a `tramitacion` (con `historia.abrir`) por un error de diseño, también escrito en la documentación del rol («Apertura, cierre y reactivación de Historias Sociales»). El alta ya exigía el rol intervención, pero el botón de la ficha usaba el permiso. El reparto filtraba por cargo, no por rol.
+- **Regla (decisión del desarrollador):** solo un profesional con rol `intervencion` (el trabajador social) abre Historias Sociales y puede ser profesional de referencia.
+- **Cambios:** la policy exige el rol; la ficha usa la policy; `AsignacionProfesional` rechaza al crearse cualquier referencia sin rol intervención (todas las vías: apertura, sorteo, elección, cambio manual, reparto por salida); `PoolReferenciaService` filtra por rol; `tramitacion` pierde `historia.abrir` e `historia.crear` (`RolesSeeder` y migración `2026_11_25_100005`).
+- **Tests:** `Modules/Intervencion/tests/Feature/Asignacion/ReferenciaSoloIntervencionTest.php`, TF-REF-01 a 06, en verde; negativos comprobados (policy, invariante del modelo, filtro del reparto). Suite completa en GitHub sobre la rama: 1 error de 1761, en `MisCasosPageTest` (un «Otro TSR» sin rol como referencia), corregido dándole el rol.
+- **Documentación corregida:** `modulo-usuarios-permisos.md` (roles 4 y 5), `roles-consulta-basica-tramitacion.md` §4.1, `seeders.md`, `modulo-ciudadania.md`, `modulo-asignacion.md` (RN-03 bis) y `modulo-intervencion.md`.
+- **Datos de staging sin tocar** (pendiente de decisión, BACKLOG): 5 referencias vigentes de usuarios sin intervención.
+
+---
+
 ## 2026-11-25 — Callejero oficial de Madrid: direcciones existentes (paso 4) y cierre
 
 - **`vida:normalizar-direcciones` corregido** antes de usarlo: no guardaba los códigos territoriales, no fijaba el origen ni disparaba `DireccionCiudadanoNormalizada` (no habría asignado centro) y procesaba también las direcciones del padrón. Ahora usa `ResultadoGeocodificacion::atributosDireccion()`, origen `geocodificacion`, avisa a la asignación, solo toma origen `profesional` o sin origen, sin la pausa entre lotes con el callejero local y con resumen de motivos de fallo. Retirado el método `getTotalRegistros()`, que solo servía a la pausa.
