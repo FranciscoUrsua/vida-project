@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-11-25 — Instrucciones: actuaciones del profesional de encargo
+
+Área: Intervención (encargo profesional), Escalas, Documentos (informes), Citas. Solo documentación, sin código.
+
+- Nuevas instrucciones `docs/instrucciones-cli/2026-11-encargo-actuaciones.md` (bloques A a F, decisiones EA-1 a EA-12, TF-EAC-01 a 36): anotaciones, fichas de valoración, escalas e informes desde `EncargoPage`, vinculados al encargo (`derivacion_id`), con un ámbito de lectura limitado a lo propio en sus encargos y una caja de herramientas por área del encargo.
+- **Decisiones del desarrollador (25 nov):** el área del encargo, elegida por el TSR, decide las fichas, escalas y plantillas disponibles. Lo que registra el profesional lo ve quien tiene acceso a la Historia Social, como cualquier apunte `profesionales`. Las instrucciones se revisan antes de implementarlas.
+- **Decisiones propuestas en las instrucciones, pendientes de revisión:** sin permisos nuevos (EA-4); `plan_id = null` en las actuaciones del encargo (EA-5); fuentes de informe `historia_social.*` y `escalas.*` prohibidas en el contexto de encargo (EA-9); las citas del encargo se cierran con la actuación vinculada (EA-10, resuelve la decisión pendiente del BACKLOG); no se cierra un encargo con borradores abiertos (EA-11).
+- `CLAUDE.md` §6 y `BACKLOG.md` actualizados.
+
+---
+
 ## 2026-11-25 — Encargo profesional: mensajes y centro activo por la hora (bloque F) y cierre de las instrucciones
 
 Instrucciones: `docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloque F y «Cierre».

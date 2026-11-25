@@ -1,8 +1,10 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-25 (encargo profesional: bloque F y cierre)
+**Última actualización:** 2026-11-25 (instrucciones de las actuaciones del profesional de encargo)
 
 ---
+
+**Última tarea (25 nov, 12):** instrucciones de las actuaciones del profesional de encargo, `docs/instrucciones-cli/2026-11-encargo-actuaciones.md` (bloques A a F, TF-EAC-01 a 36). `consulta_profesional` trabajará el encargo con anotaciones (privadas o para profesionales), fichas de valoración, escalas e informes, además de los documentos y citas que ya tiene. Solo ve lo suyo dentro de sus encargos (EA-7, EA-8). Su caja de herramientas la decide el **área del encargo** (`AreaEncargo`, elegida por el TSR al encargar; decisión del desarrollador). Lo que registra queda como apunte `profesionales` en la Historia Social, visible para quien tiene acceso a ella (decisión del desarrollador), salvo las anotaciones privadas. Una actuación vinculada a una cita la completa: así se resuelve la decisión pendiente de cómo se cierran sus citas. **Sin código todavía.** **Siguiente paso:** que el desarrollador revise las instrucciones (decisiones EA-1 a EA-12, en especial EA-4: sin permisos nuevos, todo por `derivacion.registrar_resultado`; EA-9: fuentes de informe permitidas; EA-11: no se cierra el encargo con borradores abiertos). Con su visto bueno, paso 0 y bloque A.
 
 **Última tarea (25 nov, 11):** encargo profesional, bloque F y cierre de `docs/instrucciones-cli/2026-11-encargo-profesional.md` (bloques A a F, TF-ENC-01 a 40). Mensajes en el menú por `derivacion.ver_asignadas`, contexto `encargo` en el panel de redacción con «Escribir al TSR» y el TSR sugerido, y `centroActivo()` por la franja de la hora actual. Documentación de cierre hecha. **En staging** (tras el despliegue, migraciones `2026_11_25_200001` a `200003`), el circuito completo: un TSR del CSS encarga al CIAM, `dir.ciam` asigna a `abogada.ciam`, que ve documentos, cita, escribe al TSR y cierra. **Pendiente de decisión (BACKLOG):** cómo se cierran las citas del profesional de encargo. **Siguiente paso:** que el desarrollador pruebe el circuito en staging; después, el encargo que siga (barrido `role:` → permisos, BACKLOG).
 
