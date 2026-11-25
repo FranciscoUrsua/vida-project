@@ -170,6 +170,7 @@ Cada rol tiene configurado su **nivel de supervisión** para la asignación (ver
 Este rol reúne titulaciones distintas y no distingue entre ellas. Qué actos corresponden a cada profesional lo fijan los protocolos del centro (ver 1.6).
 
 **Capacidades:**
+- **Único rol que abre Historias Sociales y puede ser profesional de referencia** (decisión del 25 nov 2026). Lo exigen `HistoriaSocialPolicy::create` (rol más permiso `historia.crear`), el modelo `AsignacionProfesional` al crear cualquier referencia y el reparto (`PoolReferenciaService`), además del cargo elegible para referencia.
 - Gestión completa de Historias Sociales asignadas en su UO: valoraciones, apuntes, planes de intervención, seguimientos.
 - Consulta de Historias Sociales fuera de su UO (Nivel 2, sujeto a auditoría).
 - Derivaciones e inter-consultas entre servicios.
@@ -193,7 +194,7 @@ Este rol reúne titulaciones distintas y no distingue entre ellas. Qué actos co
 **Capacidades:**
 - Alta y modificación de ciudadanos en el sistema.
 - Gestión de citas y agendas. Gestiona citas con los permisos de `docs/modulo-citas.md` §7 (los mismos que `consulta_basica`).
-- Apertura, cierre y reactivación de Historias Sociales.
+- **No abre Historias Sociales** ni puede ser profesional de referencia: solo `intervencion`. Lo que decía este documento hasta el 25 nov 2026 («Apertura, cierre y reactivación de Historias Sociales») era un error; el rol perdió `historia.abrir` e `historia.crear` (migración `2026_11_25_100005`). Sigue con `historia.cerrar`.
 - Incorporación de personas a unidades de convivencia.
 - Gestión de traslados y fusiones de registros.
 - Tramitación de solicitudes de prestaciones: inicio de procesos administrativos, subida de documentos, seguimiento de estado.

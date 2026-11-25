@@ -97,12 +97,17 @@ class HistoriaSocialPolicy
     }
 
     /**
-     * Decide si el usuario puede crear una Historia Social.
+     * Decide si el usuario puede crear (abrir) una Historia Social.
      *
-     * La creación solo está permitida dentro del propio ámbito de UO.
-     * El rol supervision no puede crear aunque tenga UO.
+     * Abrir una Historia Social es un acto profesional del trabajador social: solo un
+     * profesional con rol `intervencion`, que en los centros «quien abre» queda además
+     * como profesional de referencia. Ningún otro rol la abre, aunque tenga el permiso
+     * (`tramitacion` lo tuvo por error hasta el 25 nov 2026). El rol supervision no
+     * puede crear aunque tenga UO.
      *
      * @param User $usuario Usuario autenticado.
+     *
+     * @return bool
      */
     public function create(User $usuario): bool
     {
@@ -111,7 +116,7 @@ class HistoriaSocialPolicy
             return false;
         }
 
-        return $usuario->can(self::PERMISO_CREAR);
+        return $usuario->hasRole('intervencion') && $usuario->can(self::PERMISO_CREAR);
     }
 
     /**

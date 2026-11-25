@@ -57,6 +57,10 @@ qué casos aparecen en "Mis casos" del profesional.
 
 ### 1.1.3 Origen de la asignación inicial
 
+Solo un profesional con rol `intervencion` abre la historia y puede ser profesional de
+referencia, en cualquier modo y vía (decisión del 25 nov 2026; `modulo-asignacion.md`
+RN-03 bis).
+
 La referencia inicial depende del modo de asignación del centro en el que se abre la
 historia (`docs/modulo-asignacion.md` §4, desde el 2026-09-30):
 

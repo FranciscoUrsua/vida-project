@@ -64,7 +64,7 @@ Debe ejecutarse después de `PermisosSeeder`.
 | `supervision` | Lectura de su ámbito, auditoría y aprobación de accesos protegidos. |
 | `adm_usuarios` | Gestión de usuarios en su UO. |
 | `intervencion` | Gestión completa de Historias Sociales en su UO. |
-| `tramitacion` | Apertura/cierre de Historias y gestión administrativa. Sin acceso a contenido clínico. |
+| `tramitacion` | Gestión administrativa y cierre de Historias. **No abre Historias Sociales** (solo `intervencion`, desde el 25 nov 2026). Sin acceso a contenido clínico. |
 | `consulta_profesional` | Acceso acotado a ciudadanos y procesos asignados explícitamente. |
 | `consulta_basica` | Ficha del ciudadano y citas. Sin acceso a Historia ni apuntes. |
 

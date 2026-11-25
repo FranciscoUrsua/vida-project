@@ -1125,14 +1125,15 @@ class FichaCiudadanoPage extends Component
 
     /**
      * Indica si el usuario puede abrir la Historia Social del ciudadano.
-     * Solo cuando el ciudadano no tiene historia y el usuario tiene el permiso.
+     * Solo cuando el ciudadano no tiene historia y la policy lo permite (solo un
+     * profesional con rol intervención; HistoriaSocialPolicy::create).
      *
      * @return bool
      */
     #[Computed]
     public function puedeAbrirHistoria(): bool
     {
-        return auth()->user()->can('historia.abrir') && ! $this->historiaSocial
+        return auth()->user()->can('create', HistoriaSocial::class) && ! $this->historiaSocial
             // R1: sin ningún centro, la ficha se consulta sin actuaciones
             && ! app(CentroDeUsuario::class)->sinCentro(auth()->user());
     }
@@ -1182,7 +1183,7 @@ class FichaCiudadanoPage extends Component
             return;
         }
 
-        // Quien puede abrir la historia pero no leerla (tramitación) se queda en la ficha (R-02)
+        // Quien abre la historia es intervención y la puede leer; el enlace lo decide la policy (R-02)
         $this->redirect(app(EnlacePersona::class)->url($profesional, $historia->ciudadano_id), navigate: true);
     }
 

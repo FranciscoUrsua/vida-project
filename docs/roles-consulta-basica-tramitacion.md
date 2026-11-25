@@ -80,6 +80,7 @@ La implantación se difiere: hay varias cuestiones por definir y otras prioridad
 - Todo lo que ve `consulta_basica` en la ficha (§3.1), y además las capacidades del rol 5 en `modulo-usuarios-permisos.md`.
 - Gestiona citas con los mismos permisos que `consulta_basica` (`modulo-citas.md` §7). Recibe los avisos de solicitud creada de su centro.
 - Sin acceso a apuntes ni a contenido social o clínico de la Historia Social.
+- **No abre Historias Sociales ni puede ser profesional de referencia**: solo un profesional con rol `intervencion` (decisión del 25 nov 2026). Da de alta a la persona y puede elegir su centro, pero la historia la abre el trabajador social.
 
 ### 4.2 Pendiente
 

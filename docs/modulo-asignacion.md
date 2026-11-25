@@ -41,6 +41,8 @@ Las soluciones mixtas (elegir centro dentro del distrito) quedan fuera de la v1.
 - **Libre elección**: la persona elige profesional del centro al abrir su Historia Social. Si no elige, se sortea.
 - **Sin asignación automática**: se mantiene el comportamiento actual (quien abre la historia queda como referencia). Para centros donde la referencia no aplica o se decide de otra forma.
 
+**RN-03 bis — La referencia, siempre de intervención.** Solo un profesional con rol `intervencion` (el trabajador social) abre Historias Sociales y es profesional de referencia (decisión del 25 nov 2026). Vale para todos los modos y vías: quien abre, sorteo, libre elección, cambio manual y reparto por salida. El reparto exige cargo elegible y rol `intervencion`; el modelo `AsignacionProfesional` rechaza cualquier otra referencia.
+
 La asignación por geografía dentro del centro (zonas por profesional) **queda fuera de la v1**. El modelo de unidades territoriales la permitiría sin rediseño.
 
 **RN-04 — Sin cambio a petición de la persona en la v1.** Una vez asignado, la persona no puede pedir cambio de centro ni de profesional. Solo el supervisor cambia asignaciones, siempre con motivo.

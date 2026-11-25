@@ -13,8 +13,9 @@ use Modules\Centro\Models\Centro;
 /**
  * Profesionales que entran en el reparto de referencias de un centro en una fecha.
  *
- * Entran quienes tienen perfil horario activo y vigente en el centro y un cargo
- * marcado como elegible para referencia. Su peso es su jornada semanal en el
+ * Entran quienes tienen perfil horario activo y vigente en el centro, un cargo
+ * marcado como elegible para referencia y rol intervención (solo el trabajador
+ * social puede ser referencia, decisión del 25 nov 2026). Su peso es su jornada semanal en el
  * centro. Quedan fuera mientras dure una ausencia registrada más larga que el
  * umbral de ausencia prolongada del centro: sus casos no cambian, pero no
  * reciben entradas nuevas (RN-07).
@@ -69,7 +70,7 @@ class PoolReferenciaService
 
     /**
      * Perfiles horarios activos y vigentes en el centro de usuarios con cargo
-     * elegible para referencia.
+     * elegible para referencia y rol intervención.
      *
      * @param Centro $centro
      * @param string $dia Fecha Y-m-d.
@@ -84,6 +85,8 @@ class PoolReferenciaService
             ->whereDate('vigente_desde', '<=', $dia)
             ->where(fn ($q) => $q->whereNull('vigente_hasta')->orWhereDate('vigente_hasta', '>=', $dia))
             ->whereHas('usuario.profesional.cargo', fn ($q) => $q->where('puede_ser_referencia', true))
+            // Solo el rol intervención puede ser referencia, aunque el cargo lo permita
+            ->whereHas('usuario', fn ($q) => $q->role('intervencion'))
             // Un usuario desactivado no recibe casos (RN-20), aunque le quede un perfil abierto
             ->whereHas('usuario', fn ($q) => $q->whereNull('desactivado_en'))
             ->with('usuario.profesional')

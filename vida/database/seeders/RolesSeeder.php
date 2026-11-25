@@ -158,8 +158,9 @@ class RolesSeeder extends Seeder
 
         // -----------------------------------------------------------------
         // ROL 5: Tramitación
-        // Apertura/cierre de Historias, gestión administrativa.
-        // Sin acceso a contenido clínico/social ni apuntes profesionales.
+        // Gestión administrativa. No abre Historias Sociales: solo un profesional con
+        // rol intervención (decisión del 25 nov 2026; antes tenía historia.abrir y
+        // historia.crear por error). Sin acceso a contenido clínico/social ni apuntes.
         // -----------------------------------------------------------------
         'tramitacion' => [
             'tramitacion.bandeja',
@@ -172,8 +173,6 @@ class RolesSeeder extends Seeder
             'ciudadano.leer',
             'ciudadano.crear',
             'ciudadano.editar',
-            'historia.abrir',
-            'historia.crear',
             'historia.cerrar',
             'prestacion.asignar',
             'atencion.leer',

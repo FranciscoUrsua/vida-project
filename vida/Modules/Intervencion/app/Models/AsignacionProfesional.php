@@ -25,6 +25,11 @@ use Modules\Intervencion\Enums\OrigenAsignacionReferencia;
  * RN-23 (docs/modulo-tipo-centro.md): el caso es de una historia en un centro, no
  * del profesional. Ningún cambio de adscripción del profesional toca estas filas.
  *
+ * Solo un profesional con rol `intervencion` (el trabajador social) puede ser
+ * profesional de referencia. Se comprueba aquí, al crear la fila, para que valga en
+ * todas las vías (apertura, sorteo, elección, cambio manual, reparto por salida):
+ * ningún otro rol puede quedar como referencia (decisión del 25 nov 2026).
+ *
  * @property int $id
  * @property int $historia_id
  * @property int $profesional_id
@@ -80,18 +85,41 @@ class AsignacionProfesional extends Model
     ];
 
     /**
-     * Sin centro indicado, el caso es del centro de la UO de su historia (RN-23;
-     * centro y UO 1:1, addenda D1). Si la UO no tiene centro, la BD rechaza la fila.
+     * Al crear: solo un profesional con rol intervención puede ser referencia y, sin
+     * centro indicado, el caso es del centro de la UO de su historia (RN-23; centro y
+     * UO 1:1, addenda D1). Si la UO no tiene centro, la BD rechaza la fila.
      *
      * @return void
+     *
+     * @throws \DomainException Si el profesional no tiene rol intervención.
      */
     protected static function booted(): void
     {
         static::creating(function (AsignacionProfesional $asignacion): void {
+            self::exigirIntervencion($asignacion->profesional_id);
+
             if ($asignacion->centro_id === null) {
                 $asignacion->centro_id = self::centroDeLaHistoria($asignacion->historia_id);
             }
         });
+    }
+
+    /**
+     * Rechaza como profesional de referencia a quien no tiene rol intervención.
+     *
+     * @param int|null $profesionalId Usuario propuesto como referencia.
+     *
+     * @return void
+     *
+     * @throws \DomainException
+     */
+    private static function exigirIntervencion(?int $profesionalId): void
+    {
+        $profesional = $profesionalId !== null ? User::withTrashed()->find($profesionalId) : null;
+
+        if ($profesional === null || ! $profesional->hasRole('intervencion')) {
+            throw new \DomainException('Solo un profesional con rol intervención puede ser profesional de referencia.');
+        }
     }
 
     /**
