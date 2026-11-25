@@ -19,6 +19,7 @@ use Modules\Intervencion\Enums\ModalidadDerivacion;
 use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\VisibilidadApunte;
 use Modules\Intervencion\Models\Apunte;
+use Modules\Intervencion\Models\AreaEncargo;
 use Modules\Intervencion\Models\Derivacion;
 use Modules\Intervencion\Models\DerivacionEvento;
 use Modules\Intervencion\Models\PlanDeIntervencion;
@@ -61,12 +62,13 @@ class EncargoService
     ) {}
 
     /**
-     * Crea un encargo profesional para la persona de la historia (EP-2).
+     * Crea un encargo profesional para la persona de la historia (EP-2), con su área (EA-3).
      *
      * @param HistoriaSocial $historia Historia de la persona.
      * @param PlanDeIntervencion|null $principal Plan principal activo si se encarga desde él.
      * @param PlanObjetivo|null $objetivo Objetivo del plan principal, si se encarga desde él.
      * @param Centro $destino Centro que recibe el encargo.
+     * @param AreaEncargo $area Área del encargo, que decide la caja de herramientas del profesional.
      * @param string $motivo Motivo y contexto del encargo, visible para el profesional.
      * @param list<int> $documentoIds Documentos de la carpeta de la persona que se adjuntan.
      * @param User $actor Quien encarga.
@@ -75,7 +77,7 @@ class EncargoService
      *
      * @throws DomainException
      */
-    public function encargar(HistoriaSocial $historia, ?PlanDeIntervencion $principal, ?PlanObjetivo $objetivo, Centro $destino, string $motivo, array $documentoIds, User $actor): Derivacion
+    public function encargar(HistoriaSocial $historia, ?PlanDeIntervencion $principal, ?PlanObjetivo $objetivo, Centro $destino, AreaEncargo $area, string $motivo, array $documentoIds, User $actor): Derivacion
     {
         $centroOrigen = $this->exigirOrigen($historia, $principal, $actor);
 
@@ -90,6 +92,11 @@ class EncargoService
             throw new DomainException('Indica el motivo y el contexto del encargo.');
         }
 
+        // EA-3: el área es obligatoria en los encargos nuevos y tiene que estar activa
+        if (! $area->exists || $area->trashed() || ! $area->activa) {
+            throw new DomainException('Elige un área de encargo activa.');
+        }
+
         $abierto = Derivacion::query()->encargos()
             ->where('historia_id', $historia->id)
             ->where('centro_destino_id', $destino->id)
@@ -102,13 +109,14 @@ class EncargoService
 
         $documentos = $this->documentosAdjuntables($historia, $documentoIds, $actor);
 
-        return DB::transaction(function () use ($historia, $principal, $objetivo, $destino, $motivo, $documentos, $actor): Derivacion {
+        return DB::transaction(function () use ($historia, $principal, $objetivo, $destino, $area, $motivo, $documentos, $actor): Derivacion {
             $encargo = Derivacion::create([
                 'modalidad' => ModalidadDerivacion::Encargo,
                 'historia_id' => $historia->id,
                 'plan_origen_id' => $principal?->id,
                 'plan_objetivo_id' => $objetivo?->id,
                 'centro_destino_id' => $destino->id,
+                'area_encargo_id' => $area->id,
                 'motivo' => trim($motivo),
                 'estado' => EstadoDerivacion::Pendiente,
                 'derivada_por_id' => $actor->id,
@@ -126,14 +134,14 @@ class EncargoService
             }
 
             $this->evento($encargo, null, $actor, null);
-            $this->apunte($encargo, TipoApunte::Derivacion, $principal?->id, $actor, "Encargo profesional a {$destino->nombre}.");
+            $this->apunte($encargo, TipoApunte::Derivacion, $principal?->id, $actor, "Encargo profesional ({$area->nombre}) a {$destino->nombre}.");
 
             $this->alertas->crear([
                 'tipo' => TipoAlerta::Alerta,
                 'origen_type' => Derivacion::class,
                 'origen_id' => $encargo->id,
                 'titulo' => 'Nuevo encargo profesional pendiente',
-                'cuerpo' => "{$actor->nombreVisible()} hace un encargo profesional a {$destino->nombre}. Asígnalo a un profesional en la bandeja de derivaciones.",
+                'cuerpo' => "{$actor->nombreVisible()} hace un encargo profesional del área {$area->nombre} a {$destino->nombre}. Asígnalo a un profesional en la bandeja de derivaciones.",
                 'destinatario_type' => DestinatarioType::RolUo,
                 'destinatario_rol' => 'supervision',
                 'destinatario_uo_id' => $destino->unidad_organizativa_id,

@@ -9,6 +9,7 @@ use Modules\Centro\Database\Seeders\CentroSeeder;
 use Modules\Ciudadania\Database\Seeders\TipoRelacionSeeder;
 use Modules\Documentos\Database\Seeders\DocumentosSeeder;
 use Modules\Escalas\Database\Seeders\EscalaSeeder;
+use Modules\Intervencion\Database\Seeders\AreasEncargoSeeder;
 use Modules\Intervencion\Database\Seeders\IntervencionSeeder;
 use Modules\Organizacion\Database\Seeders\OrganizacionSeeder;
 use Modules\Prestaciones\Database\Seeders\CatalogosSistemaSeeder;
@@ -72,6 +73,9 @@ class DatabaseSeeder extends Seeder
 
         // 12. Módulo Escalas: instrumentos de valoración (Barthel, Pfeiffer, Lawton-Brody)
         $this->call(EscalaSeeder::class);
+
+        // 12 bis. Áreas del encargo profesional con sus fichas y escalas (requiere 11 y 12)
+        $this->call(AreasEncargoSeeder::class);
 
         // 13. Perfiles de anonimización predefinidos del sistema
         $this->call(PerfilesAnonimizacionSeeder::class);

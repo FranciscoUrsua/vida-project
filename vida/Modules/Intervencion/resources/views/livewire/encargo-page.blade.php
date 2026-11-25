@@ -98,6 +98,8 @@
                     <dl class="small mb-0">
                         <dt class="text-body-secondary fw-normal">Centro</dt>
                         <dd class="mb-2 fw-semibold">{{ $encargo->centroDestino?->nombre }}</dd>
+                        <dt class="text-body-secondary fw-normal">Área</dt>
+                        <dd class="mb-2">{{ $encargo->area?->nombre ?? 'Sin área' }}</dd>
                         <dt class="text-body-secondary fw-normal">Encarga</dt>
                         <dd class="mb-2">{{ $encargo->derivadaPor?->nombreVisible() }}</dd>
                         <dt class="text-body-secondary fw-normal">Fecha del encargo</dt>

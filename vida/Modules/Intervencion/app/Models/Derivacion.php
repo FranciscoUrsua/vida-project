@@ -32,6 +32,7 @@ use Modules\Prestaciones\Models\Prestacion;
  * @property int $id
  * @property int $historia_id
  * @property ModalidadDerivacion $modalidad
+ * @property int|null $area_encargo_id Área del encargo (EA-1); null en las derivaciones a plan y en los encargos anteriores al 25 nov 2026.
  * @property int|null $plan_origen_id Null en un encargo creado desde la Historia Social.
  * @property int|null $plan_objetivo_id
  * @property int|null $prestacion_id Null en un encargo.
@@ -60,6 +61,7 @@ use Modules\Prestaciones\Models\Prestacion;
  * @property-read User|null $profesionalResponsable
  * @property-read PlanDeIntervencion|null $planEspecializado
  * @property-read User|null $cerradaPor
+ * @property-read AreaEncargo|null $area
  */
 class Derivacion extends Model
 {
@@ -74,7 +76,7 @@ class Derivacion extends Model
         'historia_id', 'plan_origen_id', 'plan_objetivo_id', 'prestacion_id', 'tipo_plan_id',
         'centro_destino_id', 'motivo', 'estado', 'derivada_por_id', 'resuelta_por_id',
         'profesional_responsable_id', 'plan_especializado_id', 'motivo_rechazo', 'motivo_anulacion', 'resuelta_en',
-        'modalidad', 'resultado', 'cerrada_en', 'cerrada_por_id',
+        'modalidad', 'resultado', 'cerrada_en', 'cerrada_por_id', 'area_encargo_id',
     ];
 
     /** @var array<string, mixed> */
@@ -224,6 +226,17 @@ class Derivacion extends Model
     public function esEncargo(): bool
     {
         return $this->modalidad === ModalidadDerivacion::Encargo;
+    }
+
+    /**
+     * Área del encargo, que decide su caja de herramientas (EA-1, EA-2). Con las desactivadas
+     * y las borradas: el encargo sigue diciendo de qué era.
+     *
+     * @return BelongsTo<AreaEncargo, $this>
+     */
+    public function area(): BelongsTo
+    {
+        return $this->belongsTo(AreaEncargo::class, 'area_encargo_id')->withTrashed();
     }
 
     /**

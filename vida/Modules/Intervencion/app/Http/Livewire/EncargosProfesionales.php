@@ -19,6 +19,7 @@ use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\DocumentoVinculo;
 use Modules\Intervencion\Enums\EstadoDerivacion;
 use Modules\Intervencion\Enums\EstadoPlan;
+use Modules\Intervencion\Models\AreaEncargo;
 use Modules\Intervencion\Models\Derivacion;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\PlanObjetivo;
@@ -39,6 +40,7 @@ use Modules\Intervencion\Services\EncargoService;
  * @property-read PlanDeIntervencion|null $plan
  * @property-read bool $puedeEncargar
  * @property-read Collection<int, Centro> $centrosDestino
+ * @property-read Collection<int, AreaEncargo> $areas
  * @property-read Collection<int, PlanObjetivo> $objetivos
  * @property-read Collection<int, Documento> $documentosCarpeta
  * @property-read Collection<int, Derivacion> $encargos
@@ -56,6 +58,9 @@ class EncargosProfesionales extends Component
     public bool $modalAbierto = false;
 
     public ?int $centroDestinoId = null;
+
+    /** Área del encargo (EA-3), que decide las herramientas del profesional. */
+    public ?int $areaId = null;
 
     public ?int $objetivoId = null;
 
@@ -131,6 +136,17 @@ class EncargosProfesionales extends Component
     }
 
     /**
+     * Áreas activas que se pueden elegir al encargar (EA-3).
+     *
+     * @return Collection<int, AreaEncargo>
+     */
+    #[Computed]
+    public function areas(): Collection
+    {
+        return AreaEncargo::activas()->orderBy('nombre')->get();
+    }
+
+    /**
      * Objetivos del plan principal (solo en el plan).
      *
      * @return Collection<int, PlanObjetivo>
@@ -173,7 +189,7 @@ class EncargosProfesionales extends Component
         return Derivacion::query()->encargos()
             ->where('historia_id', $this->historiaId)
             ->when($this->planId !== null, fn ($q) => $q->where('plan_origen_id', $this->planId))
-            ->with(['centroDestino', 'objetivo', 'eventos.actor.profesional', 'profesionalResponsable.profesional', 'derivadaPor.profesional'])
+            ->with(['centroDestino', 'area', 'objetivo', 'eventos.actor.profesional', 'profesionalResponsable.profesional', 'derivadaPor.profesional'])
             ->latest()
             ->get();
     }
@@ -195,7 +211,7 @@ class EncargosProfesionales extends Component
             return;
         }
 
-        $this->reset(['centroDestinoId', 'motivo', 'documentoIds']);
+        $this->reset(['centroDestinoId', 'areaId', 'motivo', 'documentoIds']);
         $this->resetErrorBag();
         $this->objetivoId = $this->planId !== null ? $objetivoId : null;
         $this->modalAbierto = true;
@@ -220,10 +236,11 @@ class EncargosProfesionales extends Component
     {
         $this->validate([
             'centroDestinoId' => ['required', 'integer'],
+            'areaId' => ['required', 'integer'],
             'motivo' => ['required', 'string', 'min:3', 'max:2000'],
             'documentoIds' => ['array'],
             'documentoIds.*' => ['integer'],
-        ], [], ['centroDestinoId' => 'centro de destino', 'motivo' => 'motivo y contexto']);
+        ], [], ['centroDestinoId' => 'centro de destino', 'areaId' => 'área', 'motivo' => 'motivo y contexto']);
 
         try {
             app(EncargoService::class)->encargar(
@@ -231,6 +248,8 @@ class EncargosProfesionales extends Component
                 $this->plan,
                 $this->objetivoId !== null ? PlanObjetivo::where('plan_id', $this->planId)->findOrFail($this->objetivoId) : null,
                 Centro::findOrFail($this->centroDestinoId),
+                // Sin scope de activas: el servicio rechaza un área inactiva con su mensaje
+                AreaEncargo::findOrFail($this->areaId),
                 $this->motivo,
                 array_map('intval', $this->documentoIds),
                 Auth::user(),

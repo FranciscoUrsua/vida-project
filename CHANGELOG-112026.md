@@ -4,6 +4,21 @@
 
 ---
 
+## 2026-11-25 — Actuaciones del profesional de encargo: área del encargo (paso 0 y bloque A)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-encargo-actuaciones.md`, aprobadas por el desarrollador; paso 0 y bloque A.
+
+- **Paso 0:** ningún encargo en la BD compartida; las dos plantillas existentes leen la Historia Social y no se pueden asociar a un área. Los puntos de escritura reales (valoración en `RegistrarValoracionPage`, anotaciones también en `PlanPage`) quedan anotados en las instrucciones para el bloque B.
+- **Migración `2026_11_25_300001`:** `areas_encargo` (soft deletes), pivotes `area_encargo_tipo_ficha`, `area_encargo_tipo_escala` y `area_encargo_plantilla_informe`, `derivaciones.area_encargo_id` (nullable). Siembra las áreas Jurídica, Psicológica y Formativa con `AreasEncargoSeeder` (idempotente, también en `DatabaseSeeder`). Se aplica con el despliegue.
+- **Modelo:** `AreaEncargo` (`Versionable`, `Auditable`; código inmutable; no se borra con encargos), pivote `AreaEncargoPlantillaInforme`, que rechaza las plantillas que leen la Historia (EA-9), `Derivacion::area()`.
+- **`InformeEncargo`** (Documentos): fuentes permitidas por lista blanca (`ciudadano.datos_basicos`, `ciudadano.datos_contacto`, `profesional.datos`, `encargo.datos`) y merge tags prohibidos (expediente, valoración, plan).
+- **`CajaHerramientasEncargo`** (nuevo, no previsto en las instrucciones): fichas, escalas y plantillas activas del área; vacío sin área.
+- **`EncargoService::encargar()`** recibe el área, obligatoria y activa (EA-3). Apunte y alerta nombran el área.
+- **Interfaz:** selector de área en el modal «Encargo profesional»; área en la lista de encargos del TSR, en la bandeja de derivaciones («Encargo profesional · Jurídica»), en «Mis derivaciones» y en la página del encargo. `AreaEncargoResource` en Filament (Catálogos, solo `adm_sistema`) con la caja de herramientas y la validación de plantillas.
+- **Tests:** `AreaEncargoTest` (TF-EAC-01 a 05, más 05 bis: código estable y sin baja con encargos). Negativos comprobados: sin exigir el área falla 02; sin la comprobación del pivote, 04; sin filtrar lo activo, 05; sin impedir la baja, 05 bis. Ajustados `EncargoTestSetup`, `EncargoServiceTest` e `InterfazEncargoTest` (el área en las llamadas y en la bandeja). Encargo (55 tests), `BandejaDerivacionesTest` y `DerivacionTest` en verde. `npm run build` y `ui:auditar` sin infracciones.
+
+---
+
 ## 2026-11-25 — Instrucciones: actuaciones del profesional de encargo
 
 Área: Intervención (encargo profesional), Escalas, Documentos (informes), Citas. Solo documentación, sin código.

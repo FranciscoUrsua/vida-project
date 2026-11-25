@@ -147,7 +147,7 @@ class MisEncargosPage extends Component
         $encargos = Derivacion::query()
             ->deProfesional($usuario)
             ->where('estado', $estado->value)
-            ->with(['centroDestino', 'derivadaPor.profesional'])
+            ->with(['centroDestino', 'area', 'derivadaPor.profesional'])
             ->orderBy($estado === EstadoDerivacion::Cerrada ? 'cerrada_en' : 'resuelta_en', $orden)
             ->get();
 

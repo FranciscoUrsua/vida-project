@@ -14,6 +14,7 @@ use Modules\Documentos\Enums\PoliticaVersiones;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\DocumentoVinculo;
 use Modules\Documentos\Models\TipoDocumental;
+use Modules\Intervencion\Models\AreaEncargo;
 use Modules\Intervencion\Models\Derivacion;
 use Modules\Intervencion\Services\EncargoService;
 
@@ -31,6 +32,12 @@ trait EncargoTestSetup
 
     protected User $educadorMulti;
 
+    /** Área «Jurídica» de los tests (sin herramientas: cada test añade las que necesita). */
+    protected AreaEncargo $areaJuridica;
+
+    /** Área «Psicológica» de los tests (sin herramientas). */
+    protected AreaEncargo $areaPsicologica;
+
     /**
      * Monta el escenario del encargo profesional sobre el del circuito.
      *
@@ -43,6 +50,10 @@ trait EncargoTestSetup
         $this->abogadaVallecas = $this->profesionalCon('abogada.vallecas', 'consulta_profesional', $this->ciamVallecas, 'Abogado/a');
         $this->educadorMulti = $this->profesionalCon('educador.multi', 'consulta_profesional', $this->cssNorte, 'Educador/a social');
         $this->adscribir($this->educadorMulti, $this->ciamVallecas->unidadOrganizativa);
+
+        // Áreas propias de los tests: no dependen de las que siembra la migración
+        $this->areaJuridica = AreaEncargo::create(['codigo' => 'test_juridica', 'nombre' => 'Jurídica (test)', 'activa' => true]);
+        $this->areaPsicologica = AreaEncargo::create(['codigo' => 'test_psicologica', 'nombre' => 'Psicológica (test)', 'activa' => true]);
 
         app(AmbitoUsuario::class)->olvidar();
     }
@@ -58,7 +69,7 @@ trait EncargoTestSetup
      */
     protected function encargoPendiente(HistoriaSocial $historia, Centro $destino, array $documentoIds = []): Derivacion
     {
-        return app(EncargoService::class)->encargar($historia, null, null, $destino, 'Orientación jurídica sobre el desahucio', $documentoIds, $this->tsNorte);
+        return app(EncargoService::class)->encargar($historia, null, null, $destino, $this->areaJuridica, 'Orientación jurídica sobre el desahucio', $documentoIds, $this->tsNorte);
     }
 
     /**

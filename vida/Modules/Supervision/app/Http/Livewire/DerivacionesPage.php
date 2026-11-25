@@ -104,7 +104,7 @@ class DerivacionesPage extends Component
 
         return Derivacion::query()->pendientes()
             ->where('centro_destino_id', $this->centro->id)
-            ->with(['historia.centro', 'planOrigen.centro', 'derivadaPor.profesional', 'tipoPlan'])
+            ->with(['historia.centro', 'planOrigen.centro', 'derivadaPor.profesional', 'tipoPlan', 'area'])
             ->oldest()
             ->get()
             ->map(function (Derivacion $derivacion) use ($usuario): array {
@@ -116,8 +116,10 @@ class DerivacionesPage extends Component
                     // Un encargo puede nacer de la Historia Social sin plan: su centro es el de la historia
                     'origen' => $derivacion->planOrigen->centro->nombre ?? $derivacion->historia->centro->nombre ?? '—',
                     'tsr' => $derivacion->derivadaPor?->nombreVisible() ?? '—',
-                    // Un encargo profesional no tiene tipo de plan (EP-1)
-                    'tipo' => $derivacion->esEncargo() ? $derivacion->modalidad->label() : ($derivacion->tipoPlan->nombre ?? '—'),
+                    // Un encargo profesional no tiene tipo de plan (EP-1); lleva su área (EA-3)
+                    'tipo' => $derivacion->esEncargo()
+                        ? $derivacion->modalidad->label().($derivacion->area ? ' · '.$derivacion->area->nombre : '')
+                        : ($derivacion->tipoPlan->nombre ?? '—'),
                     'motivo' => $derivacion->motivo,
                     'antiguedad' => $derivacion->created_at->diffForHumans(),
                 ];

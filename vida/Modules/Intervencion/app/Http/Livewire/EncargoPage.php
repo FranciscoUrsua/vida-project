@@ -126,7 +126,7 @@ class EncargoPage extends Component
         $usuario = auth()->user();
 
         $encargo = Derivacion::query()->deProfesional($usuario)
-            ->with(['centroDestino', 'derivadaPor.profesional', 'cerradaPor.profesional'])
+            ->with(['centroDestino', 'area', 'derivadaPor.profesional', 'cerradaPor.profesional'])
             ->find($this->encargoId);
 
         abort_if($encargo === null, 403);

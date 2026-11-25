@@ -77,17 +77,17 @@ class EncargoServiceTest extends TestCase
     #[Test]
     public function tf_enc_02_encargar_desde_el_plan_y_un_objetivo(): void
     {
-        $desdePlan = $this->servicio->encargar($this->historiaAna, $this->pisoAna, null, $this->ciamVallecas, 'Orientación jurídica', [], $this->tsNorte);
+        $desdePlan = $this->servicio->encargar($this->historiaAna, $this->pisoAna, null, $this->ciamVallecas, $this->areaJuridica, 'Orientación jurídica', [], $this->tsNorte);
         $this->assertSame($this->pisoAna->id, $desdePlan->plan_origen_id);
         $this->assertNull($desdePlan->plan_objetivo_id);
 
-        $desdeObjetivo = $this->servicio->encargar($this->historiaAna, $this->pisoAna, $this->objetivoAna1, $this->ciamUsera, 'Orientación jurídica', [], $this->tsNorte);
+        $desdeObjetivo = $this->servicio->encargar($this->historiaAna, $this->pisoAna, $this->objetivoAna1, $this->ciamUsera, $this->areaJuridica, 'Orientación jurídica', [], $this->tsNorte);
         $this->assertSame([$this->pisoAna->id, $this->objetivoAna1->id], [$desdeObjetivo->plan_origen_id, $desdeObjetivo->plan_objetivo_id]);
 
         // Un objetivo de otro plan, o un objetivo sin plan, no vale.
         $ajeno = $this->objetivoConIndicador($this->pisoMarta, 'Otro', 'si_no', 1);
-        $this->assertRechazado(fn () => $this->servicio->encargar($this->historiaAna, $this->pisoAna, $ajeno, $this->cssNorte, 'Motivo', [], $this->tsNorte));
-        $this->assertRechazado(fn () => $this->servicio->encargar($this->historiaAna, null, $this->objetivoAna1, $this->cssNorte, 'Motivo', [], $this->tsNorte));
+        $this->assertRechazado(fn () => $this->servicio->encargar($this->historiaAna, $this->pisoAna, $ajeno, $this->cssNorte, $this->areaJuridica, 'Motivo', [], $this->tsNorte));
+        $this->assertRechazado(fn () => $this->servicio->encargar($this->historiaAna, null, $this->objetivoAna1, $this->cssNorte, $this->areaJuridica, 'Motivo', [], $this->tsNorte));
     }
 
     /** TF-ENC-03 — Quién encarga: quien no gestiona la historia ni edita el plan, o sin centro (RN-15). [negativo] */
@@ -96,13 +96,13 @@ class EncargoServiceTest extends TestCase
     {
         // Sin gestión de la historia ni edición del plan principal.
         foreach ([$this->psicologaVallecas, $this->abogadaVallecas, $this->supNorte] as $actor) {
-            $this->assertRechazado(fn () => $this->servicio->encargar($this->historiaAna, null, null, $this->ciamVallecas, 'Motivo', [], $actor));
-            $this->assertRechazado(fn () => $this->servicio->encargar($this->historiaAna, $this->pisoAna, null, $this->ciamVallecas, 'Motivo', [], $actor));
+            $this->assertRechazado(fn () => $this->servicio->encargar($this->historiaAna, null, null, $this->ciamVallecas, $this->areaJuridica, 'Motivo', [], $actor));
+            $this->assertRechazado(fn () => $this->servicio->encargar($this->historiaAna, $this->pisoAna, null, $this->ciamVallecas, $this->areaJuridica, 'Motivo', [], $actor));
         }
 
         // Gestiona la historia desde una UO superior, pero no está adscrita a ningún centro (RN-15).
         $this->assertTrue(Gate::forUser($this->tecnicaArea)->allows('update', $this->historiaAna));
-        $this->assertRechazado(fn () => $this->servicio->encargar($this->historiaAna, null, null, $this->ciamVallecas, 'Motivo', [], $this->tecnicaArea), 'adscrit');
+        $this->assertRechazado(fn () => $this->servicio->encargar($this->historiaAna, null, null, $this->ciamVallecas, $this->areaJuridica, 'Motivo', [], $this->tecnicaArea), 'adscrit');
 
         $this->assertSame(0, Derivacion::count());
     }
@@ -128,7 +128,7 @@ class EncargoServiceTest extends TestCase
     #[Test]
     public function tf_enc_05_motivo_obligatorio(): void
     {
-        $this->assertRechazado(fn () => $this->servicio->encargar($this->historiaAna, null, null, $this->ciamVallecas, "   \n ", [], $this->tsNorte));
+        $this->assertRechazado(fn () => $this->servicio->encargar($this->historiaAna, null, null, $this->ciamVallecas, $this->areaJuridica, "   \n ", [], $this->tsNorte));
         $this->assertSame(0, Derivacion::count());
     }
 

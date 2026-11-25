@@ -4,7 +4,7 @@
 **Requisito previo:** encargo profesional (`docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloques A a F, cerrado el 25 nov 2026) y fase 5 (informes).
 **Decisiones del desarrollador (25 nov 2026):** el área del encargo decide las herramientas; lo registrado lo ve quien tenga acceso a la Historia Social, como cualquier apunte `profesionales`.
 **Tests:** TF-EAC-01 a TF-EAC-36 (al final de este documento).
-**Estado:** pendiente de revisión por el desarrollador. No implementar hasta su visto bueno.
+**Estado:** revisadas y aprobadas por el desarrollador el 25 nov 2026. Bloque A hecho (25 nov).
 
 **Alcance:**
 - **A.** Área del encargo: entidad, caja de herramientas y elección al encargar.
@@ -68,6 +68,12 @@
 2. Confirma que el único punto de escritura de valoraciones, escalas y anotaciones es `CiudadanoPage` (más los envoltorios `RegistrarValoracionPage` y `RegistrarEscalaPage`) y lista dónde se usa el pre-relleno de fichas.
 3. Cuenta los encargos existentes (quedarán con área vacía) y las plantillas de informe con fuentes `historia_social.*` o `escalas.*`.
 
+### Resultado del paso 0 (25 nov 2026)
+
+- No hay ningún encargo en la base de datos compartida: ninguno queda sin área.
+- Las dos plantillas de informe existentes («Certificado vulnerabilidad» e «Informe psicológico») usan fuentes `escalas.*` o `historia_social.*`: no se pueden asociar a un área.
+- **Corrige los «Hechos»:** la valoración se guarda en `RegistrarValoracionPage::guardar()` (no en `CiudadanoPage`), la escala en `CiudadanoPage::guardarEscala()` y la anotación en `CiudadanoPage::guardarAnotacion()` **y en `PlanPage`**. El pre-relleno de fichas es `Ficha::datosPrerrellenados()` (modelo). El bloque B extrae estos cuatro puntos de escritura.
+
 ## Bloque A — Área del encargo
 
 1. Migración: `areas_encargo` y las tres tablas pivote de EA-2; `derivaciones.area_encargo_id` (nullable, FK). `CHECK`: en `modalidad = encargo` creados a partir de esta migración, el área es obligatoria (validación en `EncargoService`; el `CHECK` no puede mirar la fecha, así que se valida en el servicio y se prueba).
@@ -75,6 +81,8 @@
 3. `AreaEncargoResource` en `app/Filament/Resources/` con la caja de herramientas; al asociar una plantilla, rechaza las que usan fuentes prohibidas (EA-9).
 4. `EncargoService::encargar()` recibe `AreaEncargo $area` (activa). El modal «Encargo profesional» añade el selector de área. `DerivacionesPage` y `MisEncargosPage` muestran el área.
 5. Seeder de demo con tres áreas (jurídica, psicológica, formativa) y alguna herramienta en cada una.
+
+**Hecho (25 nov 2026).** Migración `2026_11_25_300001` (siembra las áreas al desplegar, con `AreasEncargoSeeder`, idempotente y también en `DatabaseSeeder`). `AreaEncargo` (código inmutable, sin baja con encargos), pivote `AreaEncargoPlantillaInforme`, que rechaza las plantillas que leen la Historia en cualquier camino. `Modules\Documentos\Support\InformeEncargo`: fuentes por lista blanca y merge tags de expediente, valoración y plan por lista negra (lo reutiliza el bloque E). **Añadido a las instrucciones:** `CajaHerramientasEncargo`, el único sitio que decide qué ficha, escala o plantilla ofrece un encargo (para pintar y para rechazar lo forjado en los bloques D y E). No hay `CHECK` del área (EA-3 se aplica en el servicio, como estaba previsto).
 
 ## Bloque B — Vínculo, servicios y ámbito
 
@@ -177,7 +185,7 @@
 
 | Grupo | Tests | Estado |
 |---|---|---|
-| A — Área del encargo | TF-EAC-01..05 | Pendiente |
+| A — Área del encargo | TF-EAC-01..05 | Hecho (25 nov), con 05 bis |
 | B — Vínculo y ámbito | TF-EAC-06..10 | Pendiente |
 | C — Anotaciones y citas | TF-EAC-11..16 | Pendiente |
 | D — Fichas y escalas | TF-EAC-17..24 | Pendiente |

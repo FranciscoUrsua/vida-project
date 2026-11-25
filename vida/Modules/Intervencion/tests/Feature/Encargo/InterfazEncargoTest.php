@@ -61,6 +61,7 @@ class InterfazEncargoTest extends TestCase
             ->assertSet('modalAbierto', true)
             ->assertSee('Informe médico')
             ->set('centroDestinoId', $this->ciamVallecas->id)
+            ->set('areaId', $this->areaJuridica->id)
             ->set('motivo', 'Orientación jurídica sobre el desahucio')
             ->set('documentoIds', [$informe->id])
             ->call('encargar')
@@ -76,6 +77,7 @@ class InterfazEncargoTest extends TestCase
         // El servicio rechaza un duplicado y la pantalla lo muestra como error.
         $componente->call('abrir')
             ->set('centroDestinoId', $this->ciamVallecas->id)
+            ->set('areaId', $this->areaJuridica->id)
             ->set('motivo', 'Otra vez')
             ->call('encargar')
             ->assertHasErrors('motivo');
@@ -112,6 +114,7 @@ class InterfazEncargoTest extends TestCase
             ->call('abrir', $this->objetivoAna1->id)
             ->assertSet('objetivoId', $this->objetivoAna1->id)
             ->set('centroDestinoId', $this->ciamVallecas->id)
+            ->set('areaId', $this->areaJuridica->id)
             ->set('motivo', 'Orientación jurídica')
             ->call('encargar')
             ->assertHasNoErrors();
@@ -165,7 +168,7 @@ class InterfazEncargoTest extends TestCase
         $bandeja = Livewire::test(DerivacionesPage::class);
         $filas = $bandeja->get('pendientes')->keyBy(fn (array $fila) => $fila['derivacion']->id);
 
-        $this->assertSame(ModalidadDerivacion::Encargo->label(), $filas[$encargo->id]['tipo']);
+        $this->assertSame(ModalidadDerivacion::Encargo->label().' · '.$this->areaJuridica->nombre, $filas[$encargo->id]['tipo']);
         $this->assertSame('CSS Norte', $filas[$encargo->id]['origen']);
         $this->assertSame('PIA', $filas[$derivacion->id]['tipo']);
         $bandeja->assertSee('Encargo profesional');

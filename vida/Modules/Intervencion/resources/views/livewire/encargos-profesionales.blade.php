@@ -17,6 +17,9 @@
                 <div class="d-flex flex-wrap align-items-center gap-2">
                     <span class="badge rounded-pill {{ $encargo->estado->tono()->clasesSuave() }}">{{ $encargo->estado->label() }}</span>
                     <span class="fw-semibold">{{ $encargo->centroDestino->nombre }}</span>
+                    @if($encargo->area)
+                        <span class="badge rounded-pill text-bg-light border">{{ $encargo->area->nombre }}</span>
+                    @endif
                     <span class="text-body-secondary small">{{ $encargo->derivadaPor?->nombreVisible() ?? '—' }} · {{ $encargo->created_at->format('d/m/Y') }}</span>
                     @if($encargo->objetivo)
                         <span class="text-body-secondary small">Objetivo: {{ $encargo->objetivo->texto }}</span>
@@ -96,6 +99,17 @@
                             @if($this->centrosDestino->isEmpty())
                                 <div class="form-text">Ningún centro tiene profesionales que reciban encargos.</div>
                             @endif
+                        </div>
+                        <div>
+                            <label for="encargo-area" class="form-label small fw-semibold mb-1">Área</label>
+                            <select id="encargo-area" wire:model="areaId" class="form-select form-select-sm @error('areaId') is-invalid @enderror">
+                                <option value="">— Elige el área —</option>
+                                @foreach($this->areas as $area)
+                                    <option value="{{ $area->id }}">{{ $area->nombre }}</option>
+                                @endforeach
+                            </select>
+                            @error('areaId') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <div class="form-text">Decide las fichas, escalas e informes que tendrá el profesional.</div>
                         </div>
                         @if($planId !== null)
                             <div>

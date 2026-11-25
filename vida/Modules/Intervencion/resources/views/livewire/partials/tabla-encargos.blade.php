@@ -9,6 +9,7 @@
                 <tr>
                     <th scope="col">Persona</th>
                     <th scope="col">Centro</th>
+                    <th scope="col">Área</th>
                     <th scope="col">Encarga</th>
                     <th scope="col">Motivo</th>
                     <th scope="col">Estado</th>
@@ -34,6 +35,7 @@
                             @endif
                         </td>
                         <td class="text-body-secondary">{{ $encargo->centroDestino?->nombre }}</td>
+                        <td class="text-body-secondary">{{ $encargo->area?->nombre ?? '—' }}</td>
                         <td class="text-body-secondary">{{ $encargo->derivadaPor?->nombreVisible() }}</td>
                         <td class="small">
                             {{-- El motivo de una persona protegida enmascarada tampoco se muestra --}}
@@ -50,7 +52,7 @@
                     </tr>
                     @if($cerrados && $solicitarDe === $encargo->id)
                         <tr wire:key="solicitud-{{ $encargo->id }}">
-                            <td colspan="6" class="bg-body-tertiary">
+                            <td colspan="7" class="bg-body-tertiary">
                                 <label for="justificacion-{{ $encargo->id }}" class="form-label small fw-semibold mb-1">
                                     Justificación <span class="fw-normal text-body-secondary">(mínimo 20 caracteres)</span>
                                 </label>
