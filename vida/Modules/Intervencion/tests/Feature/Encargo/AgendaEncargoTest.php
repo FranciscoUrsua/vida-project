@@ -203,7 +203,8 @@ class AgendaEncargoTest extends TestCase
         $this->actingAs($this->abogadaVallecas);
         $deEncargo = app(CitasEncargo::class)->citar($encargo, $this->tipoCita->id, $this->slotDe($this->abogadaVallecas, $this->ciamVallecas, '10:00'), $this->abogadaVallecas);
 
-        $alEncargo = route('intervencion.encargos.show', $encargo->id);
+        // Con la cita enlazada, para que la actuación la complete (EA-10, bloque C de las actuaciones)
+        $alEncargo = route('intervencion.encargos.show', ['encargo' => $encargo->id, 'cita' => $deEncargo->id]);
         $this->assertSame($alEncargo, app(EnlaceAtencionCita::class)->url($deEncargo));
 
         Livewire::test(AgendaPage::class)
@@ -222,7 +223,8 @@ class AgendaEncargoTest extends TestCase
             ->set('formSolicitud.profesional_destino_id', (string) $this->abogadaVallecas->id)
             ->call('buscarHuecos');
         $deVentanilla->call('citar', $huecoVentanilla->id)->assertHasNoErrors();
-        $this->assertSame($alEncargo, app(EnlaceAtencionCita::class)->url(Cita::where('slot_id', $huecoVentanilla->id)->sole()));
+        $citaVentanilla = Cita::where('slot_id', $huecoVentanilla->id)->sole();
+        $this->assertSame(route('intervencion.encargos.show', ['encargo' => $encargo->id, 'cita' => $citaVentanilla->id]), app(EnlaceAtencionCita::class)->url($citaVentanilla));
 
         // La TSR de referencia abre la Historia Social: su cita lleva a la Historia, no al encargo
         $slotTsr = $this->slotDe($this->tsNorte, $this->cssNorte, '12:00');

@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-11-26 — Actuaciones del profesional de encargo: anotaciones y citas (bloque C)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-encargo-actuaciones.md`, bloque C.
+
+- **`EncargoPage`:** herramienta «Anotación» (texto, visibilidad `profesionales` por defecto o `privada`, casilla «Vincular a la cita de las HH:MM» con el partial `vincular-cita` de la Historia), solo con `ActuacionesEncargo::puedeActuar()` (EA-4). Guarda por `ContextoActuacion::desdeEncargo()` y `AnotacionService`; los rechazos (EA-4, RN-15, cita no vinculable) se muestran en el campo sin perder el texto. Tarjeta «Tus actuaciones en el encargo» con `ActuacionesEncargo::visibles()` (EA-7), privadas marcadas; sigue visible con el encargo cerrado.
+- **Citas del encargo (EA-10):** `?cita=` en `EncargoPage` (`#[Url]`) y propuesta con `AtencionCitaService::citaVinculable()` (la pedida, la de hoy o la pendiente de cierre). «Atender» (`EnlaceAtencionCita`) lleva al encargo con `?cita=`. El apunte completa la cita por el observer de siempre. Retirada del BACKLOG la decisión pendiente; `docs/rol-consulta-profesional.md` al día.
+- **Timeline del TSR (EA-6):** `Apunte::marcaEncargo()`, «Encargo · {área} · {centro}», como insignia en la tarjeta del apunte; `CiudadanoPage::apuntesHS()` carga `derivacion.area` y `derivacion.centroDestino`.
+- **Sin migraciones.** `ui:auditar` sin infracciones.
+- **Tests:** `AnotacionesCitasEncargoTest` (TF-EAC-11 a 16). TF-ENC-37 cambia la URL esperada (ahora con `?cita=`). Negativos comprobados: sin la validación de la cita pedida en `ContextoActuacion` falla 15; sin la regla de autoría de las privadas en `Apunte::scopeVisiblesParaUsuario`, 12. Regresión: carpeta `Encargo` (66), `CiudadanoPageTest` (25), `InterfazCitasTest` (14) y `AccesosExpedienteTest` (11), en verde.
+- **Decisión no prevista:** la etiqueta de la cita del partial sale en dos líneas en el HTML; los tests comprueban hora y fecha en orden (`assertSeeInOrder`).
+- **Suite nocturna lanzada a mano tras el bloque B** (run 45826759022): 1830 tests, 1 fallo, `AlertaToastTest::resume_las_que_no_caben_y_minimiza_todas`, que no tiene que ver con el bloque B. Era un test inestable: `AlertaToast::alertas()` solo ordenaba por `expira_en`, y las cinco alertas del test tienen el mismo plazo. Se añade `orderBy('id')` como desempate estable (con el mismo plazo, la más antigua primero). `AlertaToastTest`: 20 passed.
+
+---
+
 ## 2026-11-26 — Dependencias: parches de seguridad de Symfony 7.4.24
 
 - El hook de pre-commit bloqueaba el commit del bloque B por `composer audit`: 6 avisos en 4 paquetes, publicados el 25 nov (`symfony/html-sanitizer`, CVE-2026-133756, meta refresh; `symfony/http-kernel`, CVE-2026-133743, cabeceras reenviadas en fragmentos inline; `symfony/mailer`, CVE-2026-133751 y 133755, `require_tls` y STARTTLS; `symfony/routing`, CVE-2026-133746, URL a otro host). Todos corregidos en 7.4.24.

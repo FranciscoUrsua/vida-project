@@ -31,6 +31,72 @@
                     <p class="mb-0 text-break">{!! nl2br(e($encargo->motivo)) !!}</p>
                 </div>
 
+                {{-- Anotación desde el encargo (bloque C, EA-4 y EA-10) --}}
+                @if($this->puedeActuar)
+                    <div class="card card-body mb-3" id="encargo-anotacion">
+                        <h3 class="h6 fw-semibold d-flex align-items-center gap-2 mb-2">
+                            <x-heroicon-o-pencil-square class="icon-16" aria-hidden="true"/>
+                            Anotación
+                        </h3>
+                        <label for="encargo-anotacion-texto" class="visually-hidden">Anotación</label>
+                        <textarea id="encargo-anotacion-texto" wire:model="formAnotacion.contenido" rows="4"
+                                  class="form-control form-control-sm mb-2 @error('formAnotacion.contenido') is-invalid @enderror"
+                                  placeholder="Escribe la anotación..."></textarea>
+                        @error('formAnotacion.contenido') <div class="invalid-feedback d-block mb-2">{{ $message }}</div> @enderror
+                        <div class="mb-2">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="encargo-anotacion-profesionales" wire:model="formAnotacion.visibilidad" value="profesionales">
+                                <label class="form-check-label small" for="encargo-anotacion-profesionales">Para profesionales</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" id="encargo-anotacion-privada" wire:model="formAnotacion.visibilidad" value="privada">
+                                <label class="form-check-label small" for="encargo-anotacion-privada">Privada (solo yo)</label>
+                            </div>
+                        </div>
+                        @include('intervencion::partials.vincular-cita')
+                        <p class="form-text mt-0">La anotación para profesionales queda en la Historia Social de la persona y la ve el TSR.</p>
+                        <div>
+                            <button type="button" wire:click="guardarAnotacion" class="btn btn-primary btn-sm">Guardar anotación</button>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Lo que el profesional ha registrado en este encargo (EA-7: solo lo suyo) --}}
+                @if($this->puedeActuar || $this->actuaciones->isNotEmpty())
+                    <div class="card card-body mb-3" id="encargo-actuaciones">
+                        <h3 class="h6 fw-semibold d-flex align-items-center gap-2 mb-2">
+                            <x-heroicon-o-clipboard-document-list class="icon-16" aria-hidden="true"/>
+                            Tus actuaciones en el encargo
+                        </h3>
+                        @if($this->actuaciones->isEmpty())
+                            <p class="small text-body-secondary mb-0">Aún no has registrado ninguna actuación.</p>
+                        @else
+                            <ul class="list-group list-group-flush">
+                                @foreach($this->actuaciones as $actuacion)
+                                    <li class="list-group-item px-0" wire:key="encargo-actuacion-{{ $actuacion->id }}">
+                                        <div class="d-flex flex-wrap align-items-center gap-2 small">
+                                            <span class="fw-semibold">{{ $actuacion->tipo->label() }}</span>
+                                            <span class="text-body-secondary">{{ $actuacion->fecha->format('d/m/Y') }}</span>
+                                            @if($actuacion->visibilidad === \Modules\Intervencion\Enums\VisibilidadApunte::Privada)
+                                                <span class="badge rounded-pill text-bg-light border fw-normal">Privada</span>
+                                            @endif
+                                            @if($actuacion->cita_id)
+                                                <span class="text-body-secondary d-inline-flex align-items-center gap-1">
+                                                    <x-heroicon-o-calendar-days class="icon-14" aria-hidden="true"/>
+                                                    Cita
+                                                </span>
+                                            @endif
+                                        </div>
+                                        @if($actuacion->contenido)
+                                            <p class="small mb-0 mt-1 text-break">{!! nl2br(e($actuacion->contenido)) !!}</p>
+                                        @endif
+                                    </li>
+                                @endforeach
+                            </ul>
+                        @endif
+                    </div>
+                @endif
+
                 @if($encargo->estado === \Modules\Intervencion\Enums\EstadoDerivacion::Cerrada)
                     <div class="card card-body mb-3" id="encargo-resultado">
                         <h3 class="h6 fw-semibold mb-1">Resultado</h3>

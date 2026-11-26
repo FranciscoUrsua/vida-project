@@ -392,6 +392,9 @@
                                 <div class="small text-body-secondary">
                                     {{ $apunte->fecha->format('d/m/Y') }} · {{ $apunte->autor?->name ?? '' }}
                                 </div>
+                                @if($marcaEncargo = $apunte->marcaEncargo())
+                                    <span class="badge rounded-pill text-bg-light border fw-normal">{{ $marcaEncargo }}</span>
+                                @endif
                                 @if($apunte->contenido)
                                     <div class="small text-truncate">{{ $apunte->contenido }}</div>
                                 @endif

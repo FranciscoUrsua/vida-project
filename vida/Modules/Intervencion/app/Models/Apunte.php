@@ -167,6 +167,28 @@ class Apunte extends Model
     }
 
     /**
+     * Marca del timeline para un apunte registrado desde un encargo profesional (EA-6):
+     * «Encargo · {área} · {centro}». Null si no viene de un encargo.
+     *
+     * Conviene cargar antes `derivacion.area` y `derivacion.centroDestino`.
+     *
+     * @return string|null
+     */
+    public function marcaEncargo(): ?string
+    {
+        $encargo = $this->derivacion_id !== null ? $this->derivacion : null;
+        if ($encargo === null) {
+            return null;
+        }
+
+        return implode(' · ', array_filter([
+            'Encargo',
+            $encargo->area?->nombre ?? 'Sin área',
+            $encargo->centroDestino?->nombre,
+        ]));
+    }
+
+    /**
      * Evento de agenda (mesa de caso, coordinación) del que nace el apunte.
      *
      * @return BelongsTo<EventoAgenda, $this>

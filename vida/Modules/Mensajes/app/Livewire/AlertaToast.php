@@ -111,6 +111,8 @@ class AlertaToast extends Component
         return Alerta::pendientesPara(auth()->user())
             ->where('tipo', TipoAlerta::Alerta->value)
             ->orderBy('expira_en')
+            // Desempate estable: con el mismo plazo, la más antigua primero (sin él, PostgreSQL no garantiza orden)
+            ->orderBy('id')
             ->get();
     }
 

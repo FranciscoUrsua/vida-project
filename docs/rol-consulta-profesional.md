@@ -135,7 +135,7 @@ La limitación a sus ciudadanos asignados va en las policies (`CiudadanoPolicy`)
 ## 11. Pendiente (resuelto el 25 nov 2026)
 
 1. **Origen del encargo:** desde el plan principal y también desde la Historia Social (EP-2).
-2. **Citas:** ambos; el propio profesional desde el encargo y la ventanilla del centro, en sus huecos (EP-9). Queda por decidir cómo se cierran sus citas (BACKLOG).
+2. **Citas:** ambos; el propio profesional desde el encargo y la ventanilla del centro, en sus huecos (EP-9). Sus citas se cierran con las actuaciones del encargo: una anotación (y, con los bloques D y E, una ficha o una escala) vinculada a la cita la completa; «Atender» abre el encargo con la cita propuesta (EA-10 de `docs/instrucciones-cli/2026-11-encargo-actuaciones.md`, bloque C, 26 nov 2026).
 3. **Histórico de personas protegidas:** enmascaradas tras el cierre, con «Solicitar acceso» (EP-7).
 4. **Franjas horarias el mismo día:** el centro activo es el del perfil cuya franja contiene la hora actual; sin franja a esa hora, el primer perfil con franjas hoy (bloque F2).
 

@@ -4,7 +4,7 @@
 **Requisito previo:** encargo profesional (`docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloques A a F, cerrado el 25 nov 2026) y fase 5 (informes).
 **Decisiones del desarrollador (25 nov 2026):** el área del encargo decide las herramientas; lo registrado lo ve quien tenga acceso a la Historia Social, como cualquier apunte `profesionales`.
 **Tests:** TF-EAC-01 a TF-EAC-36 (al final de este documento).
-**Estado:** revisadas y aprobadas por el desarrollador el 25 nov 2026. Bloques A (25 nov) y B (26 nov) hechos.
+**Estado:** revisadas y aprobadas por el desarrollador el 25 nov 2026. Bloques A (25 nov), B y C (26 nov) hechos.
 
 **Alcance:**
 - **A.** Área del encargo: entidad, caja de herramientas y elección al encargar.
@@ -100,6 +100,8 @@
 3. «Atender» desde la agenda: `EncargoPage?cita=` propone la cita en las herramientas.
 4. Retirar del BACKLOG la decisión pendiente de las citas del encargo.
 
+**Hecho (26 nov 2026).** En `EncargoPage`, con el encargo en curso (`ActuacionesEncargo::puedeActuar()`): tarjeta «Anotación» (texto, visibilidad, casilla de cita con el partial `vincular-cita` de la Historia) y «Tus actuaciones en el encargo» (`ActuacionesEncargo::visibles()`, privadas con la marca «Privada»), que sigue visible con el encargo cerrado. La cita propuesta la da `AtencionCitaService::citaVinculable()` con `?cita=` (`#[Url]`); al guardar se vuelve a validar en `ContextoActuacion::desdeEncargo()`. `EnlaceAtencionCita` añade `?cita=` al enlace del encargo (cambia la URL esperada en TF-ENC-37). Marca del timeline del TSR: `Apunte::marcaEncargo()` («Encargo · {área} · {centro}»), con el área y el centro del encargo cargados en `CiudadanoPage::apuntesHS()`. Decisión del BACKLOG retirada.
+
 ## Bloque D — Fichas y escalas
 
 1. Rutas bajo el encargo (`encargos/{derivacion}/valoracion`, `encargos/{derivacion}/escala`) que reutilizan las vistas de valoración y escala con un modo «encargo»: autorizan con `ActuacionesEncargo::puedeActuar()`, no con `AccesoExpediente::historia()`, y el selector ofrece solo las herramientas del área (EA-2).
@@ -189,7 +191,7 @@
 |---|---|---|
 | A — Área del encargo | TF-EAC-01..05 | Hecho (25 nov), con 05 bis |
 | B — Vínculo y ámbito | TF-EAC-06..10 | Hecho (26 nov) |
-| C — Anotaciones y citas | TF-EAC-11..16 | Pendiente |
+| C — Anotaciones y citas | TF-EAC-11..16 | Hecho (26 nov) |
 | D — Fichas y escalas | TF-EAC-17..24 | Pendiente |
 | E — Informes | TF-EAC-25..30 | Pendiente |
 | F — Seguimiento y cierre | TF-EAC-31..36 | Pendiente |

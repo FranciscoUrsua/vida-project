@@ -242,7 +242,8 @@ class CiudadanoPage extends Component
         $query = Apunte::withoutGlobalScopes()
             ->where('historia_id', $this->historia->id)
             ->visiblesParaUsuario(Auth::id())
-            ->with('autor')
+            // La marca del encargo (EA-6) necesita el área y el centro del encargo
+            ->with(['autor', 'derivacion.area', 'derivacion.centroDestino'])
             ->latest();
 
         $mapaFiltro = [

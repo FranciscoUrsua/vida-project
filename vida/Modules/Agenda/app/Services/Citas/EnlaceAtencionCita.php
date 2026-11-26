@@ -18,7 +18,8 @@ use Modules\Intervencion\Models\Derivacion;
  * atención, la ficha de Ciudadanía, donde el registro de atención la cierra.
  *
  * El profesional de encargo no abre la Historia Social: su cita lleva al encargo
- * (bloque E de docs/instrucciones-cli/2026-11-encargo-profesional.md). Es el encargo
+ * (bloque E de docs/instrucciones-cli/2026-11-encargo-profesional.md), también con la cita
+ * enlazada (`?cita=`, EA-10 de docs/instrucciones-cli/2026-11-encargo-actuaciones.md). Es el encargo
  * desde el que se dio la cita o, si la dio la ventanilla, el suyo sobre esa historia,
  * el que está en curso antes que uno cerrado.
  */
@@ -41,7 +42,8 @@ class EnlaceAtencionCita
 
         $encargo = $historia !== null ? $this->encargoDe($cita, $historia) : null;
         if ($encargo !== null) {
-            return route('intervencion.encargos.show', $encargo->id);
+            // Con la cita, para que la actuación que se registre la complete (EA-10)
+            return route('intervencion.encargos.show', ['encargo' => $encargo->id, 'cita' => $cita->id]);
         }
 
         $herramienta = $cita->tipoCita->herramienta;

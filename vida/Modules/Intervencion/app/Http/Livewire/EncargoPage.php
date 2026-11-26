@@ -7,6 +7,7 @@ use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use App\Services\PresentacionPersona;
 use DomainException;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -14,16 +15,19 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use InvalidArgumentException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 use LogicException;
-use InvalidArgumentException;
+use Modules\Agenda\Models\Cita;
 use Modules\Agenda\Models\Slot;
 use Modules\Agenda\Models\TipoCita;
+use Modules\Agenda\Services\Citas\AtencionCitaService;
 use Modules\Agenda\Services\Citas\PropuestaHueco;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Documentos\Data\DatosIngesta;
@@ -35,7 +39,12 @@ use Modules\Documentos\Models\TipoDocumental;
 use Modules\Documentos\Services\CicloVidaDocumentoService;
 use Modules\Documentos\Services\LecturaDocumentoService;
 use Modules\Intervencion\Enums\EstadoDerivacion;
+use Modules\Intervencion\Enums\VisibilidadApunte;
+use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\Derivacion;
+use Modules\Intervencion\Services\Actuaciones\AnotacionService;
+use Modules\Intervencion\Services\Actuaciones\ContextoActuacion;
+use Modules\Intervencion\Services\ActuacionesEncargo;
 use Modules\Intervencion\Services\CitasEncargo;
 use Modules\Intervencion\Services\EncargoService;
 
@@ -52,6 +61,12 @@ use Modules\Intervencion\Services\EncargoService;
  * También cita a la persona en sus propios huecos del centro del encargo (bloque E, EP-9):
  * elige el tipo de cita, VIDA propone huecos y él elige uno (CitasEncargo).
  *
+ * Con el encargo en curso registra anotaciones (bloque C de
+ * docs/instrucciones-cli/2026-11-encargo-actuaciones.md, EA-4): quedan en la Historia Social
+ * vinculadas al encargo y, si se marca la casilla, a una cita suya con la persona, que
+ * completan (EA-10). «Atender» desde la agenda abre la página con `?cita=`. La lista de
+ * actuaciones muestra solo las suyas en este encargo (EA-7, `ActuacionesEncargo`).
+ *
  * Solo lo abre el profesional asignado y con el encargo aceptado o cerrado; el resto, 403.
  * Restricción de dominio (EP-7, RN-17 ampliada): si la persona es protegida y el encargo
  * ya está cerrado, deja de verla (salvo acceso protegido aprobado) y la página responde 403,
@@ -65,6 +80,9 @@ use Modules\Intervencion\Services\EncargoService;
  * @property-read Collection<int, TipoDocumental> $tipos
  * @property-read bool $puedeCitar
  * @property-read array<int, string> $tiposCita
+ * @property-read bool $puedeActuar
+ * @property-read Cita|null $citaVinculable
+ * @property-read EloquentCollection<int, Apunte> $actuaciones
  */
 #[Layout('layouts.operativo')]
 class EncargoPage extends Component
@@ -100,6 +118,16 @@ class EncargoPage extends Component
 
     /** @var string|null Confirmación tras cerrar. */
     public ?string $aviso = null;
+
+    /** @var int|null Cita con la que se abrió el encargo desde la agenda (?cita=). */
+    #[Url(as: 'cita', except: null)]
+    public ?int $citaPedida = null;
+
+    /** @var bool Si la actuación que se guarde se vincula a la cita propuesta (marcado por defecto, EA-10). */
+    public bool $vincularCita = true;
+
+    /** @var array{contenido: string, visibilidad: string} Formulario de la anotación. */
+    public array $formAnotacion = ['contenido' => '', 'visibilidad' => 'profesionales'];
 
     /**
      * Autoriza la apertura.
@@ -226,7 +254,7 @@ class EncargoPage extends Component
 
         $this->resultado = '';
         $this->aviso = 'Encargo cerrado. El resultado ya está en la Historia Social y el TSR tiene un aviso.';
-        unset($this->encargo, $this->puedeCerrar, $this->puedeSubir, $this->puedeCitar);
+        unset($this->encargo, $this->puedeCerrar, $this->puedeSubir, $this->puedeCitar, $this->puedeActuar, $this->citaVinculable);
     }
 
     /**
@@ -409,6 +437,86 @@ class EncargoPage extends Component
 
         $this->reset(['tipoCitaId', 'huecos']);
         $this->aviso = "Cita dada el {$propuesta['fecha']} a las {$propuesta['hora']}. Está en tu agenda.";
+    }
+
+    /**
+     * Si el usuario puede registrar actuaciones en el encargo (EA-4); se vuelve a comprobar al guardar.
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeActuar(): bool
+    {
+        return app(ActuacionesEncargo::class)->puedeActuar(auth()->user(), $this->encargo);
+    }
+
+    /**
+     * Cita que se propone vincular a la actuación: la de la agenda (?cita=) o la de hoy o
+     * pendiente de cierre del profesional con la persona (docs/modulo-citas.md §3.5).
+     *
+     * @return Cita|null
+     */
+    #[Computed]
+    public function citaVinculable(): ?Cita
+    {
+        if (! $this->puedeActuar) {
+            return null;
+        }
+
+        return app(AtencionCitaService::class)->citaVinculable($this->persona->id, auth()->user(), $this->citaPedida);
+    }
+
+    /**
+     * Actuaciones del profesional en este encargo, privadas incluidas (EA-7).
+     *
+     * @return EloquentCollection<int, Apunte>
+     */
+    #[Computed]
+    public function actuaciones(): EloquentCollection
+    {
+        return app(ActuacionesEncargo::class)->visibles(auth()->user(), $this->encargo);
+    }
+
+    /**
+     * Guarda una anotación desde el encargo. Quién actúa, la cita y RN-15 los comprueban
+     * ContextoActuacion y AnotacionService; sus rechazos se muestran sin perder el texto.
+     *
+     * @return void
+     */
+    public function guardarAnotacion(): void
+    {
+        $this->resetErrorBag();
+        $this->validate(
+            [
+                'formAnotacion.contenido' => ['required', 'string', 'max:10000'],
+                'formAnotacion.visibilidad' => ['required', 'in:'.VisibilidadApunte::Profesionales->value.','.VisibilidadApunte::Privada->value],
+            ],
+            ['formAnotacion.contenido.required' => 'Escribe la anotación.'],
+        );
+
+        try {
+            $contexto = ContextoActuacion::desdeEncargo(
+                $this->encargo,
+                auth()->user(),
+                $this->vincularCita ? $this->citaVinculable?->id : null,
+            );
+            app(AnotacionService::class)->registrar(
+                $contexto,
+                trim($this->formAnotacion['contenido']),
+                VisibilidadApunte::from($this->formAnotacion['visibilidad']),
+            );
+        } catch (LogicException $e) {
+            // DomainException es LogicException: EA-4, RN-15 o cita no vinculable (también la del observer)
+            $this->addError('formAnotacion.contenido', $e->getMessage());
+
+            return;
+        }
+
+        $this->formAnotacion = ['contenido' => '', 'visibilidad' => 'profesionales'];
+        $this->citaPedida = null;
+        $this->vincularCita = true;
+        $this->aviso = 'Anotación guardada en la Historia Social, vinculada a este encargo.';
+        unset($this->citaVinculable, $this->actuaciones);
     }
 
     /**
