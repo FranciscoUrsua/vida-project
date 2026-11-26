@@ -139,6 +139,8 @@ El sistema soporta dos modos de intercambio con sistemas externos —otras admin
 
 Ambos modos son realidades permanentes, no soluciones provisionales. El diseño debe tratarlos como ciudadanos de primera clase, no como parches.
 
+La interoperabilidad no condiciona el modelo de captura. VIDA registra la información de la forma más útil para el profesional que la trabaja, y la correspondencia con los catálogos extensos de otras administraciones (HSU, SIUSS, reportes autonómicos y estatales) se resuelve a la salida, en una capa de traducción propia de cada destino: equivalencias, reglas de derivación y, cuando el origen es texto libre, clasificación asistida por IA bajo los principios 3.10 y 3.11. Que otro sistema necesite un dato con un desglose determinado no justifica trasladar ese desglose a la pantalla del profesional; si el dato no existe en VIDA, se valora añadir un campo ligero en una ficha configurable antes que reproducir la tabla externa.
+
 ### 3.10 La IA asiste, nunca decide
 
 Ningún componente de inteligencia artificial en VIDA puede tomar decisiones sobre personas. La IA puede analizar situaciones, clasificar demandas, sugerir prestaciones adecuadas, detectar patrones o estructurar información no estructurada, pero toda acción con consecuencias para el ciudadano requiere validación explícita de un profesional. El sistema debe hacer visible cuándo una recomendación o clasificación proviene de un componente de IA, para que el profesional pueda valorarla como tal y no asumirla acríticamente.
@@ -210,6 +212,8 @@ Complementa el principio 3.1 con la distinción técnica concreta: usar **enum P
 ### 4.3 Pasado inmutable
 
 Ningún dato histórico se sobrescribe. Los cambios generan nuevas versiones; los errores se corrigen con trazabilidad explícita (campo `tipo_actualizacion`: `modificacion` vs `correccion`). En cualquier momento debe ser posible reconstruir el estado de cualquier entidad en una fecha pasada.
+
+El pasado inmutable se extiende a la interpretación de los datos: VIDA guarda hechos con fecha, y toda interpretación posterior —deflactores, umbrales de referencia, tramos de clasificación, equivalencias con catálogos externos, codificaciones oficiales— es una capa derivada y versionada que nunca se escribe sobre el dato. Así, un cambio de criterio (una nueva definición de «nivel de ingresos», una nueva versión de un catálogo, otra codificación exigida por la Comunidad) puede aplicarse hacia atrás sin tocar lo registrado, y cualquier cifra calculada en el pasado puede reproducirse con el criterio que estaba vigente entonces. Ver decisiones-tecnicas.md, sección 19.
 
 ### 4.4 Todo logado
 
