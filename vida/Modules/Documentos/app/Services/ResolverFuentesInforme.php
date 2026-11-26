@@ -4,15 +4,18 @@ namespace Modules\Documentos\Services;
 
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
+use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
 use Modules\Documentos\Models\ParametroInforme;
+use Modules\Documentos\Support\InformeEncargo;
 use Modules\Documentos\Support\MergeTagsCatalogo;
 use Modules\Documentos\Support\VariablesDinamicas;
 use Modules\Escalas\Enums\EstadoPase;
 use Modules\Escalas\Models\PaseEscala;
 use Modules\Escalas\Models\TipoEscala;
+use Modules\Intervencion\Models\Derivacion;
 use Modules\Prestaciones\Enums\EstadoPrestacionPersona;
 use Modules\Prestaciones\Models\PrestacionPersona;
 
@@ -38,11 +41,19 @@ class ResolverFuentesInforme
      * @param string $fuente Referencia de fuente (ej: 'ciudadano.datos_basicos')
      * @param int $ciudadanoId ID del ciudadano
      * @param int|null $profesionalId Autor del informe (para `profesional.datos`).
+     * @param Derivacion|null $encargo Encargo del informe, si se redacta desde un encargo.
      *
      * @return array<string, string> Etiqueta → valor.
+     *
+     * @throws \DomainException si, desde un encargo, la fuente lee la Historia Social (EA-9)
      */
-    public function resolver(string $fuente, int $ciudadanoId, ?int $profesionalId = null): array
+    public function resolver(string $fuente, int $ciudadanoId, ?int $profesionalId = null, ?Derivacion $encargo = null): array
     {
+        // EA-9: segunda barrera tras la validación al asociar la plantilla al área
+        if ($encargo !== null && ! InformeEncargo::fuentePermitida($fuente)) {
+            throw new \DomainException("La fuente «{$fuente}» no se puede usar en un informe del encargo: lee la Historia Social.");
+        }
+
         $profesionalId ??= auth()->id();
 
         if ($profesionalId === null) {
@@ -61,7 +72,7 @@ class ResolverFuentesInforme
             ],
             'ciudadano.datos_contacto' => [
                 'Teléfono' => $v['telefono'],
-                'Correo electrónico' => (string) (Ciudadano::find($ciudadanoId)?->email ?: '—'),
+                'Correo electrónico' => (string) (Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->find($ciudadanoId)?->email ?: '—'),
             ],
             'historia_social.resumen' => $this->resumenHistoria($ciudadanoId),
             'historia_social.prestaciones_activas' => $this->prestacionesActivas($ciudadanoId),
@@ -83,8 +94,30 @@ class ResolverFuentesInforme
                 'Cargo' => $v['cargo_profesional'],
                 'Número de colegiado' => $v['numero_colegiado'],
             ],
+            // Solo en el contexto de un encargo
+            'encargo.datos' => $encargo !== null ? $this->datosEncargo($encargo) : [],
             default => [],
         };
+    }
+
+    /**
+     * Datos del encargo para la fuente `encargo.datos` (EA-9): área, centro, motivo, quién lo
+     * encargó y fechas. No lee nada de la Historia Social.
+     *
+     * @param Derivacion $encargo Encargo del informe.
+     *
+     * @return array<string, string>
+     */
+    private function datosEncargo(Derivacion $encargo): array
+    {
+        return [
+            'Área' => $encargo->area?->nombre ?? 'Sin área',
+            'Centro' => $encargo->centroDestino?->nombre ?? '—',
+            'Motivo del encargo' => (string) $encargo->motivo,
+            'Encargado por' => $encargo->derivadaPor?->nombreVisible() ?? '—',
+            'Fecha del encargo' => $encargo->created_at?->format('d/m/Y') ?? '—',
+            'Fecha de asignación' => $encargo->resuelta_en?->format('d/m/Y') ?? '—',
+        ];
     }
 
     /**
@@ -143,6 +176,7 @@ class ResolverFuentesInforme
      * @param int $ciudadanoId ID del ciudadano del informe.
      * @param int $profesionalId ID del profesional emisor.
      * @param Carbon $fechaInforme Fecha del informe.
+     * @param Derivacion|null $encargo Encargo del informe, si se redacta desde un encargo.
      *
      * @return string HTML con valores sustituidos
      */
@@ -150,9 +184,15 @@ class ResolverFuentesInforme
         string $html,
         int $ciudadanoId,
         int $profesionalId,
-        Carbon $fechaInforme
+        Carbon $fechaInforme,
+        ?Derivacion $encargo = null,
     ): string {
         $valores = $this->construirMapaValores($ciudadanoId, $profesionalId, $fechaInforme);
+
+        // EA-9: desde un encargo, las variables que leen la Historia no se resuelven nunca
+        if ($encargo !== null) {
+            $valores = array_merge($valores, array_fill_keys(InformeEncargo::MERGE_TAGS_PROHIBIDOS, '—'));
+        }
 
         foreach ($valores as $clave => $valor) {
             $html = str_replace('{{ '.$clave.' }}', e((string) $valor), $html);
@@ -174,7 +214,9 @@ class ResolverFuentesInforme
         int $profesionalId,
         Carbon $fechaInforme
     ): array {
-        $ciudadano = Ciudadano::findOrFail($ciudadanoId);
+        // Sin el scope de ámbito: el informe ya está autorizado y su autor puede ser un
+        // profesional de encargo, sin ámbito sobre la persona (bloque E de las actuaciones del encargo)
+        $ciudadano = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->findOrFail($ciudadanoId);
         $profesional = User::findOrFail($profesionalId);
 
         // HistoriaSocial: query directa para evitar dependencia del módulo Intervención

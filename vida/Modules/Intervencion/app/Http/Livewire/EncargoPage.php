@@ -30,8 +30,10 @@ use Modules\Documentos\Enums\CanalCaptura;
 use Modules\Documentos\Exceptions\IngestaRechazadaException;
 use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\DocumentoVinculo;
+use Modules\Documentos\Models\Informe;
 use Modules\Documentos\Models\TipoDocumental;
 use Modules\Documentos\Services\CicloVidaDocumentoService;
+use Modules\Documentos\Services\InformeService;
 use Modules\Documentos\Services\LecturaDocumentoService;
 use Modules\Intervencion\Enums\EstadoDerivacion;
 use Modules\Intervencion\Enums\TipoApunte;
@@ -65,7 +67,8 @@ use Modules\Intervencion\Services\EncargoService;
  * completan (EA-10). «Atender» desde la agenda abre la página con `?cita=`. La lista de
  * actuaciones muestra solo las suyas en este encargo (EA-7, `ActuacionesEncargo`).
  *
- * Y abre las fichas de valoración y escalas del área (bloque D, EA-2), con la cita propuesta.
+ * Y abre las fichas de valoración y escalas del área (bloque D, EA-2), con la cita propuesta,
+ * y el asistente de informes con las plantillas del área (bloque E, EA-9); lista sus informes.
  *
  * Quién lo abre (profesional asignado, encargo aceptado o cerrado, EP-7) lo decide
  * ConEncargoAutorizado.
@@ -78,6 +81,8 @@ use Modules\Intervencion\Services\EncargoService;
  * @property-read array<int, string> $tiposCita
  * @property-read Cita|null $citaVinculable
  * @property-read list<string> $herramientasArea
+ * @property-read EloquentCollection<int, Informe> $informes
+ * @property-read list<string> $borradoresAbiertos
  * @property-read EloquentCollection<int, Apunte> $actuaciones
  */
 #[Layout('layouts.operativo')]
@@ -423,8 +428,8 @@ class EncargoPage extends Component
     }
 
     /**
-     * Herramientas de valoración que ofrece el área del encargo (EA-2): «valoracion» y «escala»,
-     * cada una solo si el área tiene alguna ficha o escala activa.
+     * Herramientas que ofrece el área del encargo (EA-2, EA-9): «valoracion», «escala» e
+     * «informe», cada una solo si el área tiene alguna ficha, escala o plantilla activa.
      *
      * @return list<string>
      */
@@ -440,14 +445,15 @@ class EncargoPage extends Component
         return array_values(array_filter([
             $caja->tiposFicha($this->encargo)->isNotEmpty() ? 'valoracion' : null,
             $caja->tiposEscala($this->encargo)->isNotEmpty() ? 'escala' : null,
+            $caja->plantillasInforme($this->encargo)->isNotEmpty() ? 'informe' : null,
         ]));
     }
 
     /**
-     * Abre la herramienta de valoración o escala del encargo, con la cita propuesta si la
-     * casilla está marcada (EA-10).
+     * Abre la herramienta del encargo: la valoración o la escala con la cita propuesta si la
+     * casilla está marcada (EA-10); el informe, en el asistente de informes (sin cita).
      *
-     * @param string $herramienta «valoracion» o «escala».
+     * @param string $herramienta «valoracion», «escala» o «informe».
      *
      * @return void
      */
@@ -455,10 +461,98 @@ class EncargoPage extends Component
     {
         abort_unless(in_array($herramienta, $this->herramientasArea, true), 403);
 
+        if ($herramienta === 'informe') {
+            $this->redirect(route('intervencion.encargos.informe.nuevo', $this->encargo->id), navigate: true);
+
+            return;
+        }
+
         $this->redirect(route("intervencion.encargos.{$herramienta}", array_filter([
             'encargo' => $this->encargo->id,
             'cita' => $this->vincularCita ? $this->citaVinculable?->id : null,
         ])), navigate: true);
+    }
+
+    /**
+     * Informes del profesional en este encargo, del más reciente al más antiguo (EA-7: solo los
+     * suyos; vacío si ya no ve a la persona).
+     *
+     * @return EloquentCollection<int, Informe>
+     */
+    #[Computed]
+    public function informes(): EloquentCollection
+    {
+        return Informe::query()
+            ->with(['plantilla', 'documento'])
+            ->where('derivacion_id', $this->encargo->id)
+            ->where('autor_id', auth()->id())
+            ->latest()
+            ->get()
+            ->filter(fn (Informe $informe): bool => Gate::allows('view', $informe))
+            ->values();
+    }
+
+    /**
+     * URL para seguir redactando un borrador, si aún se puede editar (encargo en curso).
+     *
+     * @param Informe $informe
+     *
+     * @return string|null
+     */
+    public function urlEditarInforme(Informe $informe): ?string
+    {
+        return Gate::allows('update', $informe)
+            ? route('intervencion.encargos.informe.editar', ['encargo' => $this->encargo->id, 'informe' => $informe->id])
+            : null;
+    }
+
+    /**
+     * URL firmada del PDF de un informe firmado, si puede abrir su documento.
+     *
+     * @param Informe $informe
+     *
+     * @return string|null
+     */
+    public function urlPdfInforme(Informe $informe): ?string
+    {
+        $documento = $informe->documento;
+
+        return $documento !== null && Gate::allows('view', $documento)
+            ? app(LecturaDocumentoService::class)->urlTemporal($documento)
+            : null;
+    }
+
+    /**
+     * Borradores que impiden cerrar el encargo (EA-11), para explicar qué falta.
+     *
+     * @return list<string>
+     */
+    #[Computed]
+    public function borradoresAbiertos(): array
+    {
+        return $this->puedeCerrar ? app(ActuacionesEncargo::class)->borradoresAbiertos($this->encargo) : [];
+    }
+
+    /**
+     * Descarta un borrador de informe propio del encargo (la eliminación de borradores de la
+     * fase 5; solo su autor, InformePolicy::delete).
+     *
+     * @param int $informeId
+     *
+     * @return void
+     */
+    public function eliminarBorrador(int $informeId): void
+    {
+        $this->resetErrorBag();
+
+        // Solo uno de los informes de este encargo que ve: el resto, 404
+        $informe = $this->informes->firstWhere('id', $informeId);
+        abort_if($informe === null, 404);
+
+        app(InformeService::class)->eliminarBorrador($informe, auth()->user());
+
+        $this->aviso = 'Borrador descartado.';
+        unset($this->informes, $this->borradoresAbiertos);
     }
 
     /**

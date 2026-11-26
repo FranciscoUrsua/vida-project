@@ -701,6 +701,15 @@ profesional de otro centro sin abrir plan especializado, sin prestación ni tipo
    contexto de mensaje (`TipoContextoMensaje::Encargo`) y cierra con un resultado obligatorio
    (estado `cerrada`, `resultado` cifrado), que queda como apunte `encargo` en la Historia
    Social y avisa al TSR. No lee la Historia ni los apuntes.
+   **Actuaciones del encargo** (26 nov 2026, `docs/instrucciones-cli/2026-11-encargo-actuaciones.md`):
+   el TSR elige el **área del encargo** (`AreaEncargo`), que decide su caja de herramientas
+   (`CajaHerramientasEncargo`). Desde el encargo, el profesional registra anotaciones, fichas de
+   valoración, escalas e informes por los servicios compartidos con la Historia
+   (`AnotacionService`, `ValoracionService`, `PaseEscalaService`, `InformeService::crearDesdeEncargo`
+   con `ContextoActuacion::desdeEncargo()`): quedan con `derivacion_id` y sin plan, y la tarjeta
+   del timeline lleva «Encargo · {área} · {centro}». Solo ve lo suyo (`ActuacionesEncargo`); el
+   TSR ve las actuaciones de cada encargo en «Encargo profesional» (sin anotaciones privadas
+   ajenas) y no recibe aviso por actuación. No se cierra con borradores abiertos (EA-11).
 4. **Personas protegidas.** Identidad visible mientras el encargo está aceptado; cerrado, el
    profesional la ve enmascarada con «Solicitar acceso» (EP-7, RN-17 ampliada, RN-18).
 
@@ -771,6 +780,7 @@ El apunte es el nodo de conexión de la Historia Social con entidades heterogén
 - `visibilidad` (enum: `privada`, `profesionales`, `ciudadano`)
 - `cita_id` (FK nullable — cita que atiende el apunte; fase Citas, 2026-09-30)
 - `evento_agenda_id` (FK nullable — evento de agenda del que nace, p. ej. una mesa de caso)
+- `derivacion_id` (FK nullable — encargo profesional desde el que se registró; con él, `plan_id` es null. También en `fichas`, `pases_escala` e `informes`. Ver §5.7.1)
 
 **Apunte y cita (docs/modulo-citas.md §3.5 y §5):** el primer apunte vinculado completa la cita (una cita puede tener varios). Desde la agenda, *Atender* abre la ficha con la herramienta del tipo de cita y la cita enlazada (`?cita=`); desde la ficha, si la persona tiene cita con el profesional hoy o pendiente de cierre, las herramientas proponen vincularla con la casilla «Vincular a la cita de las HH:MM», marcada por defecto. No se vincula a una cita con incomparecencia o cancelada, salvo supervisión con motivo. El detalle del apunte en el timeline añade la sección *Cita* (origen, solicitud, fecha prevista y real, demora, modo de asignación, reprogramaciones, acompañantes y enlace al historial) o *Coordinación* (evento y convocados); el resumen de la tarjeta no cambia. La herramienta «Solicitar cita» y la casilla «Solicitar cita para ese seguimiento» al programar un seguimiento crean una solicitud en la bandeja de citación del centro.
 

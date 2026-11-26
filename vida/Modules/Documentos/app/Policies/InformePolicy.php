@@ -92,9 +92,14 @@ class InformePolicy
      */
     public function update(User $usuario, Informe $informe): bool
     {
-        return $informe->estado === EstadoInforme::Borrador
-            && $informe->autor_id === $usuario->id
-            && $this->view($usuario, $informe);
+        if ($informe->estado !== EstadoInforme::Borrador || $informe->autor_id !== $usuario->id || ! $this->view($usuario, $informe)) {
+            return false;
+        }
+
+        // Desde un encargo, solo mientras pueda actuar en él (EA-4); cerrado, solo lectura (EA-11)
+        $encargo = $informe->derivacion_id !== null ? $informe->derivacion : null;
+
+        return $encargo === null || app(ActuacionesEncargo::class)->puedeActuar($usuario, $encargo);
     }
 
     /**

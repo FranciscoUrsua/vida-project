@@ -47,6 +47,21 @@
                     </div>
                 @endif
 
+                {{-- Actuaciones del profesional desde el encargo (EA-12), sin sus anotaciones privadas --}}
+                @if($actuacionesEncargo = $this->actuaciones->get($encargo->id))
+                    <ul class="list-unstyled small mt-1 mb-0 border-start ps-2">
+                        @foreach($actuacionesEncargo as $actuacion)
+                            <li class="mb-1" wire:key="encargo-{{ $encargo->id }}-actuacion-{{ $actuacion->id }}">
+                                <a href="{{ $this->urlApunte($actuacion) }}" wire:navigate class="fw-semibold">{{ $actuacion->tipo->label() }}</a>
+                                <span class="text-body-secondary">· {{ $actuacion->fecha->format('d/m/Y') }} · {{ $actuacion->autor?->name }}</span>
+                                @if($actuacion->contenido)
+                                    <span class="d-block text-truncate">{{ $actuacion->contenido }}</span>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+
                 @if($anularId === $encargo->id)
                     <div class="mt-2">
                         <label for="motivo-anulacion-encargo-{{ $encargo->id }}" class="form-label small fw-semibold mb-1">Motivo de la anulación</label>

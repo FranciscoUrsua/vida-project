@@ -19,6 +19,7 @@ use Modules\Documentos\Models\Documento;
 use Modules\Documentos\Models\DocumentoVinculo;
 use Modules\Intervencion\Enums\EstadoDerivacion;
 use Modules\Intervencion\Enums\EstadoPlan;
+use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\AreaEncargo;
 use Modules\Intervencion\Models\Derivacion;
 use Modules\Intervencion\Models\PlanDeIntervencion;
@@ -36,6 +37,9 @@ use Modules\Intervencion\Services\EncargoService;
  * actuar en su centro (EP-2, RN-15); todas las reglas las aplica EncargoService, esta
  * pantalla solo las refleja.
  *
+ * Cada encargo muestra lo que el profesional ha registrado desde él, con enlace al timeline
+ * (EA-12 de docs/instrucciones-cli/2026-11-encargo-actuaciones.md), sin sus anotaciones privadas.
+ *
  * @property-read HistoriaSocial $historia
  * @property-read PlanDeIntervencion|null $plan
  * @property-read bool $puedeEncargar
@@ -44,6 +48,7 @@ use Modules\Intervencion\Services\EncargoService;
  * @property-read Collection<int, PlanObjetivo> $objetivos
  * @property-read Collection<int, Documento> $documentosCarpeta
  * @property-read Collection<int, Derivacion> $encargos
+ * @property-read Collection<int, Collection<int, Apunte>> $actuaciones
  */
 class EncargosProfesionales extends Component
 {
@@ -192,6 +197,43 @@ class EncargosProfesionales extends Component
             ->with(['centroDestino', 'area', 'objetivo', 'eventos.actor.profesional', 'profesionalResponsable.profesional', 'derivadaPor.profesional'])
             ->latest()
             ->get();
+    }
+
+    /**
+     * Actuaciones registradas desde cada encargo, por id de encargo (EA-12): las que el
+     * usuario puede ver, nunca las anotaciones privadas de otro (restricción de dominio).
+     *
+     * @return Collection<int, Collection<int, Apunte>>
+     */
+    #[Computed]
+    public function actuaciones(): Collection
+    {
+        $ids = $this->encargos->pluck('id');
+        if ($ids->isEmpty()) {
+            return collect();
+        }
+
+        // Sin el scope de ámbito: quien llega aquí ya ve la historia; manda la visibilidad del apunte
+        return Apunte::withoutGlobalScopes()
+            ->whereIn('derivacion_id', $ids)
+            ->visiblesParaUsuario((int) Auth::id())
+            ->with('autor')
+            ->latest('fecha')
+            ->latest('id')
+            ->get()
+            ->groupBy('derivacion_id');
+    }
+
+    /**
+     * Enlace al apunte en el timeline de la Historia Social, que abre su detalle.
+     *
+     * @param Apunte $apunte
+     *
+     * @return string
+     */
+    public function urlApunte(Apunte $apunte): string
+    {
+        return route('intervencion.ciudadano.show', ['historia' => $this->historiaId, 'apunte' => $apunte->id]);
     }
 
     /**

@@ -48,13 +48,16 @@ La derivación actual (fase 3) va de centro a centro, crea un **plan especializa
 | Unidad de convivencia | Lectura |
 | Relaciones | Lectura |
 | Encargo (motivo, contexto, documentos del TSR) | Lectura |
-| Resultado del encargo | Registro y cierre |
+| Resultado del encargo | Registro y cierre (no con borradores abiertos, EA-11) |
+| Actuaciones del encargo (anotaciones, fichas de valoración, escalas, informes) | Registro desde el encargo con las herramientas de su área, y lectura de las suyas, también con el encargo cerrado (`docs/instrucciones-cli/2026-11-encargo-actuaciones.md`, 26 nov 2026) |
 | Documentos | Ver §6 |
-| Historia Social (apuntes, planes, valoraciones, timeline) | Sin acceso |
+| Historia Social (apuntes, planes, valoraciones, timeline) | Sin acceso: solo ve lo que ha registrado él en sus encargos (EA-7) |
 | Prestaciones, situación social (Capa 2) | Sin acceso |
 | Citas | Las suyas, en su agenda (§8) |
 
 No edita la ficha.
+
+**Actuaciones del encargo** (26 nov 2026): desde `EncargoPage`, con el encargo aceptado y adscrito a su centro, registra anotaciones (para profesionales o privadas), fichas de valoración y escalas del **área del encargo** (`AreaEncargo`, la elige el TSR al encargar) e informes con las plantillas del área, que solo pueden usar datos de la persona, del profesional y del encargo (`encargo.datos`). Todo queda en la Historia Social vinculado al encargo (`derivacion_id`) con la marca «Encargo · {área} · {centro}», y el TSR lo sigue en «Encargo profesional»; las anotaciones privadas solo las ve él. Una actuación vinculada a una cita suya la completa. No hay pre-relleno de fichas ni serie de escalas (EA-8, BACKLOG).
 
 ---
 

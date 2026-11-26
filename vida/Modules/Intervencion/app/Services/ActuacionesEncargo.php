@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
+use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Models\Informe;
+use Modules\Escalas\Enums\EstadoPase;
 use Modules\Escalas\Models\PaseEscala;
 use Modules\Intervencion\Enums\EstadoDerivacion;
 use Modules\Intervencion\Models\Apunte;
@@ -85,6 +87,25 @@ class ActuacionesEncargo
     }
 
     /**
+     * El encargo, si es del usuario (aceptado o cerrado) y sigue viendo a su persona; si no, null.
+     *
+     * Lo usan las páginas que abren un encargo fuera del módulo (el asistente de informes).
+     *
+     * @param User $usuario
+     * @param int $encargoId
+     *
+     * @return Derivacion|null
+     */
+    public function encargoAutorizado(User $usuario, int $encargoId): ?Derivacion
+    {
+        if (! $this->encargoVisible($usuario, $encargoId)) {
+            return null;
+        }
+
+        return Derivacion::query()->with(['centroDestino', 'area', 'derivadaPor.profesional'])->find($encargoId);
+    }
+
+    /**
      * Apuntes de las actuaciones del usuario en el encargo, del más reciente al más antiguo.
      *
      * Vacío si el encargo no es suyo o ya no ve a la persona (EA-11). Incluye sus anotaciones
@@ -108,6 +129,37 @@ class ActuacionesEncargo
             ->orderByDesc('fecha')
             ->orderByDesc('id')
             ->get();
+    }
+
+    /**
+     * Borradores abiertos del encargo que impiden cerrarlo (EA-11): informes en borrador,
+     * fichas sin completar y pases de escala en borrador vinculados al encargo.
+     *
+     * @param Derivacion $encargo
+     *
+     * @return list<string> Descripción de cada borrador, vacía si no hay ninguno.
+     */
+    public function borradoresAbiertos(Derivacion $encargo): array
+    {
+        $informes = Informe::query()->with('plantilla')
+            ->where('derivacion_id', $encargo->id)
+            ->where('estado', EstadoInforme::Borrador->value)
+            ->get()
+            ->map(fn (Informe $informe): string => "informe «{$informe->plantilla?->nombre}» en borrador");
+
+        $fichas = Ficha::query()->with('tipoFicha')
+            ->where('derivacion_id', $encargo->id)
+            ->where('completada', false)
+            ->get()
+            ->map(fn (Ficha $ficha): string => "ficha «{$ficha->tipoFicha?->nombre}» sin completar");
+
+        $pases = PaseEscala::query()->with('tipoEscala')
+            ->where('derivacion_id', $encargo->id)
+            ->where('estado', EstadoPase::Borrador->value)
+            ->get()
+            ->map(fn (PaseEscala $pase): string => "escala «{$pase->tipoEscala?->nombre}» en borrador");
+
+        return $informes->concat($fichas)->concat($pases)->values()->all();
     }
 
     /**

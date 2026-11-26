@@ -269,12 +269,13 @@ Rechaza con `FirmaRechazadaException` (código estable y mensaje llano). Un fall
 
 ### InformeService y PisoFirmadoService (fase 5)
 
-- **`InformeService`**: `crear()` (plantilla activa; el texto libre parte de `contenido_plantilla`), `guardarSeccion()` (solo secciones de texto libre; una automática o inexistente se ignora), `obligatoriasVacias()` y `eliminarBorrador()`. Cada método autoriza con `InformePolicy`.
+- **`InformeService`**: `crear()` (plantilla activa; el texto libre parte de `contenido_plantilla`), `crearDesdeEncargo()` (26 nov 2026: profesional que puede actuar en el encargo, plantilla del área sin fuentes ni variables de la Historia; `derivacion_id` en el informe), `guardarSeccion()` (solo secciones de texto libre; una automática o inexistente se ignora), `obligatoriasVacias()` y `eliminarBorrador()`. Cada método autoriza con `InformePolicy`.
 - **`PisoFirmadoService`**: `activo()` y `subir()` (ingesta normal por el canal `escaneo`; si ya hay uno activo, versión nueva del mismo documento y nuevo `PisoFirmado`; si el documento anterior ya no está vigente, documento nuevo).
 
 ### InformePolicy y PisoFirmadoPolicy (fase 5, paso 5)
 
-- **`InformePolicy`**: `view` = `HistoriaSocialPolicy::view` de la historia del informe (incluye el equipo de un plan en curso y RN-17 ampliada; sin `historia.leer` no se ven informes). `crear` = escritura en la historia o `plan.editar` y ser responsable o equipo (adscrito a la UO del centro) de un plan **activo** de la persona (F5-3). `update`, `firmar` y `delete`: autor y borrador. `anular`: autor y firmado.
+- **`InformePolicy`**: `view` = `HistoriaSocialPolicy::view` de la historia del informe (incluye el equipo de un plan en curso y RN-17 ampliada; sin `historia.leer` no se ven informes). `crear` = escritura en la historia o `plan.editar` y ser responsable o equipo (adscrito a la UO del centro) de un plan **activo** de la persona (F5-3). `update`, `firmar` y `delete`: autor y borrador (`update` y `firmar`, si el informe es de un encargo, además poder actuar en él). `anular`: autor y firmado. Vía del encargo en `view`: el autor, en un encargo suyo cuya persona sigue viendo (`ActuacionesEncargo`).
+- **Informes del encargo** (26 nov 2026, `docs/instrucciones-cli/2026-11-encargo-actuaciones.md`, EA-9): el asistente en modo encargo (rutas `intervencion.encargos.informe.*`) ofrece las plantillas del área. El PDF firmado se vincula a la persona y al encargo, y el apunte `documento` lleva `derivacion_id`.
 - **`PisoFirmadoPolicy`**: `subir` solo en el plan principal activo, por su responsable o la supervisión de su centro, y con RN-17 si la persona está protegida. `ver` = ver el plan.
 - **`DocumentoPolicy`**: el PDF de un informe solo lo ve quien supera `InformePolicy::view`, aunque otra vía (carpeta, tramitación) diera acceso al documento.
 
@@ -293,6 +294,8 @@ En caso de colisión de clave, los tags contextuales siempre ganan frente a los 
 El método `resolverMergeTags(string $html, int $ciudadanoId, int $profesionalId, Carbon $fechaInforme): string` sustituye todos los tags en el HTML de una sección y devuelve el HTML con los valores reales.
 
 **`resolver(string $fuente, int $ciudadanoId, ?int $profesionalId)`** (fase 5; hasta entonces devolvía `[]`): pares etiqueta → valor de una fuente automática, a partir del mismo mapa de los merge tags. Resueltas: `ciudadano.datos_basicos`, `ciudadano.datos_contacto`, `historia_social.resumen`, `historia_social.prestaciones_activas` (prestaciones concedidas o activas de la persona), `escalas.barthel_ultimo`, `escalas.pfeiffer_ultimo`, `escalas.lawton_ultimo` y `profesional.datos`. El resto (`ciudadano.unidad_convivencia`, `historia_social.prestaciones_historico`, `historia_social.plan_activo`, `escalas.historico_barthel`) devuelve `[]` («Sin datos disponibles», BACKLOG).
+
+**Contexto de encargo** (26 nov 2026): `resolver()` y `resolverMergeTags()` reciben el encargo del informe (`?Derivacion $encargo`). Con él, solo se admiten las fuentes de `InformeEncargo::FUENTES_PERMITIDAS` (el resto lanza `DomainException`), se resuelve `encargo.datos` (área, centro, motivo, quién encarga, fechas del encargo y de asignación) y los merge tags que leen la Historia salen como «—». La persona se carga sin el scope de ámbito: el informe ya está autorizado.
 
 **Variables auxiliares.** Además de los tags contextuales (ciudadano, profesional, escalas), el resolver incluye dos categorías adicionales con menor prioridad: variables dinámicas de sistema (fecha_hoy, año_actual, mes_actual — calculadas en tiempo de ejecución mediante `VariablesDinamicas::resolver()`) y parámetros configurables almacenados en `parametros_informe` y gestionados desde el backoffice (`ParametroInformeResource`). En caso de colisión de clave, los tags contextuales siempre tienen prioridad.
 

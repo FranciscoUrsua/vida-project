@@ -2,6 +2,8 @@
 
 namespace Modules\Documentos\Services;
 
+use App\Models\Ciudadano;
+use App\Models\Scopes\AmbitoUoScope;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Barryvdh\DomPDF\PDF as PdfDocument;
 use Modules\Documentos\Data\DatosIngesta;
@@ -83,10 +85,12 @@ class ServicioGeneracionPDF
 
         foreach ($informe->plantilla->secciones ?? [] as $seccion) {
             if (($seccion['tipo'] ?? '') === 'automatico' && isset($seccion['fuente'], $seccion['id'])) {
+                // Desde un encargo, con su contexto: rechaza las fuentes que leen la Historia (EA-9)
                 $datos[$seccion['id']] = $this->resolverFuentes->resolver(
                     $seccion['fuente'],
                     $informe->ciudadano_id,
                     $informe->autor_id,
+                    $informe->derivacion,
                 );
             }
         }
@@ -118,6 +122,7 @@ class ServicioGeneracionPDF
                 $informe->ciudadano_id,
                 $informe->autor_id,
                 $fecha,
+                $informe->derivacion,
             );
         }
 
@@ -252,7 +257,13 @@ class ServicioGeneracionPDF
                 tipo: $tipo,
                 usuario: $informe->autor,
                 canal: CanalCaptura::Generado,
-                vinculos: [$informe->ciudadano],
+                // Desde un encargo, también vinculado a él (EA-9): el profesional lo abre por AccesoDocumentosEncargo
+                // La persona sin el scope de ámbito: el informe ya está autorizado y el autor puede ser
+                // un profesional de encargo, sin ámbito sobre ella; si faltara, falla en vez de omitirla
+                vinculos: array_values(array_filter([
+                    Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->findOrFail($informe->ciudadano_id),
+                    $informe->derivacion,
+                ])),
                 nombreOriginal: "informe_{$informe->id}_firmado.pdf",
                 informeId: $informe->id,
                 plantillaInformeId: $informe->plantilla_id,

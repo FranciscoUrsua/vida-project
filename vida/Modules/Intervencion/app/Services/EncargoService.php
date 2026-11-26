@@ -194,7 +194,8 @@ class EncargoService
     }
 
     /**
-     * Cierra el encargo con el resultado del profesional asignado (EP-4, EP-5).
+     * Cierra el encargo con el resultado del profesional asignado (EP-4, EP-5). No se cierra con
+     * borradores de informe, ficha o escala abiertos (EA-11 de 2026-11-encargo-actuaciones.md).
      *
      * @param Derivacion $encargo Encargo aceptado.
      * @param string $resultado Resultado de la actuación (obligatorio).
@@ -202,7 +203,7 @@ class EncargoService
      *
      * @return void
      *
-     * @throws DomainException
+     * @throws DomainException Si no lo cierra su profesional, RN-15, sin resultado o con borradores abiertos.
      */
     public function cerrar(Derivacion $encargo, string $resultado, User $actor): void
     {
@@ -215,6 +216,12 @@ class EncargoService
 
         // RN-15: el centro de la operación es el del encargo (D1.6), aunque hoy trabaje en otro
         $this->centros->exigirActuacion($actor, $encargo->centroDestino);
+
+        // EA-11: no se cierra con borradores abiertos; hay que completarlos o descartarlos
+        $borradores = app(ActuacionesEncargo::class)->borradoresAbiertos($encargo);
+        if ($borradores !== []) {
+            throw new DomainException('No se puede cerrar el encargo con borradores abiertos: '.implode(', ', $borradores).'. Complétalos o descártalos antes de cerrar.');
+        }
 
         $resultado = trim($resultado);
         if ($resultado === '') {

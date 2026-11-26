@@ -1,6 +1,6 @@
-{{-- Asistente de informe profesional (fase 5): plantilla → redacción → vista previa → firma. --}}
+{{-- Asistente de informe profesional (fase 5): plantilla → redacción → vista previa → firma. Desde la Historia Social o desde un encargo (bloque E de las actuaciones del encargo). --}}
 @php
-    $ciudadano = $historia->ciudadano;
+    $ciudadano = $this->persona;
     $nombrePersona = $ciudadano ? trim($ciudadano->nombre.' '.$ciudadano->apellido1.' '.($ciudadano->apellido2 ?? '')) : 'la persona';
     $pasos = [1 => 'Plantilla', 2 => 'Redacción', 3 => 'Vista previa', 4 => 'Firma'];
     $informe = $this->informe;
@@ -11,9 +11,9 @@
 
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
             <div>
-                <a href="{{ route('intervencion.ciudadano.show', ['historia' => $historia->id, 'herramienta' => 'informes']) }}" wire:navigate
+                <a href="{{ $this->volverUrl() }}" wire:navigate
                    class="link-secondary small text-decoration-none d-inline-flex align-items-center gap-1">
-                    <x-heroicon-o-arrow-left class="icon-12" aria-hidden="true"/> Volver a la Historia Social
+                    <x-heroicon-o-arrow-left class="icon-12" aria-hidden="true"/> {{ $this->volverTexto() }}
                 </a>
                 <h1 class="h5 fw-bold mb-0 mt-1">
                     {{ $informe ? $informe->plantilla->nombre : 'Nuevo informe' }}
@@ -142,7 +142,7 @@
                 </details>
 
                 <div class="d-flex justify-content-end gap-2">
-                    <a href="{{ route('intervencion.ciudadano.show', ['historia' => $historia->id, 'herramienta' => 'informes']) }}" wire:navigate class="btn btn-outline-secondary">Seguir más tarde</a>
+                    <a href="{{ $this->volverUrl() }}" wire:navigate class="btn btn-outline-secondary">Seguir más tarde</a>
                     <button type="button" wire:click="irAPaso(3)" class="btn btn-primary">Vista previa</button>
                 </div>
             </div>

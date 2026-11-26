@@ -61,7 +61,7 @@
 
                         @if($this->herramientasArea !== [])
                             <div class="border-top pt-3 mt-3" id="encargo-herramientas">
-                                <h4 class="small fw-semibold mb-2">Valoración del área {{ $encargo->area?->nombre }}</h4>
+                                <h4 class="small fw-semibold mb-2">Herramientas del área {{ $encargo->area?->nombre }}</h4>
                                 <div class="d-flex flex-wrap gap-2">
                                     @if(in_array('valoracion', $this->herramientasArea, true))
                                         <button type="button" wire:click="abrirHerramienta('valoracion')" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1">
@@ -75,10 +75,44 @@
                                             Escala
                                         </button>
                                     @endif
+                                    @if(in_array('informe', $this->herramientasArea, true))
+                                        <button type="button" wire:click="abrirHerramienta('informe')" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1">
+                                            <x-heroicon-o-document-text class="icon-16" aria-hidden="true"/>
+                                            Informe
+                                        </button>
+                                    @endif
                                 </div>
-                                <p class="form-text mb-0">Si marcas la cita, la ficha o la escala también la completan.</p>
+                                <p class="form-text mb-0">Si marcas la cita, la ficha o la escala también la completan. El informe firmado queda en la carpeta de la persona.</p>
                             </div>
                         @endif
+                    </div>
+                @endif
+
+                {{-- Informes del profesional en este encargo (bloque E, EA-9) --}}
+                @if($this->informes->isNotEmpty())
+                    <div class="card card-body mb-3" id="encargo-informes">
+                        <h3 class="h6 fw-semibold d-flex align-items-center gap-2 mb-2">
+                            <x-heroicon-o-document-text class="icon-16" aria-hidden="true"/>
+                            Tus informes del encargo
+                        </h3>
+                        <ul class="list-group list-group-flush">
+                            @foreach($this->informes as $informe)
+                                <li class="list-group-item px-0 d-flex flex-wrap align-items-center gap-2" wire:key="encargo-informe-{{ $informe->id }}">
+                                    <span class="small fw-semibold">{{ $informe->plantilla?->nombre }}</span>
+                                    <span class="badge rounded-pill {{ $informe->estado->tono()->clasesSuave() }}">{{ $informe->estado->label() }}</span>
+                                    <span class="small text-body-secondary">{{ ($informe->firmado_en ?? $informe->created_at)->format('d/m/Y') }}</span>
+                                    <span class="ms-auto d-flex gap-2">
+                                        @if($urlEditar = $this->urlEditarInforme($informe))
+                                            <a href="{{ $urlEditar }}" wire:navigate class="btn btn-outline-primary btn-sm">Seguir redactando</a>
+                                            <button type="button" wire:click="eliminarBorrador({{ $informe->id }})" wire:confirm="¿Descartar este borrador? No se puede recuperar." class="btn btn-outline-danger btn-sm">Descartar</button>
+                                        @endif
+                                        @if($urlPdf = $this->urlPdfInforme($informe))
+                                            <a href="{{ $urlPdf }}" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm">Ver PDF</a>
+                                        @endif
+                                    </span>
+                                </li>
+                            @endforeach
+                        </ul>
                     </div>
                 @endif
 
@@ -132,6 +166,16 @@
                 @elseif($this->puedeCerrar)
                     <div class="card card-body mb-3" id="encargo-cerrar">
                         <h3 class="h6 fw-semibold mb-2">Registrar el resultado y cerrar</h3>
+                        @if($this->borradoresAbiertos !== [])
+                            <div class="alert alert-warning py-2 px-3 small" role="status">
+                                <p class="fw-semibold mb-1">Antes de cerrar, completa o descarta:</p>
+                                <ul class="mb-0 ps-3">
+                                    @foreach($this->borradoresAbiertos as $borrador)
+                                        <li>{{ ucfirst($borrador) }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <label for="encargo-resultado-texto" class="form-label small">Resultado de tu actuación</label>
                         <textarea id="encargo-resultado-texto" wire:model="resultado" rows="5"
                                   class="form-control @error('resultado') is-invalid @enderror"></textarea>

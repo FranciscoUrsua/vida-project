@@ -5,12 +5,17 @@ namespace Modules\Documentos\Services;
 use App\Models\HistoriaSocial;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Models\Informe;
 use Modules\Documentos\Models\PlantillaInforme;
+use Modules\Documentos\Support\InformeEncargo;
 use Modules\Documentos\Support\SaneadorHtmlInforme;
+use Modules\Intervencion\Models\Derivacion;
+use Modules\Intervencion\Services\ActuacionesEncargo;
+use Modules\Intervencion\Services\CajaHerramientasEncargo;
 
 /**
  * Ciclo de vida del borrador de un informe profesional (fase 5, pasos 1 y 2).
@@ -22,6 +27,7 @@ use Modules\Documentos\Support\SaneadorHtmlInforme;
  * `ServicioFirmaInforme`.
  *
  * Cada método vuelve a autorizar con `InformePolicy`: el servidor no se fía de la vista.
+ * Desde un encargo profesional, el borrador se crea con `crearDesdeEncargo()` (EA-4, EA-9).
  */
 class InformeService
 {
@@ -56,20 +62,61 @@ class InformeService
             throw new \DomainException('La plantilla no está activa.');
         }
 
-        $contenido = [];
-        foreach ($plantilla->secciones ?? [] as $seccion) {
-            if (($seccion['tipo'] ?? '') === 'texto_libre' && isset($seccion['id'])) {
-                $contenido[$seccion['id']] = $this->saneador->sanear($seccion['contenido_plantilla'] ?? '');
-            }
-        }
-
         return Informe::create([
             'plantilla_id' => $plantilla->id,
             'historia_social_id' => $historia->id,
             'ciudadano_id' => $historia->ciudadano_id,
             'autor_id' => $autor->id,
             'estado' => EstadoInforme::Borrador->value,
-            'contenido' => $contenido,
+            'contenido' => $this->contenidoInicial($plantilla),
+        ]);
+    }
+
+    /**
+     * Crea un borrador de informe desde un encargo profesional (bloque E de
+     * docs/instrucciones-cli/2026-11-encargo-actuaciones.md).
+     *
+     * Solo el profesional que puede actuar en el encargo (EA-4, RN-15 en el centro del encargo)
+     * y con una plantilla activa del área que no lea la Historia Social (EA-9: se comprueba
+     * otra vez aquí, por si la plantilla cambió después de asociarla al área). El informe queda
+     * en la Historia de la persona vinculado al encargo.
+     *
+     * @param PlantillaInforme $plantilla Plantilla del área del encargo.
+     * @param Derivacion $encargo Encargo en curso.
+     * @param User $autor Quien redacta (el profesional asignado).
+     *
+     * @return Informe
+     *
+     * @throws \DomainException si no puede actuar en el encargo o la plantilla no sirve para él
+     */
+    public function crearDesdeEncargo(PlantillaInforme $plantilla, Derivacion $encargo, User $autor): Informe
+    {
+        app(ActuacionesEncargo::class)->exigirActuacion($autor, $encargo);
+
+        if (! $plantilla->activa) {
+            throw new \DomainException('La plantilla no está activa.');
+        }
+
+        if (! app(CajaHerramientasEncargo::class)->ofrecePlantilla($encargo, $plantilla->id)) {
+            throw new \DomainException('Esa plantilla no es del área del encargo.');
+        }
+
+        $infracciones = InformeEncargo::infracciones($plantilla);
+        if ($infracciones !== []) {
+            throw new \DomainException('Esa plantilla no se puede usar en un informe del encargo: '.implode('; ', $infracciones).'.');
+        }
+
+        // Sin los scopes de ámbito: el profesional de encargo no tiene acceso a la historia
+        $ciudadanoId = (int) DB::table('historias_sociales')->where('id', $encargo->historia_id)->value('ciudadano_id');
+
+        return Informe::create([
+            'plantilla_id' => $plantilla->id,
+            'historia_social_id' => $encargo->historia_id,
+            'ciudadano_id' => $ciudadanoId,
+            'autor_id' => $autor->id,
+            'estado' => EstadoInforme::Borrador->value,
+            'contenido' => $this->contenidoInicial($plantilla),
+            'derivacion_id' => $encargo->id,
         ]);
     }
 
@@ -140,6 +187,25 @@ class InformeService
         Gate::forUser($actor)->authorize('delete', $informe);
 
         $informe->delete();
+    }
+
+    /**
+     * Texto libre de partida: el `contenido_plantilla` de cada sección (con sus merge tags), saneado.
+     *
+     * @param PlantillaInforme $plantilla Plantilla.
+     *
+     * @return array<string, string> Id de sección → HTML.
+     */
+    private function contenidoInicial(PlantillaInforme $plantilla): array
+    {
+        $contenido = [];
+        foreach ($plantilla->secciones ?? [] as $seccion) {
+            if (($seccion['tipo'] ?? '') === 'texto_libre' && isset($seccion['id'])) {
+                $contenido[$seccion['id']] = $this->saneador->sanear($seccion['contenido_plantilla'] ?? '');
+            }
+        }
+
+        return $contenido;
     }
 
     /**

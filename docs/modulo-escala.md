@@ -130,6 +130,7 @@ Registra la aplicación concreta de un instrumento a un ciudadano en una fecha d
 | `estado` | enum | `borrador` / `completado` |
 | `ficha_id` | FK nullable | Si el pase se realizó en el contexto de una ficha de valoración |
 | `entrevista_id` | FK nullable | Si el pase se realizó en el contexto de una entrevista |
+| `derivacion_id` | FK nullable | Encargo profesional desde el que se registró (26 nov 2026); solo escalas del área del encargo. Ver `docs/modulo-intervencion.md` §5.7.1 |
 | `created_at`, `updated_at` | | |
 
 **Sobre la inmutabilidad:** el `score_total`, `scores_seccion` e `interpretacion_codigo` se calculan en el momento del cierre y se persisten. No se recalculan en lectura. Si en el futuro se modifica el schema de un `TipoEscala`, los pases anteriores conservan el score calculado con el schema vigente en el momento de su realización. El historial es siempre fiel.

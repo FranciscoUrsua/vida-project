@@ -190,6 +190,8 @@ class ServicioFirmaInforme
             'apuntable_id' => $informe->id,
             'contenido' => 'Informe firmado: '.$informe->plantilla->nombre.' ('.$informe->identificador().').',
             'visibilidad' => VisibilidadApunte::Profesionales,
+            // Desde un encargo, el apunte lleva el vínculo (EA-5) y RN-15 mira el centro del encargo
+            'derivacion_id' => $informe->derivacion_id,
         ]);
     }
 }

@@ -1009,7 +1009,8 @@ class CiudadanoPage extends Component
     }
 
     /**
-     * Abre la herramienta del tipo de cita cuando se entra desde la agenda (?herramienta=).
+     * Abre la herramienta del tipo de cita cuando se entra desde la agenda (?herramienta=) y el
+     * detalle de un apunte con ?apunte=.
      *
      * @return void
      */
@@ -1030,6 +1031,13 @@ class CiudadanoPage extends Component
         // Entrevista inicial o de seguimiento, según el tipo de cita que se atiende
         if ($herramienta === 'entrevista' && in_array(request()->query('tipo'), ['inicial', 'seguimiento'], true)) {
             $this->formEntrevista['tipo'] = request()->query('tipo');
+        }
+
+        // Enlace a un apunte (seguimiento de un encargo, EA-12): abre su detalle. verApunte() solo
+        // lo busca en el timeline visible, así que una anotación privada ajena no se abre.
+        $apunte = request()->query('apunte');
+        if (is_numeric($apunte)) {
+            $this->verApunte((int) $apunte);
         }
     }
 

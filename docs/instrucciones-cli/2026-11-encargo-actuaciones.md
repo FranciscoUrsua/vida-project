@@ -4,7 +4,7 @@
 **Requisito previo:** encargo profesional (`docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloques A a F, cerrado el 25 nov 2026) y fase 5 (informes).
 **Decisiones del desarrollador (25 nov 2026):** el área del encargo decide las herramientas; lo registrado lo ve quien tenga acceso a la Historia Social, como cualquier apunte `profesionales`.
 **Tests:** TF-EAC-01 a TF-EAC-36 (al final de este documento).
-**Estado:** revisadas y aprobadas por el desarrollador el 25 nov 2026. Bloques A (25 nov), B, C y D (26 nov) hechos.
+**Estado:** revisadas y aprobadas por el desarrollador el 25 nov 2026. Hecha: bloque A el 25 nov y bloques B a F el 26 nov.
 
 **Alcance:**
 - **A.** Área del encargo: entidad, caja de herramientas y elección al encargar.
@@ -117,12 +117,16 @@
 3. Firma: el documento firmado se vincula a la persona y al encargo (`documento_vinculos`); el apunte `Documento` lleva `derivacion_id`.
 4. Historial de informes del encargo en `EncargoPage`.
 
+**Hecho (26 nov 2026).** `NuevoInformeWizard` en modo encargo con las rutas `intervencion.encargos.informe.nuevo` y `.editar` (Documentos, grupo `derivacion.ver_asignadas`): autoriza por el encargo (`ActuacionesEncargo::encargoAutorizado()` y `puedeActuar()`), ofrece las plantillas del área y crea con `InformeService::crearDesdeEncargo()` (EA-4, área y `InformeEncargo::infracciones()` otra vez). La historia del asistente pasa a id con computed (`historiaId`): como modelo, Livewire la recargaba con los scopes, que el profesional de encargo no pasa. `InformePolicy::update` exige además poder actuar en el encargo si el informe es de un encargo (EA-11). `ResolverFuentesInforme`: con encargo, rechaza las fuentes no permitidas (`DomainException`), resuelve `encargo.datos` (área, centro, motivo, quién encarga, fecha del encargo y de asignación) y deja en «—» los merge tags prohibidos; `ServicioGeneracionPDF` le pasa el encargo del informe. Firma: documento vinculado a la persona y al encargo, apunte `Documento` con `derivacion_id`. En `EncargoPage`, botón «Informe» y «Tus informes del encargo» (seguir redactando, ver PDF). **Corrige los «Hechos»:** `ResolverFuentesInforme` y la custodia del PDF firmado cargaban a la persona con el scope de ámbito; ahora sin él (el informe ya está autorizado). TF-EAC-30: la página del encargo ya respondía 403 con la protegida cerrada; los informes quedan sin acceso por `ActuacionesEncargo::esVisible()` y «Mis derivaciones» no los enlaza.
+
 ## Bloque F — Seguimiento y cierre
 
 1. `EncargosProfesionales`: actuaciones de cada encargo (EA-12).
 2. Timeline: marca «Encargo · {área} · {centro}» en los apuntes con `derivacion_id`.
 3. `EncargoService::cerrar()` rechaza el cierre con borradores abiertos (EA-11); `EncargoPage` explica qué falta.
 4. Encargo cerrado: herramientas ocultas, lectura de lo suyo.
+
+**Hecho (26 nov 2026).** `EncargosProfesionales::actuaciones()`: apuntes con `derivacion_id` de cada encargo visibles para el usuario (sin las anotaciones privadas ajenas), con enlace a `intervencion.ciudadano.show?apunte=`, que abre su detalle (`CiudadanoPage::mount()` llama a `verApunte()`, que solo busca en el timeline visible). La marca del timeline ya se hizo en el bloque C. `ActuacionesEncargo::borradoresAbiertos()` (informes en borrador, fichas sin completar, pases en borrador) lo usan `EncargoService::cerrar()`, que rechaza el cierre, y `EncargoPage`, que lo explica en «Antes de cerrar» y permite descartar el borrador de un informe (`eliminarBorrador()`). Con el encargo cerrado ya no se ofrecía ninguna herramienta (bloques C a E: `puedeActuar()`); TF-EAC-34 lo comprueba también con las acciones forjadas. Sin alerta por actuación (no se había añadido ninguna); TF-EAC-35 lo fija.
 
 ---
 
@@ -195,5 +199,5 @@
 | B — Vínculo y ámbito | TF-EAC-06..10 | Hecho (26 nov) |
 | C — Anotaciones y citas | TF-EAC-11..16 | Hecho (26 nov) |
 | D — Fichas y escalas | TF-EAC-17..24 | Hecho (26 nov) |
-| E — Informes | TF-EAC-25..30 | Pendiente |
-| F — Seguimiento y cierre | TF-EAC-31..36 | Pendiente |
+| E — Informes | TF-EAC-25..30 | Hecho (26 nov) |
+| F — Seguimiento y cierre | TF-EAC-31..36 | Hecho (26 nov) |

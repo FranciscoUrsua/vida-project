@@ -4,6 +4,37 @@
 
 ---
 
+## 2026-11-26 — Actuaciones del profesional de encargo: seguimiento y cierre (bloque F); cierre de las instrucciones
+
+Instrucciones: `docs/instrucciones-cli/2026-11-encargo-actuaciones.md`, bloque F y cierre (hechos los bloques A a F).
+
+- **Seguimiento del TSR (EA-12):** `EncargosProfesionales::actuaciones()` muestra bajo cada encargo los apuntes con `derivacion_id` que el usuario puede ver (nunca las anotaciones privadas ajenas: `visiblesParaUsuario`), con tipo, fecha, autor y resumen, y enlace a `intervencion.ciudadano.show?apunte=`. `CiudadanoPage::mount()` abre el detalle del apunte con `?apunte=`; `verApunte()` solo busca en el timeline visible.
+- **Cierre con borradores (EA-11):** `ActuacionesEncargo::borradoresAbiertos()` (informes en borrador, fichas sin completar, pases de escala en borrador del encargo). `EncargoService::cerrar()` rechaza el cierre con el motivo; `EncargoPage` lo explica en «Antes de cerrar» y permite descartar un borrador de informe propio (`eliminarBorrador()`, con `InformePolicy::delete`).
+- **Encargo cerrado:** sin herramientas ni anotación (ya desde los bloques C a E); TF-EAC-34 lo comprueba también con las acciones forjadas.
+- **Sin alerta por actuación** (EA-12): no se había añadido ninguna; TF-EAC-35 lo fija.
+- **Documentación de cierre:** `rol-consulta-profesional.md` (§4), `modulo-usuarios-permisos.md` (rol 6), `modulo-intervencion.md` (§5.7.1 y §7.1: `derivacion_id`), `modulo-escala.md` (§3.1), `modulo-documentos.md` (informes del encargo, policy, contexto de encargo del resolver), `modulo-citas.md` (§3.5) y `CLAUDE.md` §6.
+- **Sin migraciones.** `ui:auditar` sin infracciones.
+- **Tests:** `SeguimientoCierreEncargoTest` (TF-EAC-31 a 36). Negativos comprobados: sin `visiblesParaUsuario` en la lista del TSR falla 32; sin rechazar el cierre con borradores, 33. Regresión de los bloques E y F en verde: carpeta `Encargo` (86), `Documentos/tests/Feature/Informes` (34), `DocumentosTest` (24), `RetencionDestruccionTest` (8), `VariablesAuxiliaresTest` (4), `CiudadanoPageTest` (25) y `AccesosExpedienteTest` (11). Una primera pasada de la carpeta `Encargo` dio 24 errores porque corría mientras se editaban sus ficheros; repetida con el código estable, todo en verde.
+
+---
+
+## 2026-11-26 — Actuaciones del profesional de encargo: informes (bloque E)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-encargo-actuaciones.md`, bloque E.
+
+- **Asistente en modo encargo:** rutas `intervencion.encargos.informe.nuevo` y `intervencion.encargos.informe.editar` (Documentos, grupo `derivacion.ver_asignadas`) sobre `NuevoInformeWizard`. Autoriza por el encargo (`ActuacionesEncargo::encargoAutorizado()`, nuevo, y `puedeActuar()`), ofrece las plantillas del área y vuelve y firma hacia el encargo. Un borrador de otro encargo o ajeno, 403.
+- **`NuevoInformeWizard`:** la historia pasa de modelo a `historiaId` con computed `historia()` y `persona()`: como modelo, Livewire la recargaba con los scopes, que el profesional de encargo no pasa. Vuelta por `volverUrl()`/`volverTexto()` en la vista.
+- **`InformeService::crearDesdeEncargo()`:** EA-4 y RN-15 en el centro del encargo, plantilla activa del área y sin infracciones (`InformeEncargo::infracciones()`, segunda comprobación); `derivacion_id` en el informe. El texto inicial se extrae a `contenidoInicial()`, compartido con `crear()`.
+- **`InformePolicy::update`:** si el informe es de un encargo, además poder actuar en él (EA-11: cerrado, solo lectura).
+- **`ResolverFuentesInforme`:** parámetro `?Derivacion $encargo` en `resolver()` y `resolverMergeTags()`; con encargo, rechaza las fuentes no permitidas (`DomainException`), resuelve `encargo.datos` (área, centro, motivo, quién encarga, fechas del encargo y de asignación) y deja en «—» los merge tags prohibidos. `ServicioGeneracionPDF` le pasa el encargo del informe.
+- **Firma:** el documento se vincula a la persona y al encargo; el apunte `Documento` lleva `derivacion_id`.
+- **`EncargoPage`:** botón «Informe» en las herramientas del área y tarjeta «Tus informes del encargo» (estado, seguir redactando, ver PDF).
+- **Corrección no prevista:** `ResolverFuentesInforme` (mapa de valores y correo) y la custodia del PDF firmado cargaban a la persona con el scope de ámbito, que el profesional de encargo no pasa; ahora sin él, porque el informe ya está autorizado. La custodia falla si falta la persona, en vez de omitir el vínculo.
+- **Sin migraciones.**
+- **Tests:** `InformesEncargoTest` (TF-EAC-25 a 30). Negativos comprobados: sin rechazar las fuentes prohibidas en el resolver falla 27; sin exigir que la persona siga visible en `ActuacionesEncargo::esVisible()`, 30.
+
+---
+
 ## 2026-11-26 — Actuaciones del profesional de encargo: fichas y escalas (bloque D)
 
 Instrucciones: `docs/instrucciones-cli/2026-11-encargo-actuaciones.md`, bloque D.

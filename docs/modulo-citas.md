@@ -199,6 +199,7 @@ Si no hay huecos, se dice y la solicitud sigue en la bandeja.
 - Si el profesional registra un apunte desde la ficha del ciudadano sin pasar por la agenda, y ese ciudadano tiene una cita con él ese día o pendiente de cierre, la herramienta propone vincularla, marcado por defecto.
 - Una cita puede tener varios apuntes (entrevista y después valoración); se completa con el primero.
 - No se puede vincular un apunte a una cita con incomparecencia o cancelada, salvo supervisión con motivo (para corregir un error de marcado).
+- **Profesional de encargo** (26 nov 2026, EA-10 de `docs/instrucciones-cli/2026-11-encargo-actuaciones.md`): *Atender* abre el encargo con la cita enlazada (`?cita=`); la anotación, la ficha o la escala registradas desde el encargo con la casilla marcada completan la cita, igual que desde la Historia Social. Solo una cita suya con la persona del encargo.
 
 ### 3.6 Citas sin cerrar
 

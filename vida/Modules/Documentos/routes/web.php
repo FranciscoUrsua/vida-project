@@ -37,3 +37,10 @@ Route::middleware(['web', 'auth', 'tiene.rol', 'role:intervencion'])->prefix('in
     Route::get('/ciudadano/{historia}/informe/nuevo', NuevoInformeWizard::class)->name('nuevo');
     Route::get('/informe/{informe}', NuevoInformeWizard::class)->name('editar');
 });
+
+// El mismo asistente desde un encargo profesional (bloque E de 2026-11-encargo-actuaciones.md):
+// autoriza por el encargo, no por la Historia Social, así que va con el permiso de «Mis derivaciones».
+Route::middleware(['web', 'auth', 'tiene.rol', 'permission:derivacion.ver_asignadas'])->prefix('intervencion')->name('intervencion.encargos.informe.')->group(function (): void {
+    Route::get('/encargos/{encargo}/informe/nuevo', NuevoInformeWizard::class)->whereNumber('encargo')->name('nuevo');
+    Route::get('/encargos/{encargo}/informe/{informe}', NuevoInformeWizard::class)->whereNumber(['encargo', 'informe'])->name('editar');
+});

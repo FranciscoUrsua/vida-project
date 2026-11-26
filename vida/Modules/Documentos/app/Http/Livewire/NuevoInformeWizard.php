@@ -2,7 +2,9 @@
 
 namespace Modules\Documentos\Http\Livewire;
 
+use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
+use App\Models\Scopes\AmbitoUoScope;
 use App\Models\UnidadOrganizativa;
 use App\Models\User;
 use App\Services\AccesoExpediente;
@@ -12,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
@@ -25,6 +28,9 @@ use Modules\Documentos\Services\InformeService;
 use Modules\Documentos\Services\ServicioFirmaInforme;
 use Modules\Documentos\Services\ServicioGeneracionPDF;
 use Modules\Documentos\Support\SaneadorHtmlInforme;
+use Modules\Intervencion\Models\Derivacion;
+use Modules\Intervencion\Services\ActuacionesEncargo;
+use Modules\Intervencion\Services\CajaHerramientasEncargo;
 
 /**
  * Asistente de redacción y firma de un informe profesional (fase 5, pasos 2 y 3).
@@ -35,10 +41,19 @@ use Modules\Documentos\Support\SaneadorHtmlInforme;
  * el firmado (F5-1 a) o, si está activa, AutoFirma integrada (F5-1 b).
  *
  * El borrador se puede dejar y retomar desde el historial (ruta `intervencion.informes.editar`).
+ *
+ * **Modo encargo** (bloque E de docs/instrucciones-cli/2026-11-encargo-actuaciones.md): con la
+ * ruta `intervencion.encargos.informe.*`, el profesional de encargo redacta desde su encargo.
+ * Se autoriza por el encargo (`ActuacionesEncargo`), no por la Historia Social; solo se ofrecen
+ * las plantillas del área (EA-9) y el borrador se crea con `InformeService::crearDesdeEncargo()`.
+ * La vuelta y la firma llevan al encargo.
  * Cada acción vuelve a autorizar con `InformePolicy`; no se puede pasar de la vista
  * previa con secciones obligatorias vacías (comprobado también en el servidor).
  *
  * @property-read Informe|null $informe
+ * @property-read HistoriaSocial $historia
+ * @property-read Ciudadano $persona
+ * @property-read Derivacion|null $encargo
  * @property-read Collection<int, PlantillaInforme> $plantillas
  * @property-read array<int, array<string, mixed>> $secciones
  * @property-read list<string> $obligatoriasVacias
@@ -49,8 +64,16 @@ class NuevoInformeWizard extends Component
 {
     use WithFileUploads;
 
-    /** Historia Social de la persona del informe. */
-    public HistoriaSocial $historia;
+    /**
+     * Historia Social de la persona del informe, por id: autorizada en mount(). Como modelo,
+     * Livewire la recargaría con los scopes de ámbito, que el profesional de encargo no pasa.
+     */
+    #[Locked]
+    public int $historiaId;
+
+    /** Encargo desde el que se redacta (modo encargo); null desde la Historia Social. */
+    #[Locked]
+    public ?int $encargoId = null;
 
     /** Borrador en curso (null en el paso 1). */
     public ?int $informeId = null;
@@ -74,17 +97,24 @@ class NuevoInformeWizard extends Component
      * Abre el asistente para un informe nuevo de la historia o para retomar un borrador.
      *
      * @param HistoriaSocial|null $historia Historia (ruta «nuevo»).
-     * @param Informe|null $informe Borrador (ruta «editar»).
+     * @param Informe|null $informe Borrador (rutas «editar»).
+     * @param int|null $encargo Encargo (rutas del modo encargo).
      *
      * @return void
      */
-    public function mount(?HistoriaSocial $historia = null, ?Informe $informe = null): void
+    public function mount(?HistoriaSocial $historia = null, ?Informe $informe = null, ?int $encargo = null): void
     {
         $usuario = $this->usuario();
 
+        if ($encargo !== null) {
+            $this->montarDesdeEncargo($encargo, $informe);
+
+            return;
+        }
+
         if ($informe !== null && $informe->exists) {
             abort_unless(Gate::forUser($usuario)->allows('update', $informe), 403);
-            $this->historia = app(AccesoExpediente::class)->historia($usuario, (int) $informe->historia_social_id);
+            $this->historiaId = app(AccesoExpediente::class)->historia($usuario, (int) $informe->historia_social_id)->id;
             $this->informeId = $informe->id;
             $this->paso = 2;
 
@@ -93,10 +123,72 @@ class NuevoInformeWizard extends Component
 
         abort_if($historia === null, 404);
         // El binding carga sin scope: se autoriza y audita la apertura antes de leer nada.
-        $this->historia = app(AccesoExpediente::class)->historia($usuario, $historia->id);
+        $this->historiaId = app(AccesoExpediente::class)->historia($usuario, $historia->id)->id;
         // R1: sin adscripción al centro no se abre el asistente (antes que la policy, para dar el motivo)
         app(CentroDeUsuario::class)->exigirActuacionAlAbrir($usuario);
         abort_unless(Gate::forUser($usuario)->allows('crear', [Informe::class, $this->historia]), 403);
+    }
+
+    /**
+     * Historia Social del informe (ya autorizada en mount(), por la historia o por el encargo).
+     *
+     * @return HistoriaSocial
+     */
+    #[Computed]
+    public function historia(): HistoriaSocial
+    {
+        return HistoriaSocial::withoutGlobalScopes()->findOrFail($this->historiaId);
+    }
+
+    /**
+     * Persona del informe, para la cabecera.
+     *
+     * @return Ciudadano
+     */
+    #[Computed]
+    public function persona(): Ciudadano
+    {
+        return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->findOrFail($this->historia->ciudadano_id);
+    }
+
+    /**
+     * Encargo del modo encargo, autorizado en cada petición (suyo y persona visible); null fuera de él.
+     *
+     * @return Derivacion|null
+     */
+    #[Computed]
+    public function encargo(): ?Derivacion
+    {
+        if ($this->encargoId === null) {
+            return null;
+        }
+
+        $encargo = app(ActuacionesEncargo::class)->encargoAutorizado($this->usuario(), $this->encargoId);
+        abort_if($encargo === null, 403);
+
+        return $encargo;
+    }
+
+    /**
+     * URL de vuelta: el encargo o los informes de la Historia Social.
+     *
+     * @return string
+     */
+    public function volverUrl(): string
+    {
+        return $this->encargoId !== null
+            ? route('intervencion.encargos.show', $this->encargoId)
+            : route('intervencion.ciudadano.show', ['historia' => $this->historiaId, 'herramienta' => 'informes']);
+    }
+
+    /**
+     * Texto del enlace de vuelta.
+     *
+     * @return string
+     */
+    public function volverTexto(): string
+    {
+        return $this->encargoId !== null ? 'Volver al encargo' : 'Volver a la Historia Social';
     }
 
     /**
@@ -118,6 +210,13 @@ class NuevoInformeWizard extends Component
     #[Computed]
     public function plantillas(): Collection
     {
+        // Desde un encargo, las del área (EA-9), no las de la UO
+        if ($this->encargo !== null) {
+            return app(CajaHerramientasEncargo::class)->plantillasInforme($this->encargo)
+                ->when($this->filtroTipo !== '', fn (Collection $plantillas) => $plantillas->where('tipo_informe', TipoInforme::tryFrom($this->filtroTipo)))
+                ->values();
+        }
+
         $uoIds = $this->usuario()->adscripcionesVigentes()->pluck('unidad_organizativa_id')
             ->flatMap(fn ($id) => UnidadOrganizativa::find($id)?->ancestorsAndSelf()->pluck('id') ?? [])
             ->unique()
@@ -207,6 +306,13 @@ class NuevoInformeWizard extends Component
     {
         $plantilla = $this->plantillas->firstWhere('id', $plantillaId);
         abort_if($plantilla === null, 403, 'Esta plantilla no está disponible.');
+
+        if ($this->encargo !== null) {
+            $informe = app(InformeService::class)->crearDesdeEncargo($plantilla, $this->encargo, $this->usuario());
+            $this->redirectRoute('intervencion.encargos.informe.editar', ['encargo' => $this->encargoId, 'informe' => $informe->id], navigate: true);
+
+            return;
+        }
 
         $informe = app(InformeService::class)->crear($plantilla, $this->historia, $this->usuario());
 
@@ -346,7 +452,34 @@ class NuevoInformeWizard extends Component
         }
 
         session()->flash('informes-ok', 'Informe firmado y guardado en la carpeta de la persona.');
-        $this->redirectRoute('intervencion.ciudadano.show', ['historia' => $this->historia->id, 'herramienta' => 'informes'], navigate: true);
+        $this->redirect($this->volverUrl(), navigate: true);
+    }
+
+    /**
+     * Abre el asistente desde un encargo: para un informe nuevo, si puede actuar en él (EA-4);
+     * para retomar un borrador, si es del encargo y puede seguir editándolo (InformePolicy).
+     *
+     * @param int $encargoId Encargo de la ruta.
+     * @param Informe|null $informe Borrador, en la ruta «editar».
+     *
+     * @return void
+     */
+    private function montarDesdeEncargo(int $encargoId, ?Informe $informe): void
+    {
+        $this->encargoId = $encargoId;
+        $encargo = $this->encargo;
+        $this->historiaId = $encargo->historia_id;
+
+        if ($informe !== null && $informe->exists) {
+            abort_unless($informe->derivacion_id === $encargo->id, 403);
+            abort_unless(Gate::forUser($this->usuario())->allows('update', $informe), 403);
+            $this->informeId = $informe->id;
+            $this->paso = 2;
+
+            return;
+        }
+
+        abort_unless(app(ActuacionesEncargo::class)->puedeActuar($this->usuario(), $encargo), 403);
     }
 
     /**
