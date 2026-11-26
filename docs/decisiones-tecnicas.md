@@ -582,3 +582,88 @@ No se usa `www-data`, porque haría falta sudo y la cola ya corre como `jupiter`
 **El despliegue reinicia el worker.** El script de `.github/workflows/ci.yml` termina con `php artisan queue:restart`: el worker acaba el job en curso, sale y PM2 lo relanza con el código nuevo. Sin esto, los jobs seguían ejecutándose con el código cargado al arrancar. La señal se guarda en la caché (Redis), que comparten la web y el worker.
 
 **Pendiente (BACKLOG):** en producción, el cron y el worker irán en la configuración del servidor (cron.d y supervisor o systemd), no en el crontab y PM2 de un usuario personal.
+
+
+---
+
+## Sección 19 — Datos de la persona, explotación analítica, memorias e intercambio con otras administraciones
+
+Fecha de decisión: 2026-11-26
+
+**Contexto:** VIDA recoge datos sociodemográficos (estudios, ingresos, país de origen…) y datos de valoración que hay que explotar estadísticamente, publicar en memorias e informes y reportar a otras administraciones (HSU, Comunidad de Madrid, Estado) con catálogos mucho más extensos, heredados de SIUSS. Se buscaba hacerlo sin convertir la captura en una tarea burocrática para el profesional y sin perder la comparabilidad histórica (principio 4.3).
+
+**Principio rector:** VIDA guarda hechos con fecha. Toda interpretación (deflactores, umbrales, tramos de clasificación, equivalencias con catálogos externos, codificaciones oficiales) es una capa derivada y versionada fuera del dato, que se puede rehacer y aplicar hacia atrás sin tocar lo registrado.
+
+### 19.1 Ficha sociodemográfica de la persona
+
+**Decisión:** los datos sociodemográficos son una ficha configurable más (`TipoFicha`), no una tabla con formulario fijo. Con fines estadísticos no tienen lógica de negocio, así que quedan del lado configurable de la frontera de `modulo-intervencion.md` §4.3. Ficha y campos voluntarios, desacoplados de las prestaciones.
+
+**Desarrollos necesarios:**
+- **Catálogos extensos y versionados.** Se amplía `catalogos_sistema` (o una tabla hermana si el volumen lo aconseja) con vigencia (`vigente_desde`, `vigente_hasta`), agrupaciones opcionales (continente, UE/no UE…) y equivalencias con sistemas externos (`codigo_hsu`…). Los catálogos oficiales (países ISO/INE, estudios CNED/ISCED…) se cargan por importación, no a mano. Siguen siendo valores descriptivos (principio 4.2): ninguna lógica de negocio los referencia por nombre.
+- **Nuevo tipo de campo «selector de catálogo»** en el Builder de `TipoFicha`: el schema guarda la referencia al grupo de catálogo y la ficha guarda la clave, no la etiqueta. Selector con búsqueda.
+- **Ficha vinculada a la persona.** Hoy `fichas` cuelga de `historia_id`/valoración. La ficha de persona debe poder existir sin Historia Social abierta (acogida, CIAM, `consulta_basica`).
+
+**Criterios:**
+- No se duplican en la ficha los datos que ya están en la ficha del ciudadano (fecha de nacimiento, sexo…). La exportación los cruza desde allí.
+- Las magnitudes se guardan como dato bruto, nunca como tramo. Ingresos: neto mensual, número de pagas y **fecha de referencia del ingreso** (distinta de la de grabación).
+- Un dato solo pasa a tabla fija si llega a tener consecuencias de negocio, e incluso entonces puede seguir en la ficha, referenciado por su `campo_id`.
+
+**Comprobado (2026-11-26):** `campo_id` se genera desde la etiqueta solo cuando el campo es nuevo (`TipoFichaResource::dehydrateStateUsing`). Renombrar la etiqueta no lo cambia. De esa estabilidad depende toda la explotación histórica.
+
+**[pendiente]** Las opciones de los campos `select` se guardan como texto plano (`normalizarOpcionesParaSchema`), y ese texto es a la vez etiqueta y valor guardado. Corregir la redacción de una opción cambia el valor de las fichas nuevas y rompe las series. Hay que separar código estable y etiqueta, o tratar los selects con valor analítico como selectores de catálogo.
+
+### 19.2 Exportación a la capa analítica (BigQuery / Power BI)
+
+**Decisión:** una única exportación genérica para todas las fichas (sociodemográficas y de valoración), en modelo en estrella:
+- **Tabla de hechos en formato largo:** una fila por ficha × campo (`valor_codigo`, `valor_num`, `valor_texto`), con fecha, centro, UO y el alias seudonimizado de la persona. En las fichas de valoración, además, historia, valoración, tipo de valoración y estado. Se genera desde `fichas.datos` (`jsonb_each`) y **no cambia aunque los schemas evolucionen**.
+- **Dimensiones:** catálogos (clave → etiqueta y agrupaciones) y campos (generada a partir de los schemas y de los `schema_snapshot`, con los campos retirados marcados).
+- **Vistas pivotadas en BigQuery** para los usos frecuentes («situación vigente por persona», «situación a fecha X»).
+
+**Criterios:**
+- Solo fichas completadas.
+- No se exportan `notas` ni campos de texto libre.
+- Se distingue «no aplica» (campo oculto por la lógica condicional) de «no contestado».
+- Escalas: puntuación total y nivel, y opcionalmente cada ítem. Selección múltiple: una fila por valor.
+- Marca de exportable por tipo de ficha o por campo.
+- Los datos salen siempre por el `AnonimizadorService` (sección 7, principio 4.17), dentro del perímetro de VIDA.
+
+**Análisis histórico.** Tablas de referencia versionadas en la capa analítica, nunca en VIDA:
+- IPC del INE (índice de la Comunidad de Madrid) para pasar a euros constantes, aplicado sobre la fecha de referencia del ingreso.
+- Indicadores de referencia: IPREM, SMI, umbral de pobreza.
+- Tramos de clasificación con vigencia: permiten aplicar la clasificación vigente en cada momento o la actual a todo el periodo.
+- Equivalencias entre versiones de un catálogo cuando una clasificación se rehace.
+- Composición de la unidad de convivencia a cada fecha, para calcular ingresos por unidad de consumo (escala OCDE modificada).
+
+### 19.3 Memorias e informes
+
+**Decisión:** tres capas separadas.
+1. **Catálogo de indicadores.** Cada indicador tiene una definición única (qué cuenta, personas únicas o atenciones, fechas, fuente), de modo que la memoria del Área y la de una unidad dan la misma cifra para el mismo indicador. Desagregación por sexo por defecto en todo indicador de personas (principio 4.13).
+2. **Cierre del dato.** Las cifras de una memoria se calculan sobre una foto congelada a fecha de cierre y versionada. Como VIDA admite correcciones posteriores, sin esa foto la cifra publicada no sería reproducible.
+3. **Presentación.** Power BI produce los bloques de datos: informes paginados con parámetros de programa, UO (con sus descendientes) y periodo, empezando por la «ficha de programa» de la memoria anual (programa, población, objetivo, personas atendidas por sexo, indicadores de proceso y resultado, fuente). Se exportan a Word y se incorporan al documento, que redacta cada unidad. Una generación automática del documento completo (plantilla .docx rellenada desde BigQuery) queda como evolución posible, fuera de Power BI.
+
+**Criterios:**
+- Las tablas publicadas suprimen o agrupan las celdas con muy pocos casos (control de difusión de agregados, distinto de la anonimización de microdatos).
+- La IA puede redactar borradores del comentario de los datos, siempre sobre cifras cerradas y con revisión humana (principio 3.10).
+- Licencias: con Power BI Pro hay informes paginados con exportación a Word, pero la exportación programática (API `exportToFile`, Power Automate) exige Premium/Fabric. Comprobar la licencia municipal antes de diseñar informes.
+
+La integración o sustitución de los cuadros de mando existentes (BI-CIVIS y otros) queda fuera de esta decisión.
+
+### 19.4 Intercambio con otras administraciones (HSU, SIUSS, reporte autonómico y estatal)
+
+**Decisión:** VIDA mantiene su modelo simplificado, orientado al profesional. La correspondencia con los catálogos extensos de otras administraciones se resuelve en una **capa de traducción por destino**, dentro de la «válvula con filtro» de salida (principio 3.9). Cada destino tiene su propio juego de equivalencias y reglas sobre los mismos datos.
+
+**Tres tipos de traducción:**
+1. **Equivalencias directas** entre datos estructurados (prestaciones, catálogos, tipos de plan): tablas versionadas y deterministas. La equivalencia HSU de las prestaciones ya está en su definición.
+2. **Derivaciones por reglas** que combinan varios datos estructurados: reglas en código, con tests y versionadas.
+3. **Clasificación de contenido libre** (problemáticas, necesidades, demandas): con IA.
+
+**Criterios para la IA (principios 3.10 y 3.11):**
+- Propone, no decide en silencio. Preferente: sugerir el código en el momento del registro para que el profesional lo confirme. En lotes: umbral de confianza y cola de revisión.
+- Cada código guarda su procedencia (regla, IA o persona, con versión y fecha) y nunca sobrescribe el dato original.
+- Evaluación contra casos etiquetados por profesionales e indicadores de calidad (porcentaje sin mapear, porcentaje corregido).
+- Modelo bajo control municipal (contrato, ENS), con seudonimización previa.
+- **[pendiente]** Encaje con el Reglamento europeo de IA, sobre todo si la codificación llegara a influir en el acceso a prestaciones.
+
+**Paso previo cuando se aborde:** análisis de huecos que cruce cada variable de reporte obligatorio con lo que captura VIDA y la clasifique como directa, derivable, solo en texto libre o inexistente. Para las inexistentes: campo ligero en una ficha configurable o reporte como «no consta».
+
+**Fuera de esta decisión:** la definición concreta de parámetros de clasificación (tramos de ingresos y similares).
