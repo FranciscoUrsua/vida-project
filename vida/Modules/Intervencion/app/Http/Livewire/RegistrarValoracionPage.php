@@ -4,7 +4,6 @@ namespace Modules\Intervencion\Http\Livewire;
 
 use App\Models\HistoriaSocial;
 use App\Services\AccesoExpediente;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -13,12 +12,10 @@ use Livewire\Component;
 use Modules\Agenda\Services\Citas\AtencionCitaService;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Centro\Services\ConfiguracionEfectivaCentro;
-use Modules\Intervencion\Enums\TipoApunte;
-use Modules\Intervencion\Enums\VisibilidadApunte;
-use Modules\Intervencion\Models\Apunte;
-use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\TipoFicha;
+use Modules\Intervencion\Services\Actuaciones\ContextoActuacion;
+use Modules\Intervencion\Services\Actuaciones\ValoracionService;
 
 /**
  * Pantalla completa para registrar una ficha de valoración sobre la Historia Social.
@@ -134,8 +131,10 @@ class RegistrarValoracionPage extends Component
     }
 
     /**
-     * Valida campos obligatorios, marca la ficha como completada, registra el apunte
-     * en la Historia Social y redirige al expediente del ciudadano.
+     * Valida campos obligatorios, guarda la ficha completada con su apunte en la Historia
+     * Social (ValoracionService) y redirige al expediente del ciudadano.
+     *
+     * @return mixed
      */
     public function guardarDefinitivo(): mixed
     {
@@ -165,46 +164,9 @@ class RegistrarValoracionPage extends Component
             $this->validate($reglas);
         }
 
-        // Ficha y apunte juntos: el apunte comprueba RN-15 con el centro de la cita o el activo y, si
-        // lo rechaza, no queda una ficha huérfana (EST-04, ficha 14 de staging)
-        DB::transaction(function (): void {
-            $ficha = $this->persistirFicha();
-            $this->registrarApunte($ficha);
-        });
+        $historia = app(AccesoExpediente::class)->historia(auth()->user(), $this->historiaId, registrar: false);
 
-        return $this->redirect(route('intervencion.ciudadano.show', $this->historiaId), navigate: true);
-    }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
-    /**
-     * Crea una nueva Ficha completada y la devuelve.
-     */
-    private function persistirFicha(): Ficha
-    {
-        return Ficha::create([
-            'historia_id' => $this->historiaId,
-            'tipo_ficha_id' => $this->tipoFichaId,
-            'schema_snapshot' => $this->tipoFicha?->schema,
-            'datos' => $this->datos ?: null,
-            'notas' => $this->notas ?: null,
-            'completada' => true,
-            'profesional_id' => auth()->id(),
-        ]);
-    }
-
-    /**
-     * Crea un apunte de tipo Valoración en la Historia Social.
-     * Si hay un plan principal en curso, se vincula también a él (por su tipo de plan, F3-1).
-     *
-     * @param Ficha $ficha Ficha recién guardada como definitiva.
-     *
-     * @return void
-     */
-    private function registrarApunte(Ficha $ficha): void
-    {
+        // Si hay un plan principal en curso, el apunte se vincula a él (por su tipo de plan, F3-1)
         $plan = PlanDeIntervencion::withoutGlobalScopes()
             ->where('historia_id', $this->historiaId)
             ->principal()
@@ -212,22 +174,25 @@ class RegistrarValoracionPage extends Component
             ->latest()
             ->first();
 
-        Apunte::create([
-            'historia_id' => $this->historiaId,
-            'plan_id' => $plan?->id,
-            'autor_id' => auth()->id(),
-            'fecha' => today()->toDateString(),
-            'tipo' => TipoApunte::Valoracion,
-            'apuntable_type' => Ficha::class,
-            'apuntable_id' => $ficha->id,
-            // Solo si sigue siendo una cita vinculable de esta persona con este profesional
-            'cita_id' => $this->citaId ? app(AtencionCitaService::class)->citaVinculable(
-                app(AccesoExpediente::class)->historia(auth()->user(), $this->historiaId, registrar: false)->ciudadano_id, auth()->user(), $this->citaId
-            )?->id : null,
-            'contenido' => $this->tipoFicha?->nombre,
-            'visibilidad' => VisibilidadApunte::Profesionales,
-        ]);
+        // Solo si sigue siendo una cita vinculable de esta persona con este profesional
+        $citaId = $this->citaId !== null
+            ? app(AtencionCitaService::class)->citaVinculable($historia->ciudadano_id, auth()->user(), $this->citaId)?->id
+            : null;
+
+        // RN-15 se avisa con el toast de siempre (DomainException) y no queda nada a medias
+        app(ValoracionService::class)->registrar(
+            ContextoActuacion::desdeHistoria($historia, auth()->user(), $plan?->id, $citaId),
+            $this->tipoFicha,
+            $this->datos,
+            $this->notas,
+        );
+
+        return $this->redirect(route('intervencion.ciudadano.show', $this->historiaId), navigate: true);
     }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
 
     /**
      * Inicializa $datos con null para cada campo del schema del tipo seleccionado.

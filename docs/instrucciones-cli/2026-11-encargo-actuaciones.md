@@ -4,7 +4,7 @@
 **Requisito previo:** encargo profesional (`docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloques A a F, cerrado el 25 nov 2026) y fase 5 (informes).
 **Decisiones del desarrollador (25 nov 2026):** el área del encargo decide las herramientas; lo registrado lo ve quien tenga acceso a la Historia Social, como cualquier apunte `profesionales`.
 **Tests:** TF-EAC-01 a TF-EAC-36 (al final de este documento).
-**Estado:** revisadas y aprobadas por el desarrollador el 25 nov 2026. Bloque A hecho (25 nov).
+**Estado:** revisadas y aprobadas por el desarrollador el 25 nov 2026. Bloques A (25 nov) y B (26 nov) hechos.
 
 **Alcance:**
 - **A.** Área del encargo: entidad, caja de herramientas y elección al encargar.
@@ -90,6 +90,8 @@
 2. **Extraer la lógica de guardado** de `CiudadanoPage` a servicios del módulo (`ValoracionService`, `PaseEscalaService`, `AnotacionService`, o métodos en `ApunteService` si encaja), que reciben historia, autor, centro de la operación, cita opcional y encargo opcional. `CiudadanoPage`, `RegistrarValoracionPage` y `RegistrarEscalaPage` pasan a usarlos; su comportamiento no cambia (sus tests siguen en verde).
 3. `ActuacionesEncargo` (EA-7): `puedeActuar(User, Derivacion)` (EA-4) y `visibles(User, Derivacion)` / `esVisible(User, Model)` (EA-7).
 4. Policies de `Ficha`, `PaseEscala`, `Informe` y `Apunte`: vía adicional etiquetada «encargo» que delega en `ActuacionesEncargo`. El resto de las vías no cambia.
+
+**Hecho (26 nov 2026).** Migración `2026_11_26_100001` (`derivacion_id` en las cuatro tablas; se aplica con el despliegue). Servicios en `Modules\Intervencion\Services\Actuaciones`: `AnotacionService`, `ValoracionService` y `PaseEscalaService`, que reciben un `ContextoActuacion` (historia, autor, plan, cita y encargo). `ContextoActuacion::desdeEncargo()` exige EA-4, fija `plan_id = null` y solo admite una cita vinculable del propio profesional (adelanta la validación de EA-10); `ValoracionService` y `PaseEscalaService` rechazan la herramienta que no es del área (adelanta TF-EAC-18 y 21 en el servidor). Los cuatro puntos de escritura (`CiudadanoPage::guardarAnotacion()` y `guardarEscala()`, `RegistrarValoracionPage`, `RegistrarEscalaPage` y la nota de cierre de `PlanPage`) pasan a los servicios; el plan de los apuntes, a `PlanDeIntervencion::enCursoParaApuntes()`. `Apunte`, al crearse, toma para RN-15 el centro del encargo si no hay cita (D1.6). **Corrige los «Hechos»:** no existían policies de `Ficha` ni de `PaseEscala`; se crean (`FichaPolicy`, `PaseEscalaPolicy`: vía historia y vía encargo). En `ApuntePolicy` no se añade vía: `view` ya deja ver todo apunte no privado y quien filtra es el scope `ambito_uo`, que al profesional de encargo solo le deja los suyos (BACKLOG).
 
 ## Bloque C — Anotaciones y citas
 
@@ -186,7 +188,7 @@
 | Grupo | Tests | Estado |
 |---|---|---|
 | A — Área del encargo | TF-EAC-01..05 | Hecho (25 nov), con 05 bis |
-| B — Vínculo y ámbito | TF-EAC-06..10 | Pendiente |
+| B — Vínculo y ámbito | TF-EAC-06..10 | Hecho (26 nov) |
 | C — Anotaciones y citas | TF-EAC-11..16 | Pendiente |
 | D — Fichas y escalas | TF-EAC-17..24 | Pendiente |
 | E — Informes | TF-EAC-25..30 | Pendiente |

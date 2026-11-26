@@ -4,6 +4,29 @@
 
 ---
 
+## 2026-11-26 — Dependencias: parches de seguridad de Symfony 7.4.24
+
+- El hook de pre-commit bloqueaba el commit del bloque B por `composer audit`: 6 avisos en 4 paquetes, publicados el 25 nov (`symfony/html-sanitizer`, CVE-2026-133756, meta refresh; `symfony/http-kernel`, CVE-2026-133743, cabeceras reenviadas en fragmentos inline; `symfony/mailer`, CVE-2026-133751 y 133755, `require_tls` y STARTTLS; `symfony/routing`, CVE-2026-133746, URL a otro host). Todos corregidos en 7.4.24.
+- `composer update symfony/html-sanitizer symfony/http-kernel symfony/mailer symfony/routing --with-dependencies`: suben a 7.4.24 esos cuatro, `http-foundation`, `mime` y `var-dumper`, y `polyfill-php85` pasa a 1.44.0. Ningún componente pasa a 8.x (ver la entrada del 11 nov). Solo cambia `composer.lock`. `composer audit`: sin avisos.
+- Tests tras la actualización: `VinculoAmbitoActuacionesTest`, `Documentos/tests/Feature/Informes` e `IngestaDocumentoTest` (59 passed).
+
+---
+
+## 2026-11-26 — Actuaciones del profesional de encargo: vínculo, servicios y ámbito (bloque B)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-encargo-actuaciones.md`, bloque B.
+
+- **Migración `2026_11_26_100001`:** `derivacion_id` (nullable, FK a `derivaciones`) en `plan_apuntes`, `fichas`, `pases_escala` e `informes`. Se aplica con el despliegue (BD compartida). Relación `derivacion()` en los cuatro modelos.
+- **Servicios extraídos** (`Modules\Intervencion\Services\Actuaciones`): `AnotacionService`, `ValoracionService` (ficha con `schema_snapshot` y apunte `Valoracion`, en una transacción) y `PaseEscalaService` (puntuación y apunte `Escala`). Reciben un `ContextoActuacion`: `desdeHistoria()` (plan y cita los resuelve la pantalla, como antes) o `desdeEncargo()` (exige EA-4, `plan_id = null`, solo una cita vinculable del propio profesional con la persona). Desde un encargo, la ficha o la escala tienen que ser del área (`CajaHerramientasEncargo`).
+- **Puntos de escritura migrados:** `CiudadanoPage::guardarAnotacion()` y `guardarEscala()`, `RegistrarValoracionPage::guardarDefinitivo()`, `RegistrarEscalaPage::guardar()` (ya no instancia un `CiudadanoPage`) y la nota de cierre de `PlanPage`. La regla del plan de los apuntes pasa a `PlanDeIntervencion::enCursoParaApuntes()`. Sale `CiudadanoPage::calcularScoreEscala()` (ahora `PaseEscalaService::puntuacion()`). `CiudadanoPage::guardarValoracion()` (la `Valoracion` antigua, solo usada en tests) no se toca.
+- **RN-15 en el apunte:** sin cita, el centro de la operación es el del encargo (D1.6), no el activo del usuario.
+- **`ActuacionesEncargo`:** `puedeActuar()`/`exigirActuacion()` (profesional asignado, encargo aceptado, `derivacion.registrar_resultado`, adscripción al centro del encargo), `visibles()` (apuntes suyos del encargo) y `esVisible()` (autor y encargo suyo cuya persona sigue viendo, EA-11).
+- **Policies:** nuevas `FichaPolicy` y `PaseEscalaPolicy` (no existían: vía historia y vía encargo); vía encargo en `InformePolicy::view` (y con ella `update` y `firmar` del borrador propio). `ApuntePolicy` sin cambios de código: su `view` ya deja pasar todo lo no privado y filtra el scope (BACKLOG).
+- **Decisiones no previstas en las instrucciones:** la validación de la cita del encargo (EA-10) y el rechazo de herramientas fuera del área (EA-2) se adelantan al servicio, porque el bloque B ya es el punto de escritura; las policies de ficha y pase se crean en Intervención (la vía de encargo es de este módulo).
+- **Tests:** `VinculoAmbitoActuacionesTest` (TF-EAC-06 a 10). Negativos comprobados: sin exigir el encargo en curso falla 07; sin la autoría ni el encargo propio en `ActuacionesEncargo`, 09 (cada una de las dos basta por sí sola).
+
+---
+
 ## 2026-11-25 — Actuaciones del profesional de encargo: área del encargo (paso 0 y bloque A)
 
 Instrucciones: `docs/instrucciones-cli/2026-11-encargo-actuaciones.md`, aprobadas por el desarrollador; paso 0 y bloque A.

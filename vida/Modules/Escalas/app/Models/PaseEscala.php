@@ -12,6 +12,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Modules\Escalas\Database\Factories\PaseEscalaFactory;
 use Modules\Escalas\Enums\EstadoPase;
+use Modules\Intervencion\Models\Derivacion;
 
 /**
  * Aplicación concreta de un instrumento de escala a un ciudadano.
@@ -34,6 +35,7 @@ use Modules\Escalas\Enums\EstadoPase;
  * @property EstadoPase $estado
  * @property int|null $ficha_id
  * @property int|null $entrevista_id
+ * @property int|null $derivacion_id Encargo profesional desde el que se registra (EA-5).
  */
 class PaseEscala extends Model
 {
@@ -57,6 +59,7 @@ class PaseEscala extends Model
         'estado',
         'ficha_id',
         'entrevista_id',
+        'derivacion_id',
     ];
 
     protected $casts = [
@@ -169,6 +172,16 @@ class PaseEscala extends Model
     public function tipoEscala(): BelongsTo
     {
         return $this->belongsTo(TipoEscala::class, 'tipo_escala_id');
+    }
+
+    /**
+     * Encargo profesional desde el que se registró el pase (EA-5).
+     *
+     * @return BelongsTo<Derivacion, $this>
+     */
+    public function derivacion(): BelongsTo
+    {
+        return $this->belongsTo(Derivacion::class, 'derivacion_id');
     }
 
     /**

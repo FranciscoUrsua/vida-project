@@ -43,7 +43,6 @@ use Modules\Ciudadania\Models\CiudadanoRelacion;
 use Modules\Ciudadania\Models\TipoRelacion;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
-use Modules\Escalas\Enums\EstadoPase;
 use Modules\Escalas\Models\PaseEscala;
 use Modules\Escalas\Models\TipoEscala;
 use Modules\Intervencion\Enums\EstadoPlan;
@@ -59,6 +58,9 @@ use Modules\Intervencion\Models\SeguimientoPlan;
 use Modules\Intervencion\Models\TipoFicha;
 use Modules\Intervencion\Models\TipoValoracion;
 use Modules\Intervencion\Models\Valoracion;
+use Modules\Intervencion\Services\Actuaciones\AnotacionService;
+use Modules\Intervencion\Services\Actuaciones\ContextoActuacion;
+use Modules\Intervencion\Services\Actuaciones\PaseEscalaService;
 use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
 use Modules\Intervencion\Services\EvaluacionObjetivosService;
 use Modules\Intervencion\Services\PlanPdfService;
@@ -291,13 +293,7 @@ class CiudadanoPage extends Component
     #[Computed]
     public function planActivo(): ?PlanDeIntervencion
     {
-        $enCurso = fn () => PlanDeIntervencion::withoutGlobalScopes()
-            ->where('historia_id', $this->historia->id)
-            ->whereIn('estado', ['borrador', 'activo', 'en_revision'])
-            ->latest();
-
-        return $enCurso()->principal()->first()
-            ?? $enCurso()->where('profesional_responsable_id', Auth::id())->first();
+        return PlanDeIntervencion::enCursoParaApuntes($this->historia->id, (int) Auth::id());
     }
 
     /**
@@ -1419,18 +1415,11 @@ class CiudadanoPage extends Component
      */
     public function guardarAnotacion(): void
     {
-        $this->exigirActuacion($this->centroDeLaCita());
-
-        Apunte::create([
-            'historia_id' => $this->historia->id,
-            'plan_id' => $this->planActivo?->id,
-            'autor_id' => Auth::id(),
-            'fecha' => today()->toDateString(),
-            'tipo' => TipoApunte::Anotacion,
-            'cita_id' => $this->citaParaApunte(),
-            'contenido' => $this->formAnotacion['contenido'],
-            'visibilidad' => VisibilidadApunte::from($this->formAnotacion['visibilidad']),
-        ]);
+        app(AnotacionService::class)->registrar(
+            $this->contextoActuacion(),
+            $this->formAnotacion['contenido'],
+            VisibilidadApunte::from($this->formAnotacion['visibilidad']),
+        );
 
         $this->formAnotacion = ['contenido' => '', 'visibilidad' => 'profesionales'];
         $this->herramientaActiva = null;
@@ -1521,35 +1510,11 @@ class CiudadanoPage extends Component
      */
     public function guardarEscala(int $tipoEscalaId, array $respuestas): void
     {
-        $this->exigirActuacion($this->centroDeLaCita());
-        $tipoEscala = TipoEscala::findOrFail($tipoEscalaId);
-        $scoreTotal = $this->calcularScoreEscala($tipoEscala->schema, $respuestas);
-
-        // Pase y apunte juntos: si el apunte se rechaza no queda el pase a medias (EST-04)
-        DB::transaction(function () use ($tipoEscalaId, $tipoEscala, $respuestas, $scoreTotal): void {
-            $pase = PaseEscala::create([
-                'tipo_escala_id' => $tipoEscalaId,
-                'historia_id' => $this->historia->id,
-                'profesional_id' => Auth::id(),
-                'fecha' => today()->toDateString(),
-                'respuestas' => $respuestas,
-                'score_total' => $scoreTotal,
-                'estado' => EstadoPase::Completado,
-            ]);
-
-            Apunte::create([
-                'historia_id' => $this->historia->id,
-                'plan_id' => $this->planActivo?->id,
-                'autor_id' => Auth::id(),
-                'fecha' => today()->toDateString(),
-                'tipo' => TipoApunte::Escala,
-                'cita_id' => $this->citaParaApunte(),
-                'apuntable_type' => PaseEscala::class,
-                'apuntable_id' => $pase->id,
-                'contenido' => "{$tipoEscala->nombre}: puntuación {$scoreTotal}",
-                'visibilidad' => VisibilidadApunte::Profesionales,
-            ]);
-        });
+        app(PaseEscalaService::class)->registrar(
+            $this->contextoActuacion(),
+            TipoEscala::findOrFail($tipoEscalaId),
+            $respuestas,
+        );
 
         $this->herramientaActiva = null;
         unset($this->apuntesHS);
@@ -1557,24 +1522,14 @@ class CiudadanoPage extends Component
     }
 
     /**
-     * Calcula la puntuación total de un pase de escala.
-     * Suma valor × peso de cada ítem respondido.
+     * Contexto de las actuaciones registradas desde la Historia Social: el plan en curso y la
+     * cita propuesta, si se vincula (bloque B de las actuaciones del encargo).
      *
-     * @param array<string, mixed> $schema
-     * @param array<string, mixed> $respuestas
+     * @return ContextoActuacion
      */
-    public function calcularScoreEscala(array $schema, array $respuestas): int
+    private function contextoActuacion(): ContextoActuacion
     {
-        $total = 0;
-        foreach ($schema['secciones'] ?? [] as $seccion) {
-            foreach ($seccion['items'] ?? [] as $item) {
-                $valor = (int) ($respuestas[$item['id']] ?? 0);
-                $peso = (int) ($item['peso'] ?? 1);
-                $total += $valor * $peso;
-            }
-        }
-
-        return $total;
+        return ContextoActuacion::desdeHistoria($this->historia, Auth::user(), $this->planActivo?->id, $this->citaParaApunte());
     }
 
     /**

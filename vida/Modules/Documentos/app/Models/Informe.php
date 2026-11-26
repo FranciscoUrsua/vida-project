@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Enums\MetodoFirma;
+use Modules\Intervencion\Models\Derivacion;
 
 /**
  * Instancia concreta de un informe profesional.
@@ -35,6 +36,7 @@ use Modules\Documentos\Enums\MetodoFirma;
  * @property EstadoInforme $estado
  * @property array<string, mixed> $contenido
  * @property int|null $documento_id
+ * @property int|null $derivacion_id Encargo profesional desde el que se redacta (EA-5).
  * @property Carbon|null $firmado_en
  * @property MetodoFirma|null $metodo_firma
  * @property string|null $firmante_certificado Titular del certificado de la firma (F5-2).
@@ -111,6 +113,16 @@ class Informe extends Model
     public function autor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'autor_id');
+    }
+
+    /**
+     * Encargo profesional desde el que se redacta el informe (EA-5).
+     *
+     * @return BelongsTo<Derivacion, $this>
+     */
+    public function derivacion(): BelongsTo
+    {
+        return $this->belongsTo(Derivacion::class, 'derivacion_id');
     }
 
     /**

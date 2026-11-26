@@ -46,6 +46,7 @@ use Modules\Intervencion\Enums\VisibilidadApunte;
  * @property int|null $cita_id Cita que atiende.
  * @property int|null $evento_agenda_id Evento de agenda del que nace.
  * @property string|null $fuente Origen de un apunte automático: gestor_expedientes | registro_manual (fase 3 bis).
+ * @property int|null $derivacion_id Encargo profesional desde el que se registra (EA-5); con él, `plan_id` es null.
  */
 class Apunte extends Model
 {
@@ -77,16 +78,19 @@ class Apunte extends Model
     protected static function booted(): void
     {
         // RN-15: un apunte hecho por un usuario es atención individual. El centro es el
-        // de la cita que atiende, si la hay; si no, el centro activo del usuario.
+        // de la cita que atiende, si la hay; si no, el del encargo desde el que se registra
+        // (D1.6, EA-4); si no, el centro activo del usuario.
         static::creating(function (self $apunte): void {
             $usuario = auth()->user();
             if (! $usuario instanceof User) {
                 return;
             }
             $centros = app(CentroDeUsuario::class);
-            $centro = $apunte->cita_id !== null
-                ? Cita::find($apunte->cita_id)?->centro
-                : $centros->centroActivo($usuario);
+            $centro = match (true) {
+                $apunte->cita_id !== null => Cita::find($apunte->cita_id)?->centro,
+                $apunte->derivacion_id !== null => Derivacion::find($apunte->derivacion_id)?->centroDestino,
+                default => $centros->centroActivo($usuario),
+            };
             $centros->exigirAtencion($usuario, $centro);
         });
 
@@ -129,6 +133,7 @@ class Apunte extends Model
         'cita_id',
         'evento_agenda_id',
         'fuente',
+        'derivacion_id',
     ];
 
     protected $casts = [
@@ -149,6 +154,16 @@ class Apunte extends Model
     public function cita(): BelongsTo
     {
         return $this->belongsTo(Cita::class, 'cita_id');
+    }
+
+    /**
+     * Encargo profesional desde el que se registró el apunte (EA-5).
+     *
+     * @return BelongsTo<Derivacion, $this>
+     */
+    public function derivacion(): BelongsTo
+    {
+        return $this->belongsTo(Derivacion::class, 'derivacion_id');
     }
 
     /**

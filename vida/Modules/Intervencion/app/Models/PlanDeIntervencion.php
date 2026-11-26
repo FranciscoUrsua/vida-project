@@ -422,6 +422,27 @@ class PlanDeIntervencion extends Model
     }
 
     /**
+     * Plan en curso al que se vinculan los apuntes que un profesional registra en la Historia
+     * Social: el principal en curso; si no hay, el último en curso del que es responsable
+     * (p. ej. el PIA en el CIAM). Con varios planes por persona (fase 3, F3-1).
+     *
+     * @param int $historiaId Historia Social.
+     * @param int $usuarioId Profesional que registra el apunte.
+     *
+     * @return self|null
+     */
+    public static function enCursoParaApuntes(int $historiaId, int $usuarioId): ?self
+    {
+        $enCurso = fn () => self::withoutGlobalScopes()
+            ->where('historia_id', $historiaId)
+            ->whereIn('estado', ['borrador', 'activo', 'en_revision'])
+            ->latest();
+
+        return $enCurso()->principal()->first()
+            ?? $enCurso()->where('profesional_responsable_id', $usuarioId)->first();
+    }
+
+    /**
      * Solo planes vigentes: borrador o activo (los que cuentan para «un plan por tipo»).
      *
      * @param Builder<self> $query

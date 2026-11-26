@@ -14,6 +14,11 @@ use Modules\Intervencion\Models\Apunte;
  * - profesionales: accesible a cualquier profesional; el autor puede editar
  * - ciudadano: accesible a profesionales y, en el futuro, al ciudadano vía carpeta ciudadana
  *
+ * Vía de encargo (EA-7 de docs/instrucciones-cli/2026-11-encargo-actuaciones.md): el
+ * profesional de encargo no lee la Historia Social. Qué apuntes le llegan lo decide el scope
+ * `ambito_uo` (solo los suyos, condición B) y, dentro de un encargo, `ActuacionesEncargo::visibles()`;
+ * esta policy no amplía nada para él: `view` ya deja ver los no privados que el scope deja pasar.
+ *
  * Regla adicional de eliminación: solo los apuntes privados pueden eliminarse
  * (son notas personales del profesional). Los apuntes de visibilidad profesionales
  * o ciudadano son registro permanente e ineliminable por diseño.

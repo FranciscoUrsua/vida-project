@@ -7,14 +7,18 @@ use App\Services\AccesoExpediente;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Modules\Agenda\Services\Citas\AtencionCitaService;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Escalas\Models\TipoEscala;
+use Modules\Intervencion\Models\PlanDeIntervencion;
+use Modules\Intervencion\Services\Actuaciones\ContextoActuacion;
+use Modules\Intervencion\Services\Actuaciones\PaseEscalaService;
 
 /**
  * Pantalla completa para aplicar un instrumento de escala.
  *
  * Carga el schema del TipoEscala y presenta las secciones con sus ítems.
- * Al guardar, delega en CiudadanoPage::guardarEscala().
+ * Al guardar, delega en PaseEscalaService, como la herramienta de la Historia Social.
  *
  * @see docs/instrucciones-cli/ui-intervencion-entrega3.md §5.6
  */
@@ -57,6 +61,8 @@ class RegistrarEscalaPage extends Component
 
     /**
      * Guarda el pase de escala y redirige de vuelta a la pantalla del ciudadano.
+     *
+     * @return void
      */
     public function guardar(): void
     {
@@ -66,9 +72,16 @@ class RegistrarEscalaPage extends Component
             return;
         }
 
-        $page = new CiudadanoPage;
-        $page->historia = $this->historia;
-        $page->guardarEscala($this->tipoEscalaId, $this->respuestas);
+        // Como desde la Historia: el plan en curso y la cita de hoy con este profesional, si la hay
+        $usuario = auth()->user();
+        $plan = PlanDeIntervencion::enCursoParaApuntes($this->historia->id, $usuario->id);
+        $cita = app(AtencionCitaService::class)->citaVinculable($this->historia->ciudadano_id, $usuario);
+
+        app(PaseEscalaService::class)->registrar(
+            ContextoActuacion::desdeHistoria($this->historia, $usuario, $plan?->id, $cita?->id),
+            TipoEscala::findOrFail($this->tipoEscalaId),
+            $this->respuestas,
+        );
 
         $this->redirect(route('intervencion.ciudadano.show', $this->historia->id));
     }

@@ -10,6 +10,7 @@ use Livewire\Livewire;
 use Modules\Centro\Services\Actividades\CicloVidaActividadService;
 use Modules\Centro\Services\PrescripcionService;
 use Modules\Documentos\Policies\DocumentoPolicy;
+use Modules\Escalas\Models\PaseEscala;
 use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\AsignarPlazaModal;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
@@ -25,8 +26,11 @@ use Modules\Intervencion\Http\Livewire\RecursosPage;
 use Modules\Intervencion\Http\Livewire\RegistrarEscalaPage;
 use Modules\Intervencion\Http\Livewire\RegistrarValoracionPage;
 use Modules\Intervencion\Models\Apunte;
+use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Policies\ApuntePolicy;
+use Modules\Intervencion\Policies\FichaPolicy;
+use Modules\Intervencion\Policies\PaseEscalaPolicy;
 use Modules\Intervencion\Policies\PlanDeIntervencionPolicy;
 use Modules\Intervencion\Services\AccesoDocumentosEncargo;
 use Modules\Intervencion\Services\AvisoActividadesService;
@@ -93,6 +97,8 @@ class IntervencionServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(module_path($this->moduleName, 'routes/web.php'));
 
         Gate::policy(Apunte::class, ApuntePolicy::class);
+        Gate::policy(Ficha::class, FichaPolicy::class);
+        Gate::policy(PaseEscala::class, PaseEscalaPolicy::class);
         Gate::policy(PlanDeIntervencion::class, PlanDeIntervencionPolicy::class);
 
         Livewire::component('intervencion.agenda-page', AgendaPage::class);

@@ -9,6 +9,13 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**`ApuntePolicy::view` no mira el acceso a la Historia** — 2026-11-26
+Intervención (apuntes) / seguridad
+- `Modules\Intervencion\Policies\ApuntePolicy::view()` devuelve `true` para cualquier apunte no privado: quien protege es solo el scope `ambito_uo` de `Apunte`. Un apunte cargado sin ese scope (`withoutGlobalScopes()`) y autorizado con la policy quedaría a la vista de cualquiera, también del profesional de encargo (EA-7). Visto en el bloque B de las actuaciones del encargo, donde no se ha tocado («el resto de las vías no cambia»). Propuesta: `view` = autor, o `HistoriaSocialPolicy::view` de su historia, o `ActuacionesEncargo::esVisible()`; revisar antes a quién afecta (supervisión sin `historia.leer`, R2).
+- Hay además una `Modules\Usuarios\Policies\ApuntePolicy` registrada para `App\Models\Apunte` con campos que no existen (`privada`, `profesional_id`): parece código muerto. Confirmar y retirar.
+
+---
+
 **Casos de `abogada.ciam` pendientes de reparto en staging** — 2026-11-25
 Intervención / Asignación
 - HS 941 a 944 tienen como referencia a `abogada.ciam`, que ya no tiene rol intervención (se lo quitaron antes de que existiera el bloqueo de RN-03 bis). Decidido: la supervisión del CIAM Puente de Vallecas (p. ej. `dir.ciam`) reparte sus casos desde Supervisión → Asignaciones → actividad (ensayado: propone a `ts1`, `ts2` y `ts3`). La relación de la abogada con esas personas será un encargo cuando se implemente `docs/rol-consulta-profesional.md`.

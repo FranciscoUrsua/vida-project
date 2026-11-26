@@ -10,6 +10,7 @@ use Modules\Documentos\Enums\EstadoInforme;
 use Modules\Documentos\Models\Informe;
 use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Models\PlanDeIntervencion;
+use Modules\Intervencion\Services\ActuacionesEncargo;
 
 /**
  * Autorización de los informes profesionales (fase 5, paso 5).
@@ -19,6 +20,9 @@ use Modules\Intervencion\Models\PlanDeIntervencion;
  *   que ya incluye al equipo de un plan en curso y la regla de personas protegidas
  *   (RN-17 ampliada: solo quien la gestiona o tiene un acceso aprobado). Por eso
  *   `consulta_basica` y `tramitacion`, sin `historia.leer`, no ven informes.
+ *   Vía adicional **encargo** (EA-7 de docs/instrucciones-cli/2026-11-encargo-actuaciones.md):
+ *   el profesional de encargo, que no lee la Historia, ve solo los informes que redactó él
+ *   desde un encargo suyo (`ActuacionesEncargo`); nunca otros informes de la persona.
  * - **crear** (F5-3): escritura en la historia (TSR y profesionales de su centro) o
  *   ser responsable o equipo de un plan activo de la persona.
  * - **editar, firmar y eliminar** el borrador: solo su autor.
@@ -38,6 +42,11 @@ class InformePolicy
      */
     public function view(User $usuario, Informe $informe): bool
     {
+        // Vía encargo: lo suyo dentro de sus encargos
+        if (app(ActuacionesEncargo::class)->esVisible($usuario, $informe)) {
+            return true;
+        }
+
         $historia = $this->historiaDe($informe);
 
         return $historia !== null && Gate::forUser($usuario)->allows('view', $historia);

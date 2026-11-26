@@ -24,9 +24,7 @@ use Modules\Ciudadania\Models\CiudadanoRelacion;
 use Modules\Ciudadania\Models\TipoRelacion;
 use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Intervencion\Enums\EstadoPlan;
-use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\VisibilidadApunte;
-use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\Derivacion;
 use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\FirmaPlan;
@@ -38,6 +36,8 @@ use Modules\Intervencion\Models\PlanObjetivo;
 use Modules\Intervencion\Models\PlanObjetivoIndicador;
 use Modules\Intervencion\Models\PlanParticipante;
 use Modules\Intervencion\Models\TipoPlan;
+use Modules\Intervencion\Services\Actuaciones\AnotacionService;
+use Modules\Intervencion\Services\Actuaciones\ContextoActuacion;
 use Modules\Intervencion\Services\PlanDeIntervencionService;
 use Modules\Intervencion\Services\PlanPdfService;
 use Modules\Prestaciones\Models\Prestacion;
@@ -1701,15 +1701,11 @@ class PlanPage extends Component
         ]);
 
         if ($this->notasCierre && $this->plan->historia_id) {
-            Apunte::create([
-                'historia_id' => $this->plan->historia_id,
-                'plan_id' => $this->plan->id,
-                'autor_id' => auth()->id(),
-                'fecha' => today()->toDateString(),
-                'tipo' => TipoApunte::Anotacion,
-                'contenido' => "Cierre del plan: {$this->notasCierre}",
-                'visibilidad' => VisibilidadApunte::Profesionales,
-            ]);
+            app(AnotacionService::class)->registrar(
+                ContextoActuacion::desdeHistoria(HistoriaSocial::withoutGlobalScopes()->findOrFail($this->plan->historia_id), auth()->user(), $this->plan->id),
+                "Cierre del plan: {$this->notasCierre}",
+                VisibilidadApunte::Profesionales,
+            );
         }
 
         $this->modalCierreAbierto = false;

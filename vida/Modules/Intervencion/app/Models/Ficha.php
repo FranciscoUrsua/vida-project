@@ -34,6 +34,7 @@ use Modules\Intervencion\Database\Factories\FichaFactory;
  * @property array<string, mixed>|null $datos
  * @property string|null $notas
  * @property bool $completada
+ * @property int|null $derivacion_id Encargo profesional desde el que se registra (EA-5).
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
@@ -59,6 +60,7 @@ class Ficha extends Model
         'datos',
         'notas',
         'completada',
+        'derivacion_id',
     ];
 
     protected $casts = [
@@ -66,6 +68,16 @@ class Ficha extends Model
         'schema_snapshot' => 'array',
         'completada' => 'boolean',
     ];
+
+    /**
+     * Encargo profesional desde el que se registró la ficha (EA-5).
+     *
+     * @return BelongsTo<Derivacion, $this>
+     */
+    public function derivacion(): BelongsTo
+    {
+        return $this->belongsTo(Derivacion::class, 'derivacion_id');
+    }
 
     /**
      * Historia social a la que pertenece esta ficha (flujo directo, sin valoracion formal).
