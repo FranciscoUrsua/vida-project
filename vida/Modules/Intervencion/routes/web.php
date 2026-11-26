@@ -5,12 +5,15 @@ use Modules\Intervencion\Http\Livewire\AgendaPage;
 use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\CiudadanoPage;
 use Modules\Intervencion\Http\Livewire\EncargoPage;
-use Modules\Intervencion\Http\Livewire\MisEncargosPage;
+use Modules\Intervencion\Http\Livewire\EscalaEncargoPage;
 use Modules\Intervencion\Http\Livewire\MisCasosPage;
+use Modules\Intervencion\Http\Livewire\MisEncargosPage;
 use Modules\Intervencion\Http\Livewire\PlanPage;
 use Modules\Intervencion\Http\Livewire\RecursosPage;
 use Modules\Intervencion\Http\Livewire\RegistrarEscalaPage;
 use Modules\Intervencion\Http\Livewire\RegistrarValoracionPage;
+use Modules\Intervencion\Http\Livewire\ValoracionEncargoPage;
+use Modules\Intervencion\Http\Livewire\VerFichaEncargoPage;
 use Modules\Intervencion\Http\Livewire\VerFichaPage;
 use Modules\Mensajes\Http\Livewire\BandejaAlertasYMensajes;
 
@@ -45,6 +48,10 @@ Route::middleware(['web', 'auth', 'tiene.rol', 'permission:agenda.ver_propia|der
 Route::middleware(['web', 'auth', 'tiene.rol', 'permission:derivacion.ver_asignadas'])->prefix('intervencion')->name('intervencion.')->group(function () {
     Route::get('/encargos', MisEncargosPage::class)->name('encargos.index');
     Route::get('/encargos/{encargo}', EncargoPage::class)->whereNumber('encargo')->name('encargos.show');
+    // Herramientas del área desde el encargo (bloque D de 2026-11-encargo-actuaciones.md): autorizan por el encargo
+    Route::get('/encargos/{encargo}/valoracion', ValoracionEncargoPage::class)->whereNumber('encargo')->name('encargos.valoracion');
+    Route::get('/encargos/{encargo}/escala', EscalaEncargoPage::class)->whereNumber('encargo')->name('encargos.escala');
+    Route::get('/encargos/{encargo}/ficha/{ficha}', VerFichaEncargoPage::class)->whereNumber(['encargo', 'ficha'])->name('encargos.ficha');
 });
 
 // Historia Social, plan y actuaciones: siguen con `role:` hasta el barrido de rutas (BACKLOG)

@@ -7,13 +7,13 @@ use App\Services\AccesoExpediente;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Modules\Intervencion\Http\Livewire\Concerns\MuestraFicha;
 use Modules\Intervencion\Models\Ficha;
-use Modules\Intervencion\Models\TipoFicha;
 
 /**
  * Pantalla de solo lectura para visualizar una ficha de valoración completada.
  *
- * Renderiza los campos usando schema_snapshot, por lo que es coherente aunque
+ * Renderiza los campos usando schema_snapshot (MuestraFicha), por lo que es coherente aunque
  * el TipoFicha haya evolucionado desde que se guardó la ficha.
  *
  * @property Ficha $ficha
@@ -22,6 +22,8 @@ use Modules\Intervencion\Models\TipoFicha;
 #[Layout('layouts.operativo')]
 class VerFichaPage extends Component
 {
+    use MuestraFicha;
+
     /** @var Ficha Ficha que se visualiza */
     public Ficha $ficha;
 
@@ -50,35 +52,43 @@ class VerFichaPage extends Component
     }
 
     /**
-     * Devuelve los campos del schema_snapshot con su valor correspondiente
-     * en datos[], listos para renderizar.
+     * Ficha que se muestra.
      *
-     * @return array<int, array{etiqueta: string, tipo: string, valor: mixed, unidad: string|null, obligatorio: bool}>
+     * @return Ficha
      */
-    public function camposConValor(): array
+    protected function fichaMostrada(): Ficha
     {
-        $campos = $this->ficha->schema_snapshot['campos'] ?? [];
-        $datos = $this->ficha->datos ?? [];
-
-        return array_map(function (array $campo) use ($datos): array {
-            return [
-                'etiqueta' => $campo['etiqueta'] ?? $campo['id'],
-                'tipo' => $campo['tipo'] ?? 'texto',
-                'valor' => $datos[$campo['id']] ?? null,
-                'unidad' => $campo['unidad'] ?? null,
-                'obligatorio' => $campo['obligatorio'] ?? false,
-            ];
-        }, $campos);
+        return $this->ficha;
     }
 
     /**
-     * Nombre del TipoFicha de la ficha, para la cabecera.
+     * URL de vuelta: la Historia Social.
      *
      * @return string
      */
-    public function nombreFicha(): string
+    public function volverUrl(): string
     {
-        return TipoFicha::find($this->ficha->tipo_ficha_id)->nombre ?? 'Valoración';
+        return route('intervencion.ciudadano.show', $this->historiaId);
+    }
+
+    /**
+     * Texto del enlace de vuelta.
+     *
+     * @return string
+     */
+    public function volverTexto(): string
+    {
+        return 'Volver a la Historia Social';
+    }
+
+    /**
+     * Desde la Historia se puede escribir un mensaje sobre la ficha.
+     *
+     * @return bool
+     */
+    public function conMensaje(): bool
+    {
+        return true;
     }
 
     /**

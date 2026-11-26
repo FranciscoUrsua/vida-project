@@ -31,13 +31,14 @@
                     <p class="mb-0 text-break">{!! nl2br(e($encargo->motivo)) !!}</p>
                 </div>
 
-                {{-- Anotación desde el encargo (bloque C, EA-4 y EA-10) --}}
+                {{-- Actuaciones desde el encargo: anotación (bloque C) y herramientas del área (bloque D); EA-4, EA-10 --}}
                 @if($this->puedeActuar)
                     <div class="card card-body mb-3" id="encargo-anotacion">
                         <h3 class="h6 fw-semibold d-flex align-items-center gap-2 mb-2">
                             <x-heroicon-o-pencil-square class="icon-16" aria-hidden="true"/>
                             Anotación
                         </h3>
+                        @include('intervencion::partials.vincular-cita')
                         <label for="encargo-anotacion-texto" class="visually-hidden">Anotación</label>
                         <textarea id="encargo-anotacion-texto" wire:model="formAnotacion.contenido" rows="4"
                                   class="form-control form-control-sm mb-2 @error('formAnotacion.contenido') is-invalid @enderror"
@@ -53,11 +54,31 @@
                                 <label class="form-check-label small" for="encargo-anotacion-privada">Privada (solo yo)</label>
                             </div>
                         </div>
-                        @include('intervencion::partials.vincular-cita')
                         <p class="form-text mt-0">La anotación para profesionales queda en la Historia Social de la persona y la ve el TSR.</p>
                         <div>
                             <button type="button" wire:click="guardarAnotacion" class="btn btn-primary btn-sm">Guardar anotación</button>
                         </div>
+
+                        @if($this->herramientasArea !== [])
+                            <div class="border-top pt-3 mt-3" id="encargo-herramientas">
+                                <h4 class="small fw-semibold mb-2">Valoración del área {{ $encargo->area?->nombre }}</h4>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @if(in_array('valoracion', $this->herramientasArea, true))
+                                        <button type="button" wire:click="abrirHerramienta('valoracion')" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1">
+                                            <x-heroicon-o-clipboard-document-check class="icon-16" aria-hidden="true"/>
+                                            Ficha de valoración
+                                        </button>
+                                    @endif
+                                    @if(in_array('escala', $this->herramientasArea, true))
+                                        <button type="button" wire:click="abrirHerramienta('escala')" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1">
+                                            <x-heroicon-o-chart-bar class="icon-16" aria-hidden="true"/>
+                                            Escala
+                                        </button>
+                                    @endif
+                                </div>
+                                <p class="form-text mb-0">Si marcas la cita, la ficha o la escala también la completan.</p>
+                            </div>
+                        @endif
                     </div>
                 @endif
 
@@ -89,6 +110,9 @@
                                         </div>
                                         @if($actuacion->contenido)
                                             <p class="small mb-0 mt-1 text-break">{!! nl2br(e($actuacion->contenido)) !!}</p>
+                                        @endif
+                                        @if($urlFicha = $this->urlFicha($actuacion))
+                                            <a href="{{ $urlFicha }}" wire:navigate class="small">Ver ficha</a>
                                         @endif
                                     </li>
                                 @endforeach

@@ -12,6 +12,7 @@ use Livewire\Component;
 use Modules\Agenda\Services\Citas\AtencionCitaService;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Centro\Services\ConfiguracionEfectivaCentro;
+use Modules\Intervencion\Http\Livewire\Concerns\FormularioValoracion;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 use Modules\Intervencion\Models\TipoFicha;
 use Modules\Intervencion\Services\Actuaciones\ContextoActuacion;
@@ -23,23 +24,21 @@ use Modules\Intervencion\Services\Actuaciones\ValoracionService;
  * Carga el schema del TipoFicha seleccionado y renderiza los campos dinámicamente
  * según su tipo (texto, numero, select, booleano, fecha, escala).
  * Al guardar definitivamente, crea un apunte de tipo Valoración en el plan activo
- * de la Historia Social para dejar constancia en el timeline.
+ * de la Historia Social para dejar constancia en el timeline. El formulario lo comparte con
+ * la valoración desde un encargo (FormularioValoracion).
  *
  * @see docs/instrucciones-cli/valoracion-page-implementacion.md
- *
- * @property-read TipoFicha|null $tipoFicha
  */
 #[Layout('layouts.operativo')]
 class RegistrarValoracionPage extends Component
 {
+    use FormularioValoracion;
+
     /**
      * ID de la HistoriaSocial. Se usa int en lugar del modelo para evitar
      * que AmbitoUoScope interfiera durante la serialización de Livewire.
      */
     public int $historiaId;
-
-    /** @var int|null ID del TipoFicha seleccionado */
-    public ?int $tipoFichaId = null;
 
     /** @var int|null Entrevista que origina esta valoración */
     public ?int $entrevistaId = null;
@@ -48,16 +47,12 @@ class RegistrarValoracionPage extends Component
     #[Url(as: 'cita', except: null)]
     public ?int $citaId = null;
 
-    /** @var array<string, mixed> Valores del formulario dinámico, indexados por campo id */
-    public array $datos = [];
-
-    /** @var string Notas libres del profesional sobre la valoración */
-    public string $notas = '';
-
     /**
      * Inicializa la pantalla con la historia y los parámetros de ficha/entrevista.
      *
      * @param HistoriaSocial $historia Historia social del ciudadano.
+     *
+     * @return void
      */
     public function mount(HistoriaSocial $historia): void
     {
@@ -67,33 +62,10 @@ class RegistrarValoracionPage extends Component
         // R1: una valoración es una actuación; sin centro no se abre el formulario
         app(CentroDeUsuario::class)->exigirActuacionAlAbrir(auth()->user());
 
-        // Livewire 4 full-page: query string no llega a mount(), se lee directamente.
-        $tipoFicha = request()->query('tipo_ficha');
-        if ($tipoFicha && is_numeric($tipoFicha)) {
-            $this->tipoFichaId = (int) $tipoFicha;
-        }
-
         $entrevista = request()->query('entrevista');
         $this->entrevistaId = $entrevista ? (int) $entrevista : null;
 
-        $this->inicializarDatos();
-    }
-
-    // -------------------------------------------------------------------------
-    // Computed
-    // -------------------------------------------------------------------------
-
-    /**
-     * TipoFicha actualmente seleccionado, null si no hay selección.
-     */
-    #[Computed]
-    public function tipoFicha(): ?TipoFicha
-    {
-        if (! $this->tipoFichaId) {
-            return null;
-        }
-
-        return TipoFicha::find($this->tipoFichaId);
+        $this->iniciarFormularioValoracion();
     }
 
     /**
@@ -113,21 +85,24 @@ class RegistrarValoracionPage extends Component
         return TipoFicha::activos()->deValoracion()->orderBy('nombre')->pluck('nombre', 'id')->toArray();
     }
 
-    // -------------------------------------------------------------------------
-    // Acciones
-    // -------------------------------------------------------------------------
+    /**
+     * URL de vuelta: la Historia Social.
+     *
+     * @return string
+     */
+    public function volverUrl(): string
+    {
+        return route('intervencion.ciudadano.show', $this->historiaId);
+    }
 
     /**
-     * Cambia la ficha seleccionada y reinicializa el formulario.
+     * Texto del enlace de vuelta.
      *
-     * @param int $id ID del tipo de ficha seleccionado.
+     * @return string
      */
-    public function seleccionarFicha(int $id): void
+    public function volverTexto(): string
     {
-        $this->tipoFichaId = $id;
-        $this->datos = [];
-        $this->notas = '';
-        $this->inicializarDatos();
+        return 'Volver a la Historia Social';
     }
 
     /**
@@ -138,30 +113,8 @@ class RegistrarValoracionPage extends Component
      */
     public function guardarDefinitivo(): mixed
     {
-        if (! $this->tipoFichaId) {
-            $this->addError('tipoFichaId', 'Selecciona un tipo de ficha.');
-
+        if (! $this->validarFormularioValoracion('Esa ficha de valoración no está disponible en este centro.')) {
             return null;
-        }
-
-        // En el servidor, no solo en el selector
-        if (! array_key_exists((int) $this->tipoFichaId, $this->fichasDisponibles)) {
-            $this->addError('tipoFichaId', 'Esa ficha de valoración no está disponible en este centro.');
-
-            return null;
-        }
-
-        $campos = $this->tipoFicha?->schema['campos'] ?? [];
-        $reglas = [];
-
-        foreach ($campos as $campo) {
-            if ($campo['obligatorio'] ?? false) {
-                $reglas["datos.{$campo['id']}"] = ['required'];
-            }
-        }
-
-        if (! empty($reglas)) {
-            $this->validate($reglas);
         }
 
         $historia = app(AccesoExpediente::class)->historia(auth()->user(), $this->historiaId, registrar: false);
@@ -187,27 +140,13 @@ class RegistrarValoracionPage extends Component
             $this->notas,
         );
 
-        return $this->redirect(route('intervencion.ciudadano.show', $this->historiaId), navigate: true);
-    }
-
-    // -------------------------------------------------------------------------
-    // Helpers
-    // -------------------------------------------------------------------------
-
-    /**
-     * Inicializa $datos con null para cada campo del schema del tipo seleccionado.
-     */
-    private function inicializarDatos(): void
-    {
-        foreach ($this->tipoFicha?->schema['campos'] ?? [] as $campo) {
-            if (! array_key_exists($campo['id'], $this->datos)) {
-                $this->datos[$campo['id']] = null;
-            }
-        }
+        return $this->redirect($this->volverUrl(), navigate: true);
     }
 
     /**
      * Renderiza la pantalla de registro de valoración.
+     *
+     * @return View
      */
     public function render(): View
     {

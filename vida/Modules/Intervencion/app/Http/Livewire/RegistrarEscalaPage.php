@@ -19,6 +19,7 @@ use Modules\Intervencion\Services\Actuaciones\PaseEscalaService;
  *
  * Carga el schema del TipoEscala y presenta las secciones con sus ítems.
  * Al guardar, delega en PaseEscalaService, como la herramienta de la Historia Social.
+ * Comparte la vista con la escala desde un encargo (EscalaEncargoPage).
  *
  * @see docs/instrucciones-cli/ui-intervencion-entrega3.md §5.6
  */
@@ -53,10 +54,42 @@ class RegistrarEscalaPage extends Component
 
     /**
      * Devuelve el instrumento de escala seleccionado.
+     *
+     * @return TipoEscala|null
      */
     public function getTipoEscalaProperty(): ?TipoEscala
     {
         return $this->tipoEscalaId ? TipoEscala::find($this->tipoEscalaId) : null;
+    }
+
+    /**
+     * Escalas que se ofrecen en un selector; null: sin selector, la escala llega por `?tipo_escala=`.
+     *
+     * @return array<int, string>|null
+     */
+    public function escalasDisponibles(): ?array
+    {
+        return null;
+    }
+
+    /**
+     * URL de vuelta: la Historia Social.
+     *
+     * @return string
+     */
+    public function volverUrl(): string
+    {
+        return route('intervencion.ciudadano.show', $this->historia->id);
+    }
+
+    /**
+     * Texto del enlace de vuelta.
+     *
+     * @return string
+     */
+    public function volverTexto(): string
+    {
+        return 'Volver a la Historia Social';
     }
 
     /**
@@ -83,11 +116,13 @@ class RegistrarEscalaPage extends Component
             $this->respuestas,
         );
 
-        $this->redirect(route('intervencion.ciudadano.show', $this->historia->id));
+        $this->redirect($this->volverUrl());
     }
 
     /**
      * Renderiza la pantalla de registro de escala.
+     *
+     * @return View
      */
     public function render(): View
     {

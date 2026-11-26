@@ -4,7 +4,7 @@
 **Requisito previo:** encargo profesional (`docs/instrucciones-cli/2026-11-encargo-profesional.md`, bloques A a F, cerrado el 25 nov 2026) y fase 5 (informes).
 **Decisiones del desarrollador (25 nov 2026):** el área del encargo decide las herramientas; lo registrado lo ve quien tenga acceso a la Historia Social, como cualquier apunte `profesionales`.
 **Tests:** TF-EAC-01 a TF-EAC-36 (al final de este documento).
-**Estado:** revisadas y aprobadas por el desarrollador el 25 nov 2026. Bloques A (25 nov), B y C (26 nov) hechos.
+**Estado:** revisadas y aprobadas por el desarrollador el 25 nov 2026. Bloques A (25 nov), B, C y D (26 nov) hechos.
 
 **Alcance:**
 - **A.** Área del encargo: entidad, caja de herramientas y elección al encargar.
@@ -108,6 +108,8 @@
 2. Pre-relleno y antecedentes según EA-8.
 3. Ver una ficha o un pase propio desde la lista del encargo (también con el encargo cerrado, EA-11).
 
+**Hecho (26 nov 2026).** Rutas `intervencion.encargos.valoracion`, `.escala` y `.ficha` (grupo `derivacion.ver_asignadas`) con `ValoracionEncargoPage`, `EscalaEncargoPage` y `VerFichaEncargoPage`, que reutilizan las vistas de la Historia. Lo común está en traits: `ConEncargoAutorizado` (encargo y persona autorizados y `puedeActuar`, también en `EncargoPage`), `FormularioValoracion` (también en `RegistrarValoracionPage`) y `MuestraFicha` (también en `VerFichaPage`). Cada página da su vuelta (`volverUrl()`/`volverTexto()`); la escala del encargo tiene selector con las escalas del área (`escalasDisponibles()`); la ficha del encargo no ofrece mensaje con contexto `ficha`. En `EncargoPage`, botones «Ficha de valoración» y «Escala» (solo si el área tiene alguna) que llevan la cita propuesta (`abrirHerramienta()`), y «Ver ficha» en la lista. Una ficha de otro encargo responde 404 por la ruta del encargo. **Corrige EA-8 (decisión del desarrollador, 26 nov):** no hay pre-relleno «basada en la anterior» ni serie temporal en ninguna pantalla, así que no se crean; TF-EAC-19 y 22 comprueban que las páginas del encargo no muestran fichas ni pases del TSR. Si algún día se crean, desde un encargo tienen que limitarse a lo del profesional (BACKLOG). El pase propio se ve en la lista con su puntuación (contenido del apunte), sin página propia.
+
 ## Bloque E — Informes
 
 1. `NuevoInformeWizard` en modo encargo: recibe la derivación; plantillas del área; `InformePolicy::crear` con la vía de encargo.
@@ -192,6 +194,6 @@
 | A — Área del encargo | TF-EAC-01..05 | Hecho (25 nov), con 05 bis |
 | B — Vínculo y ámbito | TF-EAC-06..10 | Hecho (26 nov) |
 | C — Anotaciones y citas | TF-EAC-11..16 | Hecho (26 nov) |
-| D — Fichas y escalas | TF-EAC-17..24 | Pendiente |
+| D — Fichas y escalas | TF-EAC-17..24 | Hecho (26 nov) |
 | E — Informes | TF-EAC-25..30 | Pendiente |
 | F — Seguimiento y cierre | TF-EAC-31..36 | Pendiente |

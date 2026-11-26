@@ -1,8 +1,10 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-26 (actuaciones del profesional de encargo: bloque C)
+**Última actualización:** 2026-11-26 (actuaciones del profesional de encargo: bloque D)
 
 ---
+
+**Última tarea (26 nov, 3):** actuaciones del profesional de encargo, bloque D. Ficha de valoración y escala desde el encargo (`ValoracionEncargoPage`, `EscalaEncargoPage`, rutas `intervencion.encargos.valoracion` y `.escala`), solo con las herramientas del área, y ficha propia en lectura (`VerFichaEncargoPage`, `.ficha`), también con el encargo cerrado. Reutilizan las vistas de la Historia con los traits `ConEncargoAutorizado`, `FormularioValoracion` y `MuestraFicha`. EA-8: sin pre-relleno ni serie temporal (decisión del desarrollador; condición en el BACKLOG). TF-EAC-17 a 24 en verde con negativos; regresión de la carpeta `Encargo` (74), valoración, escala y ficha de la Historia, menú y consulta básica en verde; `ui:auditar` sin infracciones; sin migraciones. **Siguiente paso:** bloque E (informes desde el encargo: `NuevoInformeWizard` en modo encargo, fuente `encargo.datos`, firma vinculada al encargo, historial en `EncargoPage`; TF-EAC-25 a 30).
 
 **Última tarea (26 nov, 2):** actuaciones del profesional de encargo, bloque C. En `EncargoPage`, la abogada registra anotaciones (para profesionales o privadas) con la casilla de cita, y ve «Tus actuaciones en el encargo». La anotación vinculada completa la cita (EA-10); «Atender» abre el encargo con `?cita=`. El TSR ve la anotación en su timeline con la marca «Encargo · {área} · {centro}» (`Apunte::marcaEncargo()`). TF-EAC-11 a 16 en verde con negativos; `ui:auditar` sin infracciones; sin migraciones. Antes, el mismo día: parches de seguridad de Symfony 7.4.24 (solo `composer.lock`) y suite nocturna lanzada a mano tras el bloque B (run 45826759022: 1 fallo, un test inestable de `AlertaToast` ya corregido con un desempate en el orden). **Siguiente paso:** bloque D (fichas de valoración y escalas desde el encargo: herramientas del área en `EncargoPage`, pre-relleno y serie limitados a lo suyo, EA-8; TF-EAC-17 a 24).
 

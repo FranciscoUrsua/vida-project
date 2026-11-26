@@ -2,23 +2,18 @@
 
 namespace Modules\Intervencion\Http\Livewire;
 
-use App\Models\Ciudadano;
-use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
-use App\Services\PresentacionPersona;
 use DomainException;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use InvalidArgumentException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
-use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -39,12 +34,15 @@ use Modules\Documentos\Models\TipoDocumental;
 use Modules\Documentos\Services\CicloVidaDocumentoService;
 use Modules\Documentos\Services\LecturaDocumentoService;
 use Modules\Intervencion\Enums\EstadoDerivacion;
+use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\VisibilidadApunte;
+use Modules\Intervencion\Http\Livewire\Concerns\ConEncargoAutorizado;
 use Modules\Intervencion\Models\Apunte;
 use Modules\Intervencion\Models\Derivacion;
 use Modules\Intervencion\Services\Actuaciones\AnotacionService;
 use Modules\Intervencion\Services\Actuaciones\ContextoActuacion;
 use Modules\Intervencion\Services\ActuacionesEncargo;
+use Modules\Intervencion\Services\CajaHerramientasEncargo;
 use Modules\Intervencion\Services\CitasEncargo;
 use Modules\Intervencion\Services\EncargoService;
 
@@ -67,26 +65,25 @@ use Modules\Intervencion\Services\EncargoService;
  * completan (EA-10). «Atender» desde la agenda abre la página con `?cita=`. La lista de
  * actuaciones muestra solo las suyas en este encargo (EA-7, `ActuacionesEncargo`).
  *
- * Solo lo abre el profesional asignado y con el encargo aceptado o cerrado; el resto, 403.
- * Restricción de dominio (EP-7, RN-17 ampliada): si la persona es protegida y el encargo
- * ya está cerrado, deja de verla (salvo acceso protegido aprobado) y la página responde 403,
- * porque el motivo y el resultado la identifican.
+ * Y abre las fichas de valoración y escalas del área (bloque D, EA-2), con la cita propuesta.
  *
- * @property-read Derivacion $encargo
- * @property-read Ciudadano $persona
+ * Quién lo abre (profesional asignado, encargo aceptado o cerrado, EP-7) lo decide
+ * ConEncargoAutorizado.
+ *
  * @property-read Collection<int, Documento> $documentos
  * @property-read bool $puedeCerrar
  * @property-read bool $puedeSubir
  * @property-read Collection<int, TipoDocumental> $tipos
  * @property-read bool $puedeCitar
  * @property-read array<int, string> $tiposCita
- * @property-read bool $puedeActuar
  * @property-read Cita|null $citaVinculable
+ * @property-read list<string> $herramientasArea
  * @property-read EloquentCollection<int, Apunte> $actuaciones
  */
 #[Layout('layouts.operativo')]
 class EncargoPage extends Component
 {
+    use ConEncargoAutorizado;
     use WithFileUploads;
 
     /** @var TemporaryUploadedFile|null Fichero que se sube. */
@@ -108,10 +105,6 @@ class EncargoPage extends Component
 
     /** @var list<array{slot_id: int, fecha: string, hora: string}>|null Huecos propuestos; null sin buscar. */
     public ?array $huecos = null;
-
-    /** @var int Encargo (parámetro de ruta). */
-    #[Locked]
-    public int $encargoId;
 
     /** @var string Resultado que se registra al cerrar. */
     public string $resultado = '';
@@ -140,43 +133,6 @@ class EncargoPage extends Component
     {
         $this->encargoId = $encargo;
         $this->encargo();
-    }
-
-    /**
-     * Encargo autorizado para el usuario en cada petición.
-     *
-     * @return Derivacion
-     */
-    #[Computed]
-    public function encargo(): Derivacion
-    {
-        /** @var User $usuario */
-        $usuario = auth()->user();
-
-        $encargo = Derivacion::query()->deProfesional($usuario)
-            ->with(['centroDestino', 'area', 'derivadaPor.profesional', 'cerradaPor.profesional'])
-            ->find($this->encargoId);
-
-        abort_if($encargo === null, 403);
-
-        $ciudadanoId = (int) DB::table('historias_sociales')->where('id', $encargo->historia_id)->value('ciudadano_id');
-        $persona = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->findOrFail($ciudadanoId);
-        abort_unless(PresentacionPersona::visible($persona, $usuario), 403);
-
-        return $encargo;
-    }
-
-    /**
-     * Persona del encargo (ya autorizada por encargo()).
-     *
-     * @return Ciudadano
-     */
-    #[Computed]
-    public function persona(): Ciudadano
-    {
-        $ciudadanoId = (int) DB::table('historias_sociales')->where('id', $this->encargo->historia_id)->value('ciudadano_id');
-
-        return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->findOrFail($ciudadanoId);
     }
 
     /**
@@ -440,17 +396,6 @@ class EncargoPage extends Component
     }
 
     /**
-     * Si el usuario puede registrar actuaciones en el encargo (EA-4); se vuelve a comprobar al guardar.
-     *
-     * @return bool
-     */
-    #[Computed]
-    public function puedeActuar(): bool
-    {
-        return app(ActuacionesEncargo::class)->puedeActuar(auth()->user(), $this->encargo);
-    }
-
-    /**
      * Cita que se propone vincular a la actuación: la de la agenda (?cita=) o la de hoy o
      * pendiente de cierre del profesional con la persona (docs/modulo-citas.md §3.5).
      *
@@ -475,6 +420,61 @@ class EncargoPage extends Component
     public function actuaciones(): EloquentCollection
     {
         return app(ActuacionesEncargo::class)->visibles(auth()->user(), $this->encargo);
+    }
+
+    /**
+     * Herramientas de valoración que ofrece el área del encargo (EA-2): «valoracion» y «escala»,
+     * cada una solo si el área tiene alguna ficha o escala activa.
+     *
+     * @return list<string>
+     */
+    #[Computed]
+    public function herramientasArea(): array
+    {
+        if (! $this->puedeActuar) {
+            return [];
+        }
+
+        $caja = app(CajaHerramientasEncargo::class);
+
+        return array_values(array_filter([
+            $caja->tiposFicha($this->encargo)->isNotEmpty() ? 'valoracion' : null,
+            $caja->tiposEscala($this->encargo)->isNotEmpty() ? 'escala' : null,
+        ]));
+    }
+
+    /**
+     * Abre la herramienta de valoración o escala del encargo, con la cita propuesta si la
+     * casilla está marcada (EA-10).
+     *
+     * @param string $herramienta «valoracion» o «escala».
+     *
+     * @return void
+     */
+    public function abrirHerramienta(string $herramienta): void
+    {
+        abort_unless(in_array($herramienta, $this->herramientasArea, true), 403);
+
+        $this->redirect(route("intervencion.encargos.{$herramienta}", array_filter([
+            'encargo' => $this->encargo->id,
+            'cita' => $this->vincularCita ? $this->citaVinculable?->id : null,
+        ])), navigate: true);
+    }
+
+    /**
+     * URL de la ficha de valoración de una actuación de la lista, en lectura (EA-11).
+     *
+     * @param Apunte $actuacion Apunte de tipo valoración.
+     *
+     * @return string|null
+     */
+    public function urlFicha(Apunte $actuacion): ?string
+    {
+        if ($actuacion->tipo !== TipoApunte::Valoracion || $actuacion->apuntable_id === null) {
+            return null;
+        }
+
+        return route('intervencion.encargos.ficha', ['encargo' => $this->encargo->id, 'ficha' => $actuacion->apuntable_id]);
     }
 
     /**

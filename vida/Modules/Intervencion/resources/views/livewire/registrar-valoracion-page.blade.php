@@ -1,12 +1,13 @@
+{{-- Valoración desde la Historia Social (RegistrarValoracionPage) o desde un encargo (ValoracionEncargoPage) --}}
 <div class="op-page">
 <div class="row justify-content-center g-0 p-3 p-lg-4">
 <div class="col-12 col-lg-9 col-xl-7">
 
     {{-- Navegación --}}
-    <a href="{{ route('intervencion.ciudadano.show', $historiaId) }}"
+    <a href="{{ $this->volverUrl() }}"
        class="link-secondary small text-decoration-none d-inline-flex align-items-center gap-1 mb-3">
         <x-heroicon-o-arrow-left class="icon-14" aria-hidden="true"/>
-        Volver a la Historia Social
+        {{ $this->volverTexto() }}
     </a>
 
     <h1 class="h5 fw-bold mb-3">Registrar valoración</h1>
@@ -55,7 +56,7 @@
             <button type="button" wire:click="guardarDefinitivo" class="btn btn-primary">
                 Guardar
             </button>
-            <a href="{{ route('intervencion.ciudadano.show', $historiaId) }}" class="btn btn-outline-secondary">
+            <a href="{{ $this->volverUrl() }}" class="btn btn-outline-secondary">
                 Cancelar
             </a>
         </div>

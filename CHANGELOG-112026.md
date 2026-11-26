@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-11-26 — Actuaciones del profesional de encargo: fichas y escalas (bloque D)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-encargo-actuaciones.md`, bloque D.
+
+- **Rutas nuevas** (grupo `derivacion.ver_asignadas`): `intervencion.encargos.valoracion`, `intervencion.encargos.escala` e `intervencion.encargos.ficha`. Componentes `ValoracionEncargoPage`, `EscalaEncargoPage` y `VerFichaEncargoPage`: autorizan por el encargo (suyo y con EA-4 para registrar; suyo y persona visible para leer), no por la Historia, y reutilizan las vistas de la valoración, la escala y la ficha de la Historia.
+- **Traits extraídos** (`Http/Livewire/Concerns`): `ConEncargoAutorizado` (encargo, persona y `puedeActuar`; `EncargoPage` lo usa en lugar de sus métodos), `FormularioValoracion` (formulario de la ficha; también `RegistrarValoracionPage`) y `MuestraFicha` (lectura de la ficha; también `VerFichaPage`). Las vistas toman la vuelta de `volverUrl()`/`volverTexto()`; la de la escala gana un selector cuando la página da `escalasDisponibles()` (solo el encargo); la de la ficha muestra el botón de mensaje solo si `conMensaje()`.
+- **Área (EA-2):** solo se ofrecen y admiten las fichas y escalas del área; una forjada da error en el campo sin guardar nada (y el servicio la rechaza igualmente). Una ficha que no es del encargo responde 404 por su ruta.
+- **`EncargoPage`:** botones «Ficha de valoración» y «Escala» en la tarjeta de actuación, solo si el área tiene alguna, que abren la herramienta con la cita propuesta si la casilla está marcada (`abrirHerramienta()`); «Ver ficha» en la lista de actuaciones, también con el encargo cerrado.
+- **EA-8 (decisión del desarrollador):** no hay pre-relleno ni serie temporal en ninguna pantalla y no se crean; al BACKLOG la condición para cuando se creen.
+- **Sin migraciones.** `ui:auditar` sin infracciones.
+- **Tests:** `FichasEscalasEncargoTest` (TF-EAC-17 a 24). Negativos comprobados: si el selector ofrece todas las fichas, falla 18; sin exigir que la ficha sea del encargo en `VerFichaEncargoPage`, 19. Regresión en verde: carpeta `Encargo` (74), `RegistrarValoracionPageTest` (10), `UsuarioSinCentroTest` (21), `VerFichaHistoriaTest` (3), `EstadoHistoriaTest` (3), `MenuYSupervisionTest` (4) y `FichaVersionadoTest` (12).
+
+---
+
 ## 2026-11-26 — Actuaciones del profesional de encargo: anotaciones y citas (bloque C)
 
 Instrucciones: `docs/instrucciones-cli/2026-11-encargo-actuaciones.md`, bloque C.

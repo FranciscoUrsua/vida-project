@@ -1,15 +1,18 @@
+{{-- Ficha en lectura desde la Historia Social (VerFichaPage) o desde un encargo (VerFichaEncargoPage) --}}
 <div class="op-page">
 <div class="row justify-content-center g-0 p-3 p-lg-4">
 <div class="col-12 col-lg-9 col-xl-7">
 
     {{-- Navegación --}}
     <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
-        <a href="{{ route('intervencion.ciudadano.show', $historiaId) }}"
+        <a href="{{ $this->volverUrl() }}"
            class="link-secondary small text-decoration-none d-inline-flex align-items-center gap-1">
             <x-heroicon-o-arrow-left class="icon-14" aria-hidden="true"/>
-            Volver a la Historia Social
+            {{ $this->volverTexto() }}
         </a>
-        @include('mensajes::partials.boton-escribir-mensaje', ['tipo' => 'ficha', 'id' => $ficha->id])
+        @if($this->conMensaje())
+            @include('mensajes::partials.boton-escribir-mensaje', ['tipo' => 'ficha', 'id' => $ficha->id])
+        @endif
     </div>
 
     {{-- Cabecera --}}
