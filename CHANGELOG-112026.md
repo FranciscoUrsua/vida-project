@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-11-26 — Herramientas de prueba del área jurídica (staging)
+
+- **`HerramientasPruebaAreaJuridicaSeeder`** (Intervención, idempotente, fuera de `DatabaseSeeder` y sin migración, para que no llegue a producción): ficha de valoración «Valoración jurídica inicial (prueba)» (materia, urgencia, procedimiento abierto, órgano judicial, próxima actuación, descripción), escala `prueba_riesgo_vivienda` «Riesgo de pérdida de la vivienda (prueba)» (5 ítems de 0 a 2, rangos bajo, moderado y alto; la descripción dice que no está validada) y plantilla «Informe jurídico del encargo (prueba)» (datos de la persona, `encargo.datos`, valoración jurídica obligatoria, recomendaciones, profesional; UO raíz), asociadas al área `juridica`.
+- **Ejecutado en la BD compartida** (staging) a petición del desarrollador. El área jurídica ya tenía las fichas «Situación económica» y «Situación de vivienda» (las asocia `AreasEncargoSeeder`); corregido en SESSION lo que se dijo antes de que las áreas no tenían herramientas.
+- **Tests:** `HerramientasPruebaAreaJuridicaTest` (idempotencia, plantilla sin infracciones de EA-9, el encargo jurídico las ofrece y la escala puntúa de 0 a 10).
+- Al BACKLOG: retirarlas antes de la 1.0 y decidir si el asistente de la Historia excluye las plantillas con `encargo.datos`.
+
+---
+
 ## 2026-11-26 — Actuaciones del profesional de encargo: seguimiento y cierre (bloque F); cierre de las instrucciones
 
 Instrucciones: `docs/instrucciones-cli/2026-11-encargo-actuaciones.md`, bloque F y cierre (hechos los bloques A a F).
