@@ -3,7 +3,7 @@
 **Origen:** decisión del 26 nov 2026, `docs/decisiones-tecnicas.md` sección 19.1. Los datos sociodemográficos de la persona (país de nacimiento, nacionalidad, estudios, situación laboral, ingresos…) se recogen con una ficha configurable más (`TipoFicha`), no con una tabla de formulario fijo. Para que los campos codificados usen clasificaciones estándar sin teclear cientos de opciones a mano, se amplía `catalogos_sistema` con catálogos versionados que se cargan desde ficheros oficiales, y se añade un tipo de campo «selector de catálogo».
 **Requisito previo:** bloque B de `docs/instrucciones-cli/2026-11-encargo-actuaciones.md` cerrado (extrae el guardado de fichas a un servicio y añade `fichas.derivacion_id`). Si no lo está, **detente y pregunta**.
 **Tests:** TF-SDE-01 a TF-SDE-34 (al final de este documento).
-**Estado:** revisado por el desarrollador el 26 nov 2026. Paso 0 hecho el 26 nov 2026 (resultado al final del paso 0); pendiente el PDF de la OACI para las claves especiales de `comun.pais`.
+**Estado:** revisado por el desarrollador el 26 nov 2026. Paso 0 y bloque A hechos el 26 nov 2026. Las claves especiales de `comun.pais` (OACI) y `equivalencias.ine` quedan aplazadas por decisión del desarrollador (BACKLOG).
 
 **Alcance:**
 - **A.** Catálogos versionados en `catalogos_sistema` y carga desde fuentes oficiales.
@@ -115,7 +115,7 @@ Si al descargarlas encuentras una fuente mejor o más actual que las de la tabla
 | `comun.pais` (claves especiales) | Doc 9303 parte 3 de la OACI | **Bloqueada (403).** Pendiente de que el desarrollador deje el PDF; sin él no se cargan `XXA`, `XXB`, `XXC`, `XXX`, `XKX` |
 | `comun.nivel_estudios` | INE, `CNED14_A_estr.xls` y `CORR_CNED14_CINE11_A.xls` (actualizados 20-04-2022) | Clave: código de dos cifras (24 niveles). `atributos.agrupacion`: nivel de una cifra; `atributos.etapa`: A/B/C. `equivalencias.cine2011`: código CINE-A de tres cifras |
 | `comun.situacion_laboral` | INE, diseño de registro de la EPA 2026 (`dr_EPA_2026.xlsx`), **situación autopercibida** (decisión del desarrollador) | No se usa `AOI` (la deriva el INE con criterios OIT; no se puede asignar en una entrevista). Se unen `SIDAC` (1 trabajando, 2 buscando empleo) y `SIDI` (01 a 07; sin el 00 «no sabe»), 9 valores, con claves con prefijo para que no choquen (`SIDAC-1`, `SIDI-01`…). `atributos.grupo`: ocupado / parado / inactivo |
-| `comun.idioma` | **SIL International**, `iso-639-3.tab` (autoridad de registro de ISO 639-3; decisión del desarrollador) + nombres `es` de Unicode CLDR (`cldr-localenames-full`) | La lista de loc.gov está bloqueada por Cloudflare. Se toman los idiomas con código 639-1 (185); `equivalencias.iso639_2` de las columnas `Part2b`/`Part2t` de SIL |
+| `comun.idioma` | **SIL International**, `iso-639-3.tab` (autoridad de registro de ISO 639-3; decisión del desarrollador) + nombres `es` de Unicode CLDR 49 (`cldr-localenames-full`) | La lista de loc.gov está bloqueada por Cloudflare. Bloque A: lenguas individuales y macrolenguas **vivas** con código 639-1 o 639-2 (368; 174 con código de dos letras); clave 639-1 o, si no hay, 639-2 terminológico. Tres sin nombre en CLDR (`cnr`, `luo`, `vai`) llevan el nombre de SIL en inglés y `atributos.nombre_es = false`. La lengua de signos española (`ssp`) no tiene código 639-2: no entra |
 
 ## Bloque A — Catálogos versionados y carga oficial
 
@@ -124,6 +124,14 @@ Si al descargarlas encuentras una fuente mejor o más actual que las de la tabla
 3. Ficheros: descarga los originales a `database/data/catalogos/fuentes/` sin tocarlos y escribe `fuentes/README.md` (URL, fecha, versión, licencia). Genera los CSV normalizados (`clave;etiqueta;orden;atributos;equivalencias;fuente`) con un comando reproducible, `php artisan catalogos:normalizar`, y versiona ambos. El comando no se ejecuta al desplegar.
 4. `CargaCatalogosOficiales` (SD-2): `paises()`, `nivelesEstudios()`, `situacionesLaborales()`, `idiomas()` y `todos()`. Devuelve un recuento (creados, actualizados, sin vigencia). Lanza una excepción si falta un fichero o si una clave aparece dos veces.
 5. `CatalogosOficialesSeeder` (también en `DatabaseSeeder`) y migración de datos que llama a `todos()` para que los catálogos estén en cada entorno al desplegar.
+
+**Hecho el 26 nov 2026.** Migraciones `2026_11_26_200001` (columnas) y `2026_11_26_200002` (carga), que se aplican con el despliegue. Decisiones de implementación:
+- `vigente_hasta` es el **último día vigente** (inclusive): un valor que desaparece de la fuente recibe la fecha de ayer y deja de ofrecerse el mismo día de la carga. Si vuelve a aparecer en la fuente, recupera la vigencia. Los valores nuevos no reciben `vigente_desde` (no hay fecha oficial de alta).
+- `deGrupo()` (y con él `opcionesParaSelect()` y `opcionesParaSelectConPrefijo()`) aplica `vigentes()`; para los catálogos existentes no cambia nada (no tienen fechas).
+- La carga compara `atributos` y `equivalencias` sin orden (jsonb reordena las claves), para no contar como «actualizado» lo que no ha cambiado.
+- `todos()` valida los cuatro ficheros antes de escribir y carga en una sola transacción.
+- La normalización lee los `.xls`/`.xlsx` del INE con un lector OOXML mínimo propio (`LectorXlsx`, ZipArchive + SimpleXML) en lugar de añadir PhpSpreadsheet. La columna `fuente` sale de `fuentes/fuentes.json`.
+- TF-SDE-07 no comprueba `XXA`/`XXX` (claves especiales aplazadas). Se añade TF-SDE-07 bis: los CSV versionados coinciden con lo que genera `catalogos:normalizar` desde los originales.
 
 ## Bloque B — Tipo de campo «catálogo»
 
@@ -232,7 +240,7 @@ Lógica condicional mínima, si el schema la admite ya: `anio_llegada_espana` so
 
 | Grupo | Tests | Estado |
 |---|---|---|
-| A — Catálogos | TF-SDE-01..08 | Pendiente |
+| A — Catálogos | TF-SDE-01..08 (+07 bis) | Hecho (26 nov; negativos 04, 05 y 06 comprobados) |
 | B — Tipo de campo «catálogo» | TF-SDE-09..17 | Pendiente |
 | C — Fichas de persona | TF-SDE-18..25 | Pendiente |
 | D — Permisos e interfaz | TF-SDE-26..31 | Pendiente |

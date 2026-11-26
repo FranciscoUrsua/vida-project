@@ -1,0 +1,10 @@
+clave;etiqueta;orden;atributos;equivalencias;fuente
+SIDAC-1;Trabajando;1;"{""grupo"":""ocupado""}";"{""epa_variable"":""SIDAC"",""epa_codigo"":""1""}";"INE EPA, diseño de registro 2026 (SIDAC, SIDI)"
+SIDAC-2;"Buscando empleo";2;"{""grupo"":""parado""}";"{""epa_variable"":""SIDAC"",""epa_codigo"":""2""}";"INE EPA, diseño de registro 2026 (SIDAC, SIDI)"
+SIDI-01;"Estudiante (aunque esté de vacaciones)";3;"{""grupo"":""inactivo""}";"{""epa_variable"":""SIDI"",""epa_codigo"":""01""}";"INE EPA, diseño de registro 2026 (SIDAC, SIDI)"
+SIDI-02;"Percibía una pensión de jubilación o unos ingresos de prejubilación";4;"{""grupo"":""inactivo""}";"{""epa_variable"":""SIDI"",""epa_codigo"":""02""}";"INE EPA, diseño de registro 2026 (SIDAC, SIDI)"
+SIDI-03;"Dedicado a las labores del hogar";5;"{""grupo"":""inactivo""}";"{""epa_variable"":""SIDI"",""epa_codigo"":""03""}";"INE EPA, diseño de registro 2026 (SIDAC, SIDI)"
+SIDI-04;"Incapacitado permanente";6;"{""grupo"":""inactivo""}";"{""epa_variable"":""SIDI"",""epa_codigo"":""04""}";"INE EPA, diseño de registro 2026 (SIDAC, SIDI)"
+SIDI-05;"Percibiendo una pensión distinta a la de jubilación (o prejubilación)";7;"{""grupo"":""inactivo""}";"{""epa_variable"":""SIDI"",""epa_codigo"":""05""}";"INE EPA, diseño de registro 2026 (SIDAC, SIDI)"
+SIDI-06;"Realizando sin remuneración trabajos sociales, actividades benéficas…";8;"{""grupo"":""inactivo""}";"{""epa_variable"":""SIDI"",""epa_codigo"":""06""}";"INE EPA, diseño de registro 2026 (SIDAC, SIDI)"
+SIDI-07;"Otras situaciones";9;"{""grupo"":""inactivo""}";"{""epa_variable"":""SIDI"",""epa_codigo"":""07""}";"INE EPA, diseño de registro 2026 (SIDAC, SIDI)"

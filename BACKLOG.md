@@ -13,6 +13,7 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 Catálogos / Intervención (fichas de persona)
 - `comun.pais` sin `equivalencias.ine` (código de país del padrón): la tabla de Países/Nacionalidades de IDA-Padrón solo se descarga desde su utilidad web y `arce.ine.es` no respondía desde el entorno de desarrollo. Decisión del desarrollador: seguir sin ella. Cuando haya fichero, añadirlo a `database/data/catalogos/fuentes/`, rellenar `ine` en la normalización y volver a cargar (la carga es idempotente). Con ese fichero entra también Taiwán, que M49 no incluye.
 - Claves especiales de `comun.pais` (`XXA`, `XXB`, `XXC`, `XXX`, `XKX`): el Doc 9303 parte 3 de la OACI devuelve 403 al descargarlo. Pendiente de que el desarrollador deje el PDF; sin él no se cargan.
+- `comun.idioma` no incluye las lenguas de signos (la española, `ssp`, solo tiene código ISO 639-3): si se quieren recoger, decidir si el catálogo admite claves 639-3.
 - La «visibilidad condicional» de campos que cita el docblock de `TipoFicha` no está implementada. `anio_llegada_espana` (solo si `pais_nacimiento` ≠ `ESP`) queda como campo normal con ayuda. Decidir si se implementa la visibilidad condicional en schema, backoffice y `<x-ficha.campos>`.
 
 ---

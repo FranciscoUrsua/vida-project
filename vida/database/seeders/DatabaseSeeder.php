@@ -55,6 +55,8 @@ class DatabaseSeeder extends Seeder
 
         // 7. Catálogos del sistema (incluye `centro.tipo`, del que salen los tipos de centro)
         $this->call(CatalogosSistemaSeeder::class);
+        // 7 ter. Catálogos comunes desde fuentes oficiales (países, estudios, situación laboral, idiomas)
+        $this->call(CatalogosOficialesSeeder::class);
 
         // 7 bis. Módulo Centro: catálogos base, tipos de centro, 3 centros de ejemplo y red
         $this->call(CentroSeeder::class);

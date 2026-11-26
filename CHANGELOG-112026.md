@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-11-26 — Ficha sociodemográfica: catálogos versionados y carga oficial (bloque A)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-ficha-sociodemografica.md`, bloque A.
+
+- **Migraciones:** `2026_11_26_200001` (columnas `vigente_desde`, `vigente_hasta`, `atributos`, `equivalencias`, `fuente` en `catalogos_sistema`) y `2026_11_26_200002` (carga de los catálogos comunes). Se aplican con el despliegue (la BD local es la de staging).
+- **`CatalogoSistema`:** casts, `@property` nuevas, scope `vigentes(?Carbon)`, `deGrupo()`/`opcionesParaSelect()` sobre vigentes y `etiquetaDe()` (etiqueta aunque no esté vigente).
+- **Fuentes** en `vida/database/data/catalogos/fuentes/` (originales tal cual, `README.md` y `fuentes.json`): M49 en español, glosario de Eurostat (UE-27), CNED-A 2014 y correspondencia CINE-2011, diseño de registro de la EPA 2026, ISO 639-3 de SIL y CLDR 49 `es`.
+- **`php artisan catalogos:normalizar`** (`NormalizadorCatalogos`, `LectorXlsx`): genera `comun.pais.csv` (248), `comun.nivel_estudios.csv` (24), `comun.situacion_laboral.csv` (9) y `comun.idioma.csv` (368).
+- **`CargaCatalogosOficiales`** (`paises()`, `nivelesEstudios()`, `situacionesLaborales()`, `idiomas()`, `todos()`, `cargar()`), con `ResultadoCargaCatalogo`; **`CatalogosOficialesSeeder`** en `DatabaseSeeder`.
+- **Tests:** `tests/Feature/Catalogos/CargaCatalogosOficialesTest.php`, TF-SDE-01 a 08 y 07 bis, en verde; negativos 04, 05 y 06 comprobados rompiendo cada protección. Regresión de los 11 ficheros de test que usan el catálogo, en verde.
+- **Decisiones de implementación:** `vigente_hasta` inclusivo (ayer al desaparecer); un valor que vuelve a la fuente recupera la vigencia; comparación de jsonb sin orden; lector OOXML propio en lugar de PhpSpreadsheet; idiomas vivos con 639-1 o 639-2 (368), tres con el nombre de SIL en inglés por falta de nombre en CLDR.
+
+---
+
 ## 2026-11-26 — Ficha sociodemográfica: paso 0 (verificación)
 
 Instrucciones: `docs/instrucciones-cli/2026-11-ficha-sociodemografica.md` (revisadas por el desarrollador). Sin código.

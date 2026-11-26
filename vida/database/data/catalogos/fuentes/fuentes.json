@@ -1,0 +1,58 @@
+{
+    "m49_overview.html": {
+        "organismo": "División de Estadística de las Naciones Unidas (UNSD)",
+        "titulo": "Standard country or area codes for statistical use (M49), tabla en español",
+        "url": "https://unstats.un.org/unsd/methodology/m49/overview/",
+        "fecha_descarga": "2026-11-26",
+        "version": "M49 en línea a 26-11-2026",
+        "fuente": "ONU M49 (unstats.un.org, descarga 2026-11-26)"
+    },
+    "eurostat_glossary_country_codes.html": {
+        "organismo": "Eurostat",
+        "titulo": "Glossary: Country codes (Estados miembros de la UE)",
+        "url": "https://ec.europa.eu/eurostat/statistics-explained/index.php?title=Glossary:Country_codes",
+        "fecha_descarga": "2026-11-26",
+        "version": "Página editada el 22-01-2024",
+        "fuente": "Eurostat, Glossary: Country codes (editada 2024-01-22)"
+    },
+    "CNED14_A_estr.xls": {
+        "organismo": "Instituto Nacional de Estadística (INE)",
+        "titulo": "CNED-2014, niveles de formación alcanzados (CNED-A), estructura",
+        "url": "https://www.ine.es/daco/daco42/clasificaciones/cned14/CNED14_A_estr.xls",
+        "fecha_descarga": "2026-11-26",
+        "version": "Actualizado 20-04-2022",
+        "fuente": "INE CNED-A 2014 (actualizada 2022-04-20)"
+    },
+    "CORR_CNED14_CINE11_A.xls": {
+        "organismo": "Instituto Nacional de Estadística (INE)",
+        "titulo": "Correspondencia CNED-2014 / CINE-2011, nivel de formación alcanzado",
+        "url": "https://www.ine.es/daco/daco42/clasificaciones/cned14/CORR_CNED14_CINE11_A.xls",
+        "fecha_descarga": "2026-11-26",
+        "version": "Actualizado 20-04-2022",
+        "fuente": "INE CNED-A 2014 / CINE-A 2011 (actualizada 2022-04-20)"
+    },
+    "dr_EPA_2026.xlsx": {
+        "organismo": "Instituto Nacional de Estadística (INE)",
+        "titulo": "Encuesta de Población Activa, diseño de registro de microdatos 2026 (variables SIDAC y SIDI)",
+        "url": "https://www.ine.es/ftp/microdatos/epa/dr_EPA_2026.xlsx",
+        "fecha_descarga": "2026-11-26",
+        "version": "Diseño de registro 2026",
+        "fuente": "INE EPA, diseño de registro 2026 (SIDAC, SIDI)"
+    },
+    "iso-639-3.tab": {
+        "organismo": "SIL International, autoridad de registro de ISO 639-3",
+        "titulo": "ISO 639-3 code set (con las columnas de ISO 639-1 y 639-2)",
+        "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab",
+        "fecha_descarga": "2026-11-26",
+        "version": "Tabla en línea a 26-11-2026",
+        "fuente": "SIL ISO 639-3 (descarga 2026-11-26) + CLDR 49 es"
+    },
+    "cldr_es_languages.json": {
+        "organismo": "Unicode Consortium, CLDR",
+        "titulo": "Nombres de idiomas en español (cldr-localenames-full, locale es)",
+        "url": "https://raw.githubusercontent.com/unicode-org/cldr-json/49.0.0/cldr-json/cldr-localenames-full/main/es/languages.json",
+        "fecha_descarga": "2026-11-26",
+        "version": "CLDR 49.0.0",
+        "fuente": "Unicode CLDR 49.0.0"
+    }
+}
