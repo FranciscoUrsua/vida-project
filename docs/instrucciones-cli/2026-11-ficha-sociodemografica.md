@@ -3,7 +3,7 @@
 **Origen:** decisión del 26 nov 2026, `docs/decisiones-tecnicas.md` sección 19.1. Los datos sociodemográficos de la persona (país de nacimiento, nacionalidad, estudios, situación laboral, ingresos…) se recogen con una ficha configurable más (`TipoFicha`), no con una tabla de formulario fijo. Para que los campos codificados usen clasificaciones estándar sin teclear cientos de opciones a mano, se amplía `catalogos_sistema` con catálogos versionados que se cargan desde ficheros oficiales, y se añade un tipo de campo «selector de catálogo».
 **Requisito previo:** bloque B de `docs/instrucciones-cli/2026-11-encargo-actuaciones.md` cerrado (extrae el guardado de fichas a un servicio y añade `fichas.derivacion_id`). Si no lo está, **detente y pregunta**.
 **Tests:** TF-SDE-01 a TF-SDE-34 (al final de este documento).
-**Estado:** pendiente de revisión por el desarrollador.
+**Estado:** revisado por el desarrollador el 26 nov 2026. Paso 0 hecho el 26 nov 2026 (resultado al final del paso 0); pendiente el PDF de la OACI para las claves especiales de `comun.pais`.
 
 **Alcance:**
 - **A.** Catálogos versionados en `catalogos_sistema` y carga desde fuentes oficiales.
@@ -27,8 +27,8 @@
 - **`TipoFicha`** (`tipo_fichas`): `nombre`, `descripcion`, `schema`, `activo`, `uso` (`valoracion` | `solicitud`). `TIPOS_CAMPO = ['texto', 'numero', 'select', 'booleano', 'fecha', 'escala']`. `validarSchema()` en `saving`. No tiene código estable.
 - **`campo_id` es estable:** `TipoFichaResource::dehydrateStateUsing` lo genera desde la etiqueta solo si el campo es nuevo.
 - **Las opciones de `select` se guardan como texto plano** (`normalizarOpcionesParaSchema`): etiqueta y valor guardado son lo mismo. Por eso los campos codificados de esta ficha usan el tipo nuevo «catálogo», no `select`.
-- **`Ficha`** (`fichas`): `historia_id` (nullable), `valoracion_id` (nullable), `tipo_ficha_id`, `schema_snapshot`, `profesional_id`, `datos`, `notas`, `completada`, más `derivacion_id` del encargo. Traits `Auditable` y `Versionable`. `getCiudadanoId()` pasa por la historia. Pre-relleno: `Ficha::prerellenarDesde()` y `datosPrerrellenados()`.
-- **Renderizado común:** `resources/views/components/ficha/campos.blade.php` (`<x-ficha.campos>`), usado por `registrar-valoracion-page` y `solicitud-page`. La visualización de fichas guardadas está repartida: `ver-ficha-page`, `ciudadano-page` y `pdf/plan`.
+- **`Ficha`** (`fichas`): `historia_id` (nullable), `valoracion_id` (nullable), `tipo_ficha_id`, `schema_snapshot`, `profesional_id`, `datos`, `notas`, `completada`, más `derivacion_id` del encargo. Traits `Auditable` y `Versionable`. `getCiudadanoId()` pasa por la historia. Pre-relleno: `Ficha::prerellenarDesde()` (solo lo usan los tests; `datosPrerrellenados()` no existe, ver el resultado del paso 0).
+- **Renderizado común:** `resources/views/components/ficha/campos.blade.php` (`<x-ficha.campos>`), usado por `registrar-valoracion-page` y `solicitud-page`. La visualización de fichas guardadas está repartida: `ver-ficha-page` (con `MuestraFicha`), el modal de apunte de `ciudadano-page`, la tarjeta de diagnóstico de `plan-page` y `pdf/plan`.
 - **Ficha del ciudadano:** `Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage`, con secciones en tarjetas y computeds `puedeVer…()`.
 - **Permisos:** nombres `ciudadano.*`; los permisos nuevos los añade una migración de datos; `RolesSeeder` es aditivo (sección 16).
 
@@ -83,6 +83,39 @@ Si al descargarlas encuentras una fuente mejor o más actual que las de la tabla
 3. Busca un componente de selección con búsqueda ya existente (búsqueda de personas para relaciones, selector de prestaciones…). Si no hay ninguno reutilizable, **propón** la solución antes de añadir dependencias: el catálogo de clases de `config/ui-catalogo.php` es cerrado y no se cargan librerías por CDN.
 4. Comprueba que se pueden descargar las fuentes oficiales de la tabla. Si alguna falla, detente y pide el fichero.
 5. Anota aquí el resultado y corrige los «Hechos» si no coinciden.
+
+### Resultado del paso 0 (26 nov 2026)
+
+**Requisitos.** Suite nocturna en verde (run 45846433450). Bloque B del encargo cerrado: `ValoracionService` con `ContextoActuacion`, `fichas.derivacion_id`, `FichaPolicy` (vías historia y encargo).
+
+**Puntos que crean fichas:** `ValoracionService::registrar()` (valoración, Historia y encargo) y `SolicitudPrestacionService` (formulario de solicitud). Las fichas de solicitud **sí tienen `historia_id`** (la Historia abierta de la persona).
+
+**Puntos que muestran fichas guardadas** (todos pasan a `ValorCampo::mostrar()` en B.5):
+- `Concerns\MuestraFicha::camposConValor()` + `ver-ficha-page.blade.php` (usados por `VerFichaPage` y `VerFichaEncargoPage`). La cabecera dice «Ficha de valoración» fija: para las de persona debe decir otra cosa.
+- Modal de apunte de `CiudadanoPage` (`modalApunteDatos['ficha_campos']`, `CiudadanoPage.php` ~1252, vista ~811).
+- Tarjeta de diagnóstico de `plan-page.blade.php` (~231): hoy pinta `campo_id => valor` crudo, sin schema. Pasa a usar el schema y `ValorCampo` (cambio visible: etiqueta en lugar del id).
+- `pdf/plan.blade.php` (~198).
+- Edición: `<x-ficha.campos>` (`registrar-valoracion-page`, `solicitud-page`).
+
+**Correcciones a los «Hechos»:**
+- `Ficha::datosPrerrellenados()` **no existe**. `Ficha::prerellenarDesde()` existe pero solo lo usan los tests (`FichaVersionadoTest`): ninguna pantalla pre-rellena hoy. B.6 cambia su firma (devuelve también los campos afectados) sin romper llamadas de producción.
+- La «visibilidad condicional» que cita el docblock de `TipoFicha` **no está implementada** (ni en el schema, ni en `TipoFichaResource`, ni en `<x-ficha.campos>`). Por tanto `anio_llegada_espana` no es condicional (bloque E): anotado en BACKLOG.
+- `tipo_fichas.uso` es `string(20)` sin `CHECK`: admite `persona` sin migración de tipo.
+- El `CHECK` de SD-7 no puede leer `uso` (está en `tipo_fichas`): se valida en `FichaPersonaService` y se prueba (TF-SDE-19), como prevé C.1.
+
+**Selector con búsqueda (decisión de implementación).** No hay componente genérico, pero `Modules\Ciudadania\Http\Livewire\DomicilioCallejero` (Livewire con `#[Modelable]`, `input type=search` con `wire:model.live.debounce`, `list-group` + `op-lista-scroll`, búsqueda en servidor) resuelve lo mismo. Se crea un componente Livewire `selector-catalogo` con ese patrón, enlazado a `datos.{campo_id}` desde `<x-ficha.campos>`; búsqueda sin acentos sobre los vigentes del grupo. Sin dependencias nuevas ni clases nuevas en el catálogo.
+
+**Fuentes oficiales (decisiones del desarrollador del 26 nov):**
+
+| Catálogo | Fuente usada | Notas |
+|---|---|---|
+| `comun.pais` | M49 de la ONU, tabla en español (`downloadTableES` de unstats.un.org/unsd/methodology/m49/overview/) | 248 filas con ISO-2, ISO-3, M49, región y subregión. No incluye Kosovo (`XKX`, va como clave especial) ni Taiwán |
+| `comun.pais` → `atributos.ue` | Glosario de códigos de país de Eurostat (27 Estados miembros) | La página de europa.eu solo enlaza 20 países. Eurostat usa `EL` para Grecia (ISO `GR`): la normalización lo traduce y lo comenta |
+| `comun.pais` → `equivalencias.ine` | **Ninguna por ahora** (decisión del desarrollador) | La tabla de Países/Nacionalidades de IDA-Padrón solo se descarga desde su utilidad web y `arce.ine.es` no responde. `ine` queda nulo; Taiwán queda fuera hasta tener el fichero. BACKLOG |
+| `comun.pais` (claves especiales) | Doc 9303 parte 3 de la OACI | **Bloqueada (403).** Pendiente de que el desarrollador deje el PDF; sin él no se cargan `XXA`, `XXB`, `XXC`, `XXX`, `XKX` |
+| `comun.nivel_estudios` | INE, `CNED14_A_estr.xls` y `CORR_CNED14_CINE11_A.xls` (actualizados 20-04-2022) | Clave: código de dos cifras (24 niveles). `atributos.agrupacion`: nivel de una cifra; `atributos.etapa`: A/B/C. `equivalencias.cine2011`: código CINE-A de tres cifras |
+| `comun.situacion_laboral` | INE, diseño de registro de la EPA 2026 (`dr_EPA_2026.xlsx`), **situación autopercibida** (decisión del desarrollador) | No se usa `AOI` (la deriva el INE con criterios OIT; no se puede asignar en una entrevista). Se unen `SIDAC` (1 trabajando, 2 buscando empleo) y `SIDI` (01 a 07; sin el 00 «no sabe»), 9 valores, con claves con prefijo para que no choquen (`SIDAC-1`, `SIDI-01`…). `atributos.grupo`: ocupado / parado / inactivo |
+| `comun.idioma` | **SIL International**, `iso-639-3.tab` (autoridad de registro de ISO 639-3; decisión del desarrollador) + nombres `es` de Unicode CLDR (`cldr-localenames-full`) | La lista de loc.gov está bloqueada por Cloudflare. Se toman los idiomas con código 639-1 (185); `equivalencias.iso639_2` de las columnas `Part2b`/`Part2t` de SIL |
 
 ## Bloque A — Catálogos versionados y carga oficial
 

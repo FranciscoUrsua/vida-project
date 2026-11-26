@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-11-26 — Ficha sociodemográfica: paso 0 (verificación)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-ficha-sociodemografica.md` (revisadas por el desarrollador). Sin código.
+
+- **Requisitos:** suite nocturna en verde; bloque B del encargo cerrado.
+- **Inventario:** las fichas se crean en `ValoracionService` y `SolicitudPrestacionService` (las de solicitud tienen `historia_id`); se muestran en `MuestraFicha`/`ver-ficha-page`, el modal de apunte de `CiudadanoPage`, la tarjeta de diagnóstico de `plan-page` (hoy con el `campo_id` crudo) y `pdf/plan`.
+- **«Hechos» corregidos:** `datosPrerrellenados()` no existe y `prerellenarDesde()` solo lo usan los tests; la visibilidad condicional del schema no está implementada; el `CHECK` de SD-7 se valida en el servicio.
+- **Selector con búsqueda:** componente Livewire `selector-catalogo` con el patrón de `DomicilioCallejero` (`#[Modelable]`, `list-group` + `op-lista-scroll`), sin dependencias.
+- **Fuentes descargadas:** M49 en español, CNED-2014 y su correspondencia CINE-2011, diseño de registro de la EPA 2026, tabla ISO 639-3 de SIL y nombres `es` de CLDR, glosario de Eurostat (UE-27).
+- **Decisiones del desarrollador:** situación laboral con la situación **autopercibida** de la EPA (`SIDAC` + `SIDI`, claves con prefijo), no `AOI`; idiomas desde la tabla de **SIL** (loc.gov bloqueada); `equivalencias.ine` **vacía por ahora** (IDA-Padrón no se puede descargar de forma automática). Pendiente el PDF de la OACI para las claves especiales de país (BACKLOG).
+
+---
+
 ## 2026-11-26 — Herramientas de prueba del área jurídica (staging)
 
 - **`HerramientasPruebaAreaJuridicaSeeder`** (Intervención, idempotente, fuera de `DatabaseSeeder` y sin migración, para que no llegue a producción): ficha de valoración «Valoración jurídica inicial (prueba)» (materia, urgencia, procedimiento abierto, órgano judicial, próxima actuación, descripción), escala `prueba_riesgo_vivienda` «Riesgo de pérdida de la vivienda (prueba)» (5 ítems de 0 a 2, rangos bajo, moderado y alto; la descripción dice que no está validada) y plantilla «Informe jurídico del encargo (prueba)» (datos de la persona, `encargo.datos`, valoración jurídica obligatoria, recomendaciones, profesional; UO raíz), asociadas al área `juridica`.
