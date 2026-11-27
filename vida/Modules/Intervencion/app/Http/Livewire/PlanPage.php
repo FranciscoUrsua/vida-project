@@ -10,7 +10,6 @@ use App\Services\AccesoExpediente;
 use App\Services\PresentacionPersona;
 use App\Support\Ui\Tono;
 use DomainException;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -39,6 +38,7 @@ use Modules\Intervencion\Models\TipoPlan;
 use Modules\Intervencion\Services\Actuaciones\AnotacionService;
 use Modules\Intervencion\Services\Actuaciones\ContextoActuacion;
 use Modules\Intervencion\Services\PlanDeIntervencionService;
+use Modules\Intervencion\Services\Planes\TiposPlanAbribles;
 use Modules\Intervencion\Services\PlanPdfService;
 use Modules\Prestaciones\Models\Prestacion;
 use Modules\Prestaciones\Models\PrestacionPersona;
@@ -552,12 +552,15 @@ class PlanPage extends Component
         // Solo los tipos de plan del centro en que se abre (docs/modulo-tipo-centro.md §6.2)
         $centro = app(CentroDeUsuario::class)->centroActivo(auth()->user());
         if ($centro !== null) {
-            $tipos = app(ConfiguracionEfectivaCentro::class)->tiposPlan($centro);
+            // Al crear, solo los que se pueden abrir aquí (fase 3, A1.5; regla única en
+            // TiposPlanAbribles, U1); el servicio lo vuelve a comprobar.
+            $historia = $this->plan === null && $this->historiaId !== null
+                ? HistoriaSocial::withoutGlobalScopes()->find($this->historiaId)
+                : null;
 
-            // Al crear, solo los que se pueden abrir aquí (fase 3, A1.5); el servicio lo vuelve a comprobar.
-            if ($this->plan === null && $this->historiaId !== null) {
-                $tipos = $this->tiposAbribles($tipos, $centro);
-            }
+            $tipos = $historia !== null
+                ? app(TiposPlanAbribles::class)->para($historia, $centro)
+                : app(ConfiguracionEfectivaCentro::class)->tiposPlan($centro);
 
             return $tipos->pluck('nombre', 'id')->toArray();
         }
@@ -566,32 +569,6 @@ class PlanPage extends Component
             ->orderBy('nombre')
             ->pluck('nombre', 'id')
             ->toArray();
-    }
-
-    /**
-     * Quita de los tipos del centro los que no se pueden abrir para esta historia (fase 3, A1.5).
-     *
-     * Fuera: los que ya tienen un plan vigente en la historia, el principal si el centro
-     * no es el de la historia y los especializados sin entrada directa (nacen de una derivación).
-     *
-     * @param EloquentCollection<int, TipoPlan> $tipos
-     * @param Centro $centro
-     *
-     * @return EloquentCollection<int, TipoPlan>
-     */
-    private function tiposAbribles(EloquentCollection $tipos, Centro $centro): EloquentCollection
-    {
-        $historia = HistoriaSocial::withoutGlobalScopes()->with('centro')->find($this->historiaId);
-        $vigentes = PlanDeIntervencion::withoutGlobalScopes()
-            ->where('historia_id', $this->historiaId)
-            ->vigentes()
-            ->pluck('tipo_plan_id')
-            ->filter()
-            ->all();
-
-        return $tipos->reject(fn ($tipo) => in_array($tipo->id, $vigentes, true)
-            || ($tipo->es_principal && $historia?->centro?->id !== $centro->id)
-            || ($tipo->ambito === 'especializado' && ! $tipo->admite_entrada_directa))->values();
     }
 
     /**

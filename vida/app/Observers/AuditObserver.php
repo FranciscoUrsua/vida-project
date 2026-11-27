@@ -8,6 +8,8 @@ use App\Services\AuditService;
 use App\Support\Cifrado\OriginalSinDescifrar;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Observer que registra automáticamente escrituras sobre modelos Auditable.
@@ -42,11 +44,14 @@ class AuditObserver
             return;
         }
 
+        $despues = $this->snapshot($model);
+
         $this->service->registrarAcceso(
             user: Auth::user(),
             modelo: $model,
             accion: AccionAuditEnum::Crear,
-            datosDespues: $this->snapshot($model),
+            contexto: $this->resumen($model, AccionAuditEnum::Crear, [], $despues),
+            datosDespues: $despues,
         );
     }
 
@@ -73,12 +78,16 @@ class AuditObserver
         // Cifrados tal cual están en la BD, como ya llegan en getChanges() (CLAUDE.md §3)
         $originales = array_intersect_key(OriginalSinDescifrar::de($model), array_flip(array_keys($cambios)));
 
+        $antes = $this->serializar($originales);
+        $despues = $this->serializar($cambios);
+
         $this->service->registrarAcceso(
             user: Auth::user(),
             modelo: $model,
             accion: AccionAuditEnum::Editar,
-            datosAntes: $this->serializar($originales),
-            datosDespues: $this->serializar($cambios),
+            contexto: $this->resumen($model, AccionAuditEnum::Editar, $antes, $despues),
+            datosAntes: $antes,
+            datosDespues: $despues,
         );
     }
 
@@ -95,12 +104,41 @@ class AuditObserver
             return;
         }
 
+        $antes = $this->snapshot($model);
+
         $this->service->registrarAcceso(
             user: Auth::user(),
             modelo: $model,
             accion: AccionAuditEnum::Eliminar,
-            datosAntes: $this->snapshot($model),
+            contexto: $this->resumen($model, AccionAuditEnum::Eliminar, $antes, []),
+            datosAntes: $antes,
         );
+    }
+
+    /**
+     * Contexto con el resumen legible de la escritura (U3.1), calculado ahora y guardado: el
+     * registro de auditoría es inmutable y el texto vale aunque el recurso cambie después.
+     * Un fallo al componer el resumen no impide auditar (el widget cae a la etiqueta).
+     *
+     * @param Model $model
+     * @param AccionAuditEnum $accion
+     * @param array<string, mixed> $antes
+     * @param array<string, mixed> $despues
+     *
+     * @phpstan-param Model&AuditableModel $model
+     *
+     * @return array<string, string>
+     */
+    private function resumen(Model $model, AccionAuditEnum $accion, array $antes, array $despues): array
+    {
+        try {
+            $resumen = $model->resumenAuditoria($accion, $antes, $despues);
+        } catch (Throwable $e) {
+            Log::warning('No se pudo componer el resumen de auditoría', ['modelo' => $model::class, 'error' => $e->getMessage()]);
+            $resumen = null;
+        }
+
+        return $resumen !== null ? ['resumen' => $resumen] : [];
     }
 
     /**

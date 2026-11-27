@@ -90,7 +90,7 @@ class SeguimientoCierreEncargoTest extends TestCase
         Livewire::test(EncargosProfesionales::class, ['historiaId' => $this->historiaAna->id])
             ->assertSee('Primera entrevista jurídica')
             ->assertSee('Situación jurídica (test)')
-            ->assertSee($this->abogadaVallecas->name)
+            ->assertSee($this->abogadaVallecas->nombreVisible())
             ->assertSeeHtml(e($urlApunte));
 
         // El enlace abre la Historia Social con el detalle del apunte

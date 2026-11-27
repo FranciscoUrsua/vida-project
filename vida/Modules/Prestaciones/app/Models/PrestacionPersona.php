@@ -17,7 +17,7 @@ use Modules\Prestaciones\Enums\EstadoPrestacionPersona;
 
 /**
  * Prestación que una persona tiene o ha tenido (§2.6 del diseño): fuente del bloque
- * «Prestaciones» de la ficha y de `statPrestaciones()`.
+ * «Prestaciones» de la ficha.
  *
  * Nace concedida (resolución), activa (directa o plaza asignada); concedida no es activa
  * hasta registrar el inicio efectivo (RN-08). Cada cambio de estado deja un evento inmutable

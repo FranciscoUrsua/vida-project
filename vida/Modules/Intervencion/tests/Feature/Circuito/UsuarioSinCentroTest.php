@@ -90,7 +90,8 @@ class UsuarioSinCentroTest extends TestCase
             ->assertOk()
             ->assertDontSee('Consulta en modo lectura')
             ->assertSee("seleccionarHerramienta('entrevista')", false)
-            ->assertSee('+ Abrir plan');
+            // Con el PIA vigente y sin otro tipo en el CIAM no hay nada que abrir (U1, TF-USA-01 a 03)
+            ->assertDontSee('+ Abrir plan');
     }
 
     /**

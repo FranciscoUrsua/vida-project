@@ -390,7 +390,8 @@ class AccesosExpedienteTest extends TestCase
      */
     private function clasesDelAcceso(string $tipo, string $html): array
     {
-        $patron = '/<div data-acceso="'.preg_quote($tipo, '/').'"\s+class="([^"]*)"/';
+        // Cada entrada es un botón que abre su detalle (U3)
+        $patron = '/<button[^>]*?data-acceso="'.preg_quote($tipo, '/').'"\s+class="([^"]*)"/s';
         $this->assertMatchesRegularExpression($patron, $html, "Ningún acceso marcado como «{$tipo}».");
         preg_match($patron, $html, $m);
 

@@ -92,7 +92,7 @@ class InformesHistorial extends Component
         }
 
         return Informe::query()
-            ->with(['plantilla', 'autor'])
+            ->with(['plantilla', 'autor.profesional'])
             ->where('historia_social_id', $this->historiaId)
             ->latest('id')
             ->get();

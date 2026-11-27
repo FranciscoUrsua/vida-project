@@ -2,6 +2,7 @@
 
 namespace Modules\Documentos\Models;
 
+use App\Enums\AccionAuditEnum;
 use App\Models\Ciudadano;
 use App\Models\User;
 use App\Traits\Auditable;
@@ -294,5 +295,28 @@ class Documento extends Model
             ->value('vinculable_id');
 
         return $id !== null ? (int) $id : null;
+    }
+
+    /**
+     * Resumen de auditoría (U3): «Subió el documento X», «Retiró el documento X» o «Eliminó el
+     * documento X», con el tipo documental.
+     *
+     * @param AccionAuditEnum $accion
+     * @param array<string, mixed> $antes
+     * @param array<string, mixed> $despues
+     *
+     * @return string|null
+     */
+    public function resumenAuditoria(AccionAuditEnum $accion, array $antes, array $despues): ?string
+    {
+        $tipo = $this->tipo()->value('nombre') ?? 'sin tipo';
+
+        return match (true) {
+            $accion === AccionAuditEnum::Crear => "Subió el documento {$tipo}",
+            $accion === AccionAuditEnum::Editar && ($despues['estado'] ?? null) === EstadoDocumento::Retirado->value => "Retiró el documento {$tipo}",
+            $accion === AccionAuditEnum::Editar => "Modificó el documento {$tipo}",
+            $accion === AccionAuditEnum::Eliminar => "Eliminó el documento {$tipo}",
+            default => null,
+        };
     }
 }

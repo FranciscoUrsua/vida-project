@@ -4,6 +4,7 @@ namespace Modules\Ciudadania\Models;
 
 use App\Models\Ciudadano;
 use App\Models\User;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
@@ -31,6 +32,8 @@ use Illuminate\Support\Carbon;
  */
 class UnidadConvivenciaMiembro extends Model
 {
+    use Auditable;
+
     protected $table = 'unidad_convivencia_miembros';
 
     protected $fillable = [
@@ -115,5 +118,15 @@ class UnidadConvivenciaMiembro extends Model
     public function puedeSerPerceptorPrestaciones(): bool
     {
         return $this->estaActiva() && $this->verificado;
+    }
+
+    /**
+     * Ciudadano al que pertenece el registro (auditoría).
+     *
+     * @return int|null
+     */
+    public function getCiudadanoId(): ?int
+    {
+        return $this->ciudadano_id;
     }
 }

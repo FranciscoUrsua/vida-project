@@ -613,7 +613,7 @@
                             <span class="fw-semibold">{{ $registro->fecha->format('d/m/Y') }}</span>
                             <span class="badge {{ Tonos::tipoRegistroAtencion($registro->tipo)->clasesSuave() }}">{{ $tipoLabel }}</span>
                             @if($registro->profesional)
-                            <span class="text-body-secondary">{{ $registro->profesional->name }}</span>
+                            <span class="text-body-secondary">{{ $registro->profesional?->nombreVisible() }}</span>
                             @endif
                             @if($registro->prestacion)
                             <span class="text-body-secondary">{{ $registro->prestacion->nombre }}</span>

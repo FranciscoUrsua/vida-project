@@ -162,6 +162,9 @@ Repetir INF-01, INF-08, EST-02 a EST-09 y VEN-01 a VEN-05 tras la ronda 1. Añad
 
 ## 3.1 Versión 1.x — evolución de lo que ya existe
 
+**Historia Social**
+- Pantalla «Resumen de la persona» (2026-11-27): vista de un vistazo de la situación de la persona, con acceso directo a la ficha de datos, la Historia Social y los planes. Candidatos: planes vigentes y próximo seguimiento, recursos prescritos, últimas actuaciones, próxima cita, alertas, resumen de prestaciones (la HS ya no muestra ninguno desde U5). Pendiente de diseño. Origen: revisión de usabilidad del 27 nov (se quitaron de la HS «Apuntes», «Prestaciones activas» y «Último contacto»).
+
 **Supervisión**
 - Pantalla «Ciudadanos del centro» (EST-08): listado filtrable con cita pendiente, última atención, plan activo y colectivo; sin acceso a la HS salvo con `intervencion`.
 
@@ -259,9 +262,13 @@ Repetir INF-01, INF-08, EST-02 a EST-09 y VEN-01 a VEN-05 tras la ronda 1. Añad
 - `abort(403, 'mensaje')` en informes, documentos, configuración de UO y equipo: pasar a `ActuacionNoPermitida` si alguno debe enseñar su motivo.
 - Fichas de valoración del tipo: el formulario no distingue «todas» de «ninguna elegida».
 - Colores por tipo de centro en la barra superior.
-- Prestaciones de la persona en `CiudadanoPage`: solo el resumen (el bloque completo está en la ficha).
 - Toasts en el backoffice Filament.
 - «Aprobaciones» fuera del menú de Supervisión (decidido el 11 nov; reconsiderar si no la encuentran).
+
+**Auditoría («Últimos accesos», usabilidad del 27 nov)**
+- Una escritura puede dar varias filas (una valoración crea `Valoracion` y `Ficha`; cancelar una prescripción de sesión da de baja también la inscripción): el widget no las agrupa, igual que las consultas repetidas.
+- En el detalle, los identificadores (plaza, plan, prestación…) no se traducen a nombres (`campos_ocultos`); resolverlos en `CambiosAuditoria` si hace falta.
+- La unidad de convivencia se audita sin `ciudadano_id` (es de varias personas): sus cambios no salen en «Últimos accesos» de ningún miembro, solo en el visor de supervisión. Las citas y las asignaciones de referencia no pasan por `audits` (tienen historial propio); las cancelaciones anteriores al 27 nov no se reconstruyen.
 
 **Lógica de borde**
 - Bajas: la adscripción cerrada hoy sigue vigente hasta el final del día; las citas que bloquean la salida se cuentan desde hoy sin mirar la hora; «Repartir casos» puede llevar a otro centro si el supervisor tiene varios.

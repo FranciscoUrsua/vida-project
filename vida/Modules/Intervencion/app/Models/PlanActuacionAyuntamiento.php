@@ -3,9 +3,11 @@
 namespace Modules\Intervencion\Models;
 
 use App\Models\User;
+use App\Traits\Auditable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Modules\Intervencion\Models\Concerns\CiudadanoDelPlan;
 use Modules\Prestaciones\Models\Prestacion;
 
 /**
@@ -27,6 +29,11 @@ use Modules\Prestaciones\Models\Prestacion;
  */
 class PlanActuacionAyuntamiento extends Model
 {
+    use Auditable, CiudadanoDelPlan {
+        // El ciudadano sale del plan; la versión vacía de Auditable no aplica
+        CiudadanoDelPlan::getCiudadanoId insteadof Auditable;
+    }
+
     protected $table = 'plan_actuaciones_ayuntamiento';
 
     protected $fillable = [

@@ -3,6 +3,7 @@
 namespace Modules\Ciudadania\Models;
 
 use App\Models\Ciudadano;
+use App\Traits\Auditable;
 use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -39,6 +40,8 @@ use Modules\Ciudadania\Database\Factories\UnidadConvivenciaFactory;
  */
 class UnidadConvivencia extends Model
 {
+    use Auditable;
+
     /** @use HasFactory<UnidadConvivenciaFactory> */
     use HasFactory;
 
@@ -191,5 +194,17 @@ class UnidadConvivencia extends Model
     protected static function newFactory(): UnidadConvivenciaFactory
     {
         return UnidadConvivenciaFactory::new();
+    }
+
+    /**
+     * La unidad de convivencia no es de una sola persona: su auditoría queda sin ciudadano.
+     * Los cambios de cada persona (altas y bajas de miembros) se auditan en
+     * `UnidadConvivenciaMiembro`, con su `ciudadano_id`.
+     *
+     * @return int|null
+     */
+    public function getCiudadanoId(): ?int
+    {
+        return null;
     }
 }

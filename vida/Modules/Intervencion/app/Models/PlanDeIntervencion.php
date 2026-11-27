@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Models;
 
+use App\Enums\AccionAuditEnum;
 use App\Models\HistoriaSocial;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Models\User;
@@ -608,5 +609,30 @@ class PlanDeIntervencion extends Model
     public function scopeActivos(Builder $query): Builder
     {
         return $query->where('estado', EstadoPlan::Activo);
+    }
+
+    /**
+     * Resumen de auditoría del plan (U3): «Creó el plan PIA (borrador)», «Activó el plan PIA»,
+     * «Pasó el plan PIA a “Cerrado”» o «Modificó el plan PIA».
+     *
+     * @param AccionAuditEnum $accion
+     * @param array<string, mixed> $antes
+     * @param array<string, mixed> $despues
+     *
+     * @return string|null
+     */
+    public function resumenAuditoria(AccionAuditEnum $accion, array $antes, array $despues): ?string
+    {
+        $tipo = $this->tipoPlan()->value('nombre') ?? 'de intervención';
+        $estado = $this->estado instanceof EstadoPlan ? $this->estado : EstadoPlan::tryFrom((string) $this->estado);
+
+        return match (true) {
+            $accion === AccionAuditEnum::Crear => "Creó el plan {$tipo}".($estado ? ' ('.mb_strtolower($estado->label()).')' : ''),
+            $accion === AccionAuditEnum::Editar && array_key_exists('estado', $despues) && $estado === EstadoPlan::Activo => "Activó el plan {$tipo}",
+            $accion === AccionAuditEnum::Editar && array_key_exists('estado', $despues) && $estado !== null => "Pasó el plan {$tipo} a «{$estado->label()}»",
+            $accion === AccionAuditEnum::Editar => "Modificó el plan {$tipo}",
+            $accion === AccionAuditEnum::Eliminar => "Eliminó el plan {$tipo}",
+            default => null,
+        };
     }
 }

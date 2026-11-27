@@ -3,11 +3,13 @@
 namespace Modules\Documentos\Models;
 
 use App\Models\User;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Modules\Documentos\Enums\MetodoConformidadCiudadano;
+use Modules\Intervencion\Models\Concerns\CiudadanoDelPlan;
 use Modules\Intervencion\Models\PlanDeIntervencion;
 
 /**
@@ -36,6 +38,11 @@ use Modules\Intervencion\Models\PlanDeIntervencion;
  */
 class PisoFirmado extends Model
 {
+    use Auditable, CiudadanoDelPlan {
+        // El ciudadano sale del plan; la versión vacía de Auditable no aplica
+        CiudadanoDelPlan::getCiudadanoId insteadof Auditable;
+    }
+
     protected $table = 'piso_firmados';
 
     protected $guarded = [];
@@ -85,5 +92,15 @@ class PisoFirmado extends Model
     public function scopeActivos(Builder $query): Builder
     {
         return $query->whereNull('sustituido_en');
+    }
+
+    /**
+     * El PISO firmado guarda el plan en `plan_de_intervencion_id`.
+     *
+     * @return string
+     */
+    protected function columnaPlanAuditoria(): string
+    {
+        return 'plan_de_intervencion_id';
     }
 }

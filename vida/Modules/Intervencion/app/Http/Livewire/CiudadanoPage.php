@@ -12,10 +12,12 @@ use App\Services\AccesoExpediente;
 use App\Services\PresentacionPersona;
 use App\Support\Fichas\ValorCampo;
 use DomainException;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use InvalidArgumentException;
@@ -39,6 +41,7 @@ use Modules\Centro\Models\Plaza;
 use Modules\Centro\Models\Prescripcion;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Centro\Services\ConfiguracionEfectivaCentro;
+use Modules\Centro\Services\PrescripcionService;
 use Modules\Ciudadania\Enums\ImplicacionFuncional;
 use Modules\Ciudadania\Models\CiudadanoRelacion;
 use Modules\Ciudadania\Models\TipoRelacion;
@@ -64,8 +67,8 @@ use Modules\Intervencion\Services\Actuaciones\ContextoActuacion;
 use Modules\Intervencion\Services\Actuaciones\PaseEscalaService;
 use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
 use Modules\Intervencion\Services\EvaluacionObjetivosService;
+use Modules\Intervencion\Services\Planes\TiposPlanAbribles;
 use Modules\Intervencion\Services\PlanPdfService;
-use Modules\Prestaciones\Models\PrestacionPersona;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -90,9 +93,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  * @property-read Collection<int, Audit> $accesosRecientes
  * @property-read bool $puedeVerTodosLosAccesos
  * @property-read Collection<int, Prescripcion> $prescripcionesActivas
+ * @property-read Prescripcion|null $prescripcionAbierta
  * @property-read Cita|null $citaVinculable
  * @property-read bool $puedeSolicitarCita
  * @property-read array<int, string> $tiposCitaSeguimiento
+ * @property-read bool $modoLectura
+ * @property-read bool $puedeAbrirPlan
  */
 #[Layout('layouts.operativo')]
 class CiudadanoPage extends Component
@@ -104,6 +110,15 @@ class CiudadanoPage extends Component
 
     /** @var string Filtro del timeline: 'todos' | 'plan' | 'entrevista' */
     public string $filtroHS = 'todos';
+
+    /** @var int|null Prescripción abierta en la modal de resumen (U2) */
+    public ?int $prescripcionAbiertaId = null;
+
+    /** @var bool Formulario de cancelación visible en la modal (U2.1) */
+    public bool $cancelandoPrescripcion = false;
+
+    /** @var string Motivo de la cancelación de la prescripción (U2.1) */
+    public string $motivoCancelacion = '';
 
     /** @var bool Unidad de convivencia expandida */
     public bool $ucExpandida = false;
@@ -244,7 +259,7 @@ class CiudadanoPage extends Component
             ->where('historia_id', $this->historia->id)
             ->visiblesParaUsuario(Auth::id())
             // La marca del encargo (EA-6) necesita el área y el centro del encargo
-            ->with(['autor', 'derivacion.area', 'derivacion.centroDestino'])
+            ->with(['autor.profesional', 'derivacion.area', 'derivacion.centroDestino'])
             ->latest();
 
         $mapaFiltro = [
@@ -448,49 +463,6 @@ class CiudadanoPage extends Component
     public function ciudadanoEmail(): ?string
     {
         return $this->ciudadano->email ?? null;
-    }
-
-    /**
-     * Total de apuntes visibles en la Historia Social (todos los filtros).
-     * Usa la colección ya cargada para evitar consulta adicional.
-     */
-    #[Computed]
-    public function statApuntes(): int
-    {
-        return $this->apuntesHS->count();
-    }
-
-    /**
-     * Resumen de las prestaciones de la persona para la cabecera (fase 3 bis, P-03 resuelta):
-     * activas y concedidas pendientes de inicio. Null si no tiene ninguna o el usuario no las ve.
-     *
-     * @return string|null
-     */
-    #[Computed]
-    public function statPrestaciones(): ?string
-    {
-        if (! Auth::user()->can('solicitud.ver')) {
-            return null;
-        }
-
-        $porEstado = PrestacionPersona::where('ciudadano_id', $this->historia->ciudadano_id)
-            ->selectRaw('estado, count(*) as n')->groupBy('estado')->pluck('n', 'estado');
-
-        $partes = array_filter([
-            ($porEstado['activa'] ?? 0) > 0 ? $porEstado['activa'].' activa'.($porEstado['activa'] > 1 ? 's' : '') : null,
-            ($porEstado['concedida'] ?? 0) > 0 ? $porEstado['concedida'].' concedida'.($porEstado['concedida'] > 1 ? 's' : '').' sin empezar' : null,
-        ]);
-
-        return $partes === [] ? null : implode(' · ', $partes);
-    }
-
-    /**
-     * Fecha del último registro en la Historia Social formateada.
-     */
-    #[Computed]
-    public function statUltimoContacto(): ?string
-    {
-        return $this->apuntesHS->first()?->created_at?->translatedFormat('j M Y');
     }
 
     /**
@@ -892,7 +864,8 @@ class CiudadanoPage extends Component
 
     /**
      * Prescripciones activas del ciudadano (en curso: pendiente, en_lista_espera, asignada, activa).
-     * Se muestra en la banda de recursos bajo la banda del PISO.
+     * Se muestra en la banda de recursos bajo la banda del PISO, con lo necesario para el nombre
+     * del recurso y la modal de resumen (U2) cargado de una vez.
      *
      * @return Collection<int, Prescripcion>
      */
@@ -900,36 +873,119 @@ class CiudadanoPage extends Component
     public function prescripcionesActivas(): Collection
     {
         return Prescripcion::where('ciudadano_id', $this->historia->ciudadano_id)
-            ->whereIn('estado', ['pendiente', 'en_lista_espera', 'asignada', 'activa'])
+            ->enCurso()
+            ->with([
+                'prestacion',
+                'sesionActividad.actividad.centro',
+                'coleccionPlazas.centro',
+                'plaza',
+                'listaEspera',
+                'planIntervencion.tipoPlan',
+                'compromiso.prestacion',
+                'profesional',
+            ])
             ->orderByDesc('fecha_prescripcion')
             ->get();
     }
 
     /**
-     * Cancela una prescripción activa desde la banda de recursos de CiudadanoPage.
-     * Libera la plaza si la prescripción tenía una asignada.
+     * Prescripción abierta en la modal de resumen, si la hay (U2).
      *
-     * @param int $prescripcionId ID de la prescripción a cancelar.
+     * @return Prescripcion|null
      */
-    public function cancelarPrescripcion(int $prescripcionId): void
+    #[Computed]
+    public function prescripcionAbierta(): ?Prescripcion
     {
-        $prescripcion = Prescripcion::where('ciudadano_id', $this->historia->ciudadano_id)
-            ->findOrFail($prescripcionId);
+        return $this->prescripcionAbiertaId === null
+            ? null
+            : $this->prescripcionesActivas->firstWhere('id', $this->prescripcionAbiertaId);
+    }
 
-        if ($prescripcion->plaza_id) {
-            Plaza::where('id', $prescripcion->plaza_id)->update(['estado' => 'libre']);
+    /**
+     * Abre la modal de resumen de una prescripción de la banda (U2).
+     *
+     * @param int $prescripcionId
+     *
+     * @return void
+     */
+    public function verPrescripcion(int $prescripcionId): void
+    {
+        $this->cerrarPrescripcion();
+
+        if ($this->prescripcionesActivas->firstWhere('id', $prescripcionId) !== null) {
+            $this->prescripcionAbiertaId = $prescripcionId;
+        }
+    }
+
+    /**
+     * Cierra la modal de resumen y descarta el formulario de cancelación.
+     *
+     * @return void
+     */
+    public function cerrarPrescripcion(): void
+    {
+        $this->prescripcionAbiertaId = null;
+        $this->cancelandoPrescripcion = false;
+        $this->motivoCancelacion = '';
+        $this->resetValidation('motivoCancelacion');
+        unset($this->prescripcionAbierta);
+    }
+
+    /**
+     * Muestra el formulario de cancelación en la modal (U2.1), si el usuario puede cancelar.
+     *
+     * @return void
+     *
+     * @throws AuthorizationException
+     */
+    public function iniciarCancelacionPrescripcion(): void
+    {
+        $prescripcion = $this->prescripcionAbierta;
+
+        if ($prescripcion === null) {
+            return;
         }
 
-        if ($prescripcion->listaEspera) {
-            $prescripcion->listaEspera->update(['estado' => 'cancelada']);
+        Gate::authorize('cancel', $prescripcion);
+        $this->cancelandoPrescripcion = true;
+    }
+
+    /**
+     * Cancela la prescripción abierta con un motivo obligatorio (U2.1). Es una actuación:
+     * exige la policy y RN-15 (U2.2). La plaza, la lista de espera y la inscripción las
+     * resuelve `PrescripcionService::cancelar()` en una transacción.
+     *
+     * @return void
+     *
+     * @throws AuthorizationException Si el usuario no puede cancelarla.
+     */
+    public function cancelarPrescripcion(): void
+    {
+        $prescripcion = $this->prescripcionAbiertaId === null
+            ? null
+            : Prescripcion::where('ciudadano_id', $this->historia->ciudadano_id)->enCurso()->find($this->prescripcionAbiertaId);
+
+        if ($prescripcion === null) {
+            $this->cerrarPrescripcion();
+
+            return;
         }
 
-        $prescripcion->update([
-            'estado' => 'cancelada',
-            'motivo_cancelacion' => 'Cancelada por el profesional de referencia.',
-        ]);
+        Gate::authorize('cancel', $prescripcion);
+        $this->exigirActuacion();
 
-        unset($this->prescripcionesActivas);
+        $this->validate(
+            ['motivoCancelacion' => ['required', 'string', 'min:10', 'max:1000']],
+            [
+                'motivoCancelacion.required' => 'Indica el motivo de la cancelación.',
+                'motivoCancelacion.min' => 'El motivo tiene que tener al menos 10 caracteres.',
+            ],
+        );
+
+        app(PrescripcionService::class)->cancelar($prescripcion, trim($this->motivoCancelacion));
+
+        $this->cerrarPrescripcion();
+        unset($this->prescripcionesActivas, $this->accesosRecientes);
     }
 
     /**
@@ -968,6 +1024,24 @@ class CiudadanoPage extends Component
     public function puedeActuar(): bool
     {
         return app(CentroDeUsuario::class)->puedeActuar(Auth::user());
+    }
+
+    /**
+     * Si se ofrece «+ Abrir plan» (U1): fuera del modo lectura, con centro activo y algún tipo de
+     * plan que se pueda abrir para esta historia en ese centro (regla única de `TiposPlanAbribles`).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeAbrirPlan(): bool
+    {
+        if ($this->modoLectura) {
+            return false;
+        }
+
+        $centro = app(CentroDeUsuario::class)->centroActivo(Auth::user());
+
+        return $centro !== null && app(TiposPlanAbribles::class)->para($this->historia, $centro)->isNotEmpty();
     }
 
     /**
@@ -1228,7 +1302,7 @@ class CiudadanoPage extends Component
 
         $this->modalApunteDatos = [
             'fecha' => $apunte->fecha->format('d/m/Y').' '.$apunte->created_at->format('H:i'),
-            'autor' => $apunte->autor->name ?? '—',
+            'autor' => $apunte->autor?->nombreVisible() ?? '—',
             'contenido' => $apunte->contenido,
             'tipo_label' => $apunte->tipo->label(),
         ];

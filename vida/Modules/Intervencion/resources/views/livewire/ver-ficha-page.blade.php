@@ -27,7 +27,7 @@
         <p class="small text-body-secondary mb-0">
             Guardada el {{ $ficha->created_at->translatedFormat('j M Y') }}
             @if($ficha->profesional_id)
-                · {{ $ficha->profesional?->name ?? '—' }}
+                · {{ $ficha->profesional?->nombreVisible() ?? '—' }}
             @endif
         </p>
     </header>

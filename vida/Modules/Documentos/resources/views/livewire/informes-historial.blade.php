@@ -35,7 +35,7 @@
                             </div>
                             <div class="small text-body-secondary">
                                 {{ $informe->plantilla?->tipo_informe?->label() }} · {{ $informe->identificador() }}
-                                · {{ $informe->autor?->profesional?->nombre_completo ?: $informe->autor?->name }}
+                                · {{ $informe->autor?->nombreVisible() }}
                             </div>
                             <div class="small text-body-secondary">
                                 Creado el {{ $informe->created_at->format('d/m/Y') }}

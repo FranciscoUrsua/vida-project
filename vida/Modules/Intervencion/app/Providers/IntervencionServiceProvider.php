@@ -17,6 +17,7 @@ use Modules\Intervencion\Http\Livewire\BuscarCiudadanoPage;
 use Modules\Intervencion\Http\Livewire\CambioReferencia;
 use Modules\Intervencion\Http\Livewire\CiudadanoPage;
 use Modules\Intervencion\Http\Livewire\DerivacionesPlan;
+use Modules\Intervencion\Http\Livewire\DetalleAccesoDrawer;
 use Modules\Intervencion\Http\Livewire\EncargoPage;
 use Modules\Intervencion\Http\Livewire\EncargosProfesionales;
 use Modules\Intervencion\Http\Livewire\FichasPersona;
@@ -111,6 +112,7 @@ class IntervencionServiceProvider extends ServiceProvider
         Livewire::component('intervencion.derivaciones-plan', DerivacionesPlan::class);
         Livewire::component('intervencion.encargos-profesionales', EncargosProfesionales::class);
         Livewire::component('intervencion.cambio-referencia', CambioReferencia::class);
+        Livewire::component('intervencion.detalle-acceso-drawer', DetalleAccesoDrawer::class);
         Livewire::component('intervencion.registrar-valoracion-page', RegistrarValoracionPage::class);
         Livewire::component('intervencion.fichas-persona', FichasPersona::class);
         Livewire::component('intervencion.registrar-escala-page', RegistrarEscalaPage::class);

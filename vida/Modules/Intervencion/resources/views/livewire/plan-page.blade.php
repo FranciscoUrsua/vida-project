@@ -173,6 +173,9 @@
             @enderror
             @if(empty($this->tiposPlanes))
             <p class="form-text mb-0">No hay ningún tipo de plan que puedas abrir en este centro para esta persona.</p>
+            @if($historiaId)
+            <a href="{{ route('intervencion.ciudadano.show', $historiaId) }}" wire:navigate class="btn btn-link btn-sm px-0 mt-2">Volver a la Historia Social</a>
+            @endif
             @elseif($tipoPlanId)
             <button type="button" wire:click="crearNuevoPlan" class="btn btn-primary btn-sm mt-3" wire:loading.attr="disabled">
                 Crear plan

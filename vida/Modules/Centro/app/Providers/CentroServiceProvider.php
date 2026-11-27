@@ -11,9 +11,11 @@ use Modules\Centro\Console\ComprobarCoberturaCommand;
 use Modules\Centro\Listeners\AsignarCentroPorDireccion;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Models\InscripcionSesion;
+use Modules\Centro\Models\Prescripcion;
 use Modules\Centro\Models\TipoCentro;
 use Modules\Centro\Policies\CentroPolicy;
 use Modules\Centro\Policies\InscripcionSesionPolicy;
+use Modules\Centro\Policies\PrescripcionPolicy;
 use Modules\Centro\Policies\TipoCentroPolicy;
 use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 
@@ -51,6 +53,7 @@ class CentroServiceProvider extends ServiceProvider
         Gate::policy(TipoCentro::class, TipoCentroPolicy::class);
         Gate::policy(Centro::class, CentroPolicy::class);
         Gate::policy(InscripcionSesion::class, InscripcionSesionPolicy::class);
+        Gate::policy(Prescripcion::class, PrescripcionPolicy::class);
 
         if ($this->app->runningInConsole()) {
             $this->commands([ComprobarCoberturaCommand::class, AplicarDenominacionesCommand::class]);

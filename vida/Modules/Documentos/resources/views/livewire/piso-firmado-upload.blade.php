@@ -23,7 +23,7 @@
             @php $url = $this->urlDocumento(); @endphp
             <p class="small mb-0 mt-2">
                 PISO firmado el {{ $this->activo->created_at->format('d/m/Y') }},
-                subido por {{ $this->activo->subidoPor?->profesional?->nombre_completo ?: $this->activo->subidoPor?->name }}.
+                subido por {{ $this->activo->subidoPor?->nombreVisible() }}.
                 @if($url)
                     <a href="{{ $url }}" target="_blank" rel="noopener">Ver documento</a>
                 @endif

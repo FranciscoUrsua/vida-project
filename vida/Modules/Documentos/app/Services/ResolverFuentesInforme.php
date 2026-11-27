@@ -270,7 +270,7 @@ class ResolverFuentesInforme
             'objetivos_plan' => '—',
 
             // Profesional — campos extendidos pendientes de módulo Usuarios completo (BACKLOG)
-            'nombre_profesional' => $profesional->profesional?->nombre_completo ?: $profesional->name,
+            'nombre_profesional' => $profesional->nombreVisible(),
             'cargo_profesional' => $profesional->profesional->cargo->nombre ?? '—',
             'numero_colegiado' => '—',
 

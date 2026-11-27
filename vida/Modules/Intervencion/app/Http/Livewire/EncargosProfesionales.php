@@ -217,7 +217,7 @@ class EncargosProfesionales extends Component
         return Apunte::withoutGlobalScopes()
             ->whereIn('derivacion_id', $ids)
             ->visiblesParaUsuario((int) Auth::id())
-            ->with('autor')
+            ->with('autor.profesional')
             ->latest('fecha')
             ->latest('id')
             ->get()

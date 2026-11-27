@@ -1220,7 +1220,7 @@ class FichaCiudadanoPage extends Component
     {
         return $this->ciudadano
             ->registrosAtencion()
-            ->with(['profesional', 'prestacion'])
+            ->with(['profesional.profesional', 'prestacion'])
             ->get();
     }
 

@@ -84,7 +84,7 @@ class FichasPersona extends Component
     {
         $fichas = Ficha::query()->where('ciudadano_id', $this->ciudadanoId)
             ->orderByDesc('created_at')->orderByDesc('id')
-            ->with('profesional')
+            ->with('profesional.profesional')
             ->get()
             ->groupBy('tipo_ficha_id');
 

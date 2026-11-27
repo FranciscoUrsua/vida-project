@@ -11,7 +11,6 @@ use Modules\Centro\Models\Espacio;
 use Modules\Centro\Models\Plaza;
 use Modules\Centro\Models\TipoEspacio;
 use Modules\Centro\Services\PrescripcionService;
-use Modules\Intervencion\Http\Livewire\CiudadanoPage;
 use Modules\Prestaciones\Data\ActualizacionExpediente;
 use Modules\Prestaciones\Data\LineaResolucionDto;
 use Modules\Prestaciones\Data\ResolucionDto;
@@ -51,7 +50,7 @@ class PrestacionPersonaTest extends TestCase
         $pp = $this->concedida();
 
         $this->actingAs($this->tsNorte);
-        $this->assertSame('1 concedida sin empezar', Livewire::test(CiudadanoPage::class, ['historia' => $this->historiaAna])->get('statPrestaciones'));
+        $this->assertSame(1, PrestacionPersona::enEstado(EstadoPrestacionPersona::Concedida)->count());
         $this->assertSame(0, PrestacionPersona::enEstado(EstadoPrestacionPersona::Activa)->count());
 
         app(PrestacionPersonaService::class)->registrarInicio($pp, Carbon::parse('2026-11-30'), $this->tsNorte);
@@ -59,7 +58,7 @@ class PrestacionPersonaTest extends TestCase
         $pp->refresh();
         $this->assertSame([EstadoPrestacionPersona::Activa, '2026-11-30'], [$pp->estado, $pp->fecha_inicio->toDateString()]);
         $this->assertSame(['concedida', 'activa'], $pp->eventos()->get()->map(fn ($e) => $e->estado_despues->value)->all());
-        $this->assertSame('1 activa', Livewire::test(CiudadanoPage::class, ['historia' => $this->historiaAna])->get('statPrestaciones'));
+        $this->assertSame(1, PrestacionPersona::enEstado(EstadoPrestacionPersona::Activa)->count());
     }
 
     /** TF-SOL-33 — Suspender, reanudar y finalizar con motivo; desde finalizada no se vuelve. */
@@ -117,7 +116,7 @@ class PrestacionPersonaTest extends TestCase
             [$pp->estado, $pp->prestacion_id, $pp->origen_type, $pp->origen_id]);
     }
 
-    /** TF-SOL-37 — Bloque «Prestaciones» de la ficha y resumen de la cabecera. */
+    /** TF-SOL-37 — Bloque «Prestaciones» de la ficha. */
     #[Test]
     public function tf_sol_37_bloque_prestaciones_de_la_ficha(): void
     {
@@ -138,8 +137,9 @@ class PrestacionPersonaTest extends TestCase
         $this->assertSame([$enCurso->id], $bloque->get('solicitudes')->pluck('id')->all());
         $this->assertNotNull($activa);
 
-        // La suspendida no cuenta como activa en el resumen
-        $this->assertSame('1 activa · 1 concedida sin empezar', Livewire::test(CiudadanoPage::class, ['historia' => $this->historiaAna])->get('statPrestaciones'));
+        // La suspendida no cuenta como activa (el resumen de la cabecera se retiró con U5, 27 nov 2026)
+        $this->assertSame(1, PrestacionPersona::where('ciudadano_id', $this->ana->id)->enEstado(EstadoPrestacionPersona::Activa)->count());
+        $this->assertSame(1, PrestacionPersona::where('ciudadano_id', $this->ana->id)->enEstado(EstadoPrestacionPersona::Concedida)->count());
     }
 
     /**

@@ -237,8 +237,9 @@ class PrescripcionService
     }
 
     /**
-     * Cancela una prescripción y libera la plaza si tenía una asignada. En una sesión de
-     * actividad, da de baja su inscripción vigente (la plaza), con el mismo motivo.
+     * Cancela una prescripción y libera la plaza si tenía una asignada. Cancela su entrada
+     * activa en la lista de espera y, en una sesión de actividad, da de baja su inscripción
+     * vigente (la plaza), con el mismo motivo. Todo en una transacción.
      *
      * @param Prescripcion $prescripcion Prescripción que se cancela.
      * @param string|null $motivo Motivo opcional de la cancelación.
@@ -251,6 +252,9 @@ class PrescripcionService
             if ($prescripcion->plaza_id) {
                 Plaza::find($prescripcion->plaza_id)?->update(['estado' => 'libre']);
             }
+
+            // Solo la entrada en curso: una ya asignada o cancelada es historia (principio 4.2)
+            $prescripcion->listaEspera()->where('estado', 'activa')->first()?->update(['estado' => 'cancelada']);
 
             $prescripcion->update([
                 'estado' => 'cancelada',

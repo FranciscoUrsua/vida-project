@@ -125,6 +125,8 @@ Estados: `pendiente` → `en_lista_espera` → `asignada` → `activa` → `fina
 
 Cuando no hay disponibilidad, la persona entra en lista de espera. Al liberarse una plaza, el sistema genera una alerta al TSR activo del ciudadano en ese momento. **La asignación nunca es automática.**
 
+**Cancelación** (*27 nov 2026, usabilidad U2.1 y U2.2*): siempre con motivo obligatorio (al menos 10 caracteres desde la Historia Social), que se guarda en `motivo_cancelacion` y queda en la auditoría. Cancelar es una actuación sobre la persona: `PrescripcionPolicy::cancel` exige que la prescripción esté en curso, ver la Historia Social de la persona y poder actuar en el centro activo (RN-15). `PrescripcionService::cancelar()` libera la plaza, cancela la entrada activa en la lista de espera y da de baja la inscripción de la sesión, todo en una transacción. La prescripción es auditable desde el 27 nov.
+
 ---
 
 ## 3. Conceptos clave — Servicios

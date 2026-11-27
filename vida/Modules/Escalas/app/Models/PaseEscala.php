@@ -2,6 +2,7 @@
 
 namespace Modules\Escalas\Models;
 
+use App\Enums\AccionAuditEnum;
 use App\Models\HistoriaSocial;
 use App\Models\User;
 use App\Traits\Auditable;
@@ -215,5 +216,26 @@ class PaseEscala extends Model
     protected static function newFactory(): PaseEscalaFactory
     {
         return PaseEscalaFactory::new();
+    }
+
+    /**
+     * Resumen de auditoría (U3): «Aplicó la escala X».
+     *
+     * @param AccionAuditEnum $accion
+     * @param array<string, mixed> $antes
+     * @param array<string, mixed> $despues
+     *
+     * @return string|null
+     */
+    public function resumenAuditoria(AccionAuditEnum $accion, array $antes, array $despues): ?string
+    {
+        $nombre = $this->tipoEscala()->value('nombre') ?? 'sin nombre';
+
+        return match ($accion) {
+            AccionAuditEnum::Crear => "Aplicó la escala {$nombre}",
+            AccionAuditEnum::Editar => "Modificó el pase de la escala {$nombre}",
+            AccionAuditEnum::Eliminar => "Eliminó el pase de la escala {$nombre}",
+            default => null,
+        };
     }
 }

@@ -51,7 +51,7 @@ class PisoFirmadoService
     public function activo(PlanDeIntervencion $plan): ?PisoFirmado
     {
         return PisoFirmado::query()
-            ->with(['subidoPor', 'documento'])
+            ->with(['subidoPor.profesional', 'documento'])
             ->where('plan_de_intervencion_id', $plan->id)
             ->activos()
             ->first();

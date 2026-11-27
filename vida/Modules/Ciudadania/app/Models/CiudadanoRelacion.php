@@ -3,6 +3,7 @@
 namespace Modules\Ciudadania\Models;
 
 use App\Models\Ciudadano;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,6 +26,8 @@ use Illuminate\Support\Carbon;
  */
 class CiudadanoRelacion extends Model
 {
+    use Auditable;
+
     protected $table = 'ciudadano_relaciones';
 
     /** Previene recursión infinita al crear/modificar la relación recíproca. */
@@ -221,5 +224,15 @@ class CiudadanoRelacion extends Model
         } finally {
             self::$sincronizandoReciproca = false;
         }
+    }
+
+    /**
+     * Ciudadano al que pertenece el registro (auditoría).
+     *
+     * @return int|null
+     */
+    public function getCiudadanoId(): ?int
+    {
+        return $this->ciudadano_id;
     }
 }

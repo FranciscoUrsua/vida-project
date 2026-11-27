@@ -3,11 +3,13 @@
 namespace Modules\Intervencion\Models;
 
 use App\Models\User;
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use Modules\Intervencion\Database\Factories\SeguimientoPlanFactory;
+use Modules\Intervencion\Models\Concerns\CiudadanoDelPlan;
 
 /**
  * Registro de una sesión de seguimiento del Plan de Intervención.
@@ -30,6 +32,10 @@ use Modules\Intervencion\Database\Factories\SeguimientoPlanFactory;
  */
 class SeguimientoPlan extends Model
 {
+    use Auditable, CiudadanoDelPlan {
+        // El ciudadano sale del plan; la versión vacía de Auditable no aplica
+        CiudadanoDelPlan::getCiudadanoId insteadof Auditable;
+    }
     use HasFactory;
 
     protected static function newFactory(): SeguimientoPlanFactory

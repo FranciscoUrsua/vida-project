@@ -4,6 +4,7 @@ namespace Modules\Centro\Models;
 
 use App\Models\Ciudadano;
 use App\Models\User;
+use App\Traits\Auditable;
 use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -39,6 +40,7 @@ use Modules\Centro\Enums\ViaInscripcion;
  */
 class InscripcionSesion extends Model
 {
+    use Auditable;
     use Versionable;
 
     protected $table = 'inscripciones_sesion';
@@ -132,5 +134,15 @@ class InscripcionSesion extends Model
     public function scopeVigentes(Builder $query): Builder
     {
         return $query->where('estado', EstadoInscripcionSesion::Inscrita->value);
+    }
+
+    /**
+     * Ciudadano al que pertenece el registro (auditoría).
+     *
+     * @return int|null
+     */
+    public function getCiudadanoId(): ?int
+    {
+        return $this->ciudadano_id;
     }
 }

@@ -945,7 +945,8 @@ class PlazasRecursosTest extends TestCase
     }
 
     /**
-     * TF-REC-E02 — Cancelar prescripción desde la banda actualiza la vista.
+     * TF-REC-E02 — Cancelar prescripción desde la modal de la banda (U2.1: con motivo) la
+     * cancela, cancela su lista de espera y la quita de la banda.
      */
     #[Test]
     public function cancelar_prescripcion_desde_banda_actualiza_vista(): void
@@ -972,11 +973,17 @@ class PlazasRecursosTest extends TestCase
 
         $this->actingAs($this->usuario);
 
-        Livewire::test(CiudadanoPage::class, ['historia' => $this->historia])
-            ->call('cancelarPrescripcion', $prescripcion->id);
+        $componente = Livewire::test(CiudadanoPage::class, ['historia' => $this->historia])
+            ->call('verPrescripcion', $prescripcion->id)
+            ->call('iniciarCancelacionPrescripcion')
+            ->set('motivoCancelacion', 'Ya no necesita el recurso.')
+            ->call('cancelarPrescripcion');
 
         $prescripcion->refresh();
         $this->assertEquals('cancelada', $prescripcion->estado);
+        $this->assertSame('Ya no necesita el recurso.', $prescripcion->motivo_cancelacion);
+        $this->assertSame('cancelada', $prescripcion->listaEspera->estado);
+        $this->assertCount(0, $componente->get('prescripcionesActivas'));
     }
 
     // =========================================================================

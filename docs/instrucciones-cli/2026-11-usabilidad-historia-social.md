@@ -1,7 +1,7 @@
 # Instrucciones CLI — Usabilidad de la Historia Social (ronda 1)
 
 **Origen:** revisión del Delegado Digital el 27 nov 2026 en staging, Historia Social de la persona 906 (`/intervencion/ciudadano/906`) con `ts1.ciam` (intervención).
-**Estado:** U1–U5 confirmadas por el Delegado Digital el 27 nov 2026 (incluidas U2.1, U2.2 y U3.3, que salieron del análisis del código). Listo para ejecutar.
+**Estado:** U1–U5 confirmadas por el Delegado Digital el 27 nov 2026 (incluidas U2.1, U2.2 y U3.3, que salieron del análisis del código). **Hecha el 27 nov 2026** (pasos 0 a 5; en el paso 0.4 se confirmó auditar los cuatro grupos del inventario).
 **Requisito previo:** `master` en `0ed7950` o posterior.
 **Tests:** TF-USA-01 a TF-USA-16 (al final).
 
@@ -187,7 +187,7 @@ Anota U1–U5 en `SESSION.md` al empezar.
 
 | Grupo | Tests | Estado |
 |---|---|---|
-| A — Abrir plan | TF-USA-01..04 | |
-| B — Prescripciones | TF-USA-05..09 | |
-| C — Auditoría y drawer | TF-USA-10..14 | |
-| D — Nombre y estadísticas | TF-USA-15..16 | |
+| A — Abrir plan | TF-USA-01..04 | ✅ 27 nov (`Usabilidad/AbrirPlanTest`) |
+| B — Prescripciones | TF-USA-05..09 | ✅ 27 nov (`Usabilidad/PrescripcionesHistoriaTest`) |
+| C — Auditoría y drawer | TF-USA-10..14 | ✅ 27 nov (`Usabilidad/AuditoriaAccesosTest`) |
+| D — Nombre y estadísticas | TF-USA-15..16 | ✅ 27 nov (`Usabilidad/NombreYEstadisticasTest`) |

@@ -2,9 +2,11 @@
 
 namespace Modules\Intervencion\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Modules\Intervencion\Models\Concerns\CiudadanoDelPlan;
 
 /**
  * Objetivo real de un Plan de Intervención.
@@ -26,6 +28,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class PlanObjetivo extends Model
 {
+    use Auditable, CiudadanoDelPlan {
+        // El ciudadano sale del plan; la versión vacía de Auditable no aplica
+        CiudadanoDelPlan::getCiudadanoId insteadof Auditable;
+    }
+
     protected $table = 'plan_objetivos';
 
     protected $fillable = [

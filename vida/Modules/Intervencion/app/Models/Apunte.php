@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Models;
 
+use App\Enums\AccionAuditEnum;
 use App\Models\HistoriaSocial;
 use App\Models\User;
 use App\Services\AmbitoUsuario;
@@ -272,5 +273,26 @@ class Apunte extends Model
             $q->where('visibilidad', '!=', VisibilidadApunte::Privada->value)
                 ->orWhere('autor_id', $usuarioId);
         });
+    }
+
+    /**
+     * Resumen de auditoría según el tipo de apunte, sin el contenido (U3).
+     *
+     * @param AccionAuditEnum $accion
+     * @param array<string, mixed> $antes
+     * @param array<string, mixed> $despues
+     *
+     * @return string|null
+     */
+    public function resumenAuditoria(AccionAuditEnum $accion, array $antes, array $despues): ?string
+    {
+        $tipo = $this->tipo?->conArticulo() ?? 'un apunte';
+
+        return match ($accion) {
+            AccionAuditEnum::Crear => "Registró {$tipo}",
+            AccionAuditEnum::Editar => "Modificó {$tipo}",
+            AccionAuditEnum::Eliminar => "Eliminó {$tipo}",
+            default => null,
+        };
     }
 }

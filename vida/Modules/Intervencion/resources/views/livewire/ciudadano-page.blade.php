@@ -43,12 +43,13 @@
     <section class="px-3 py-2 border-bottom bg-primary-subtle small" aria-labelledby="titulo-planes-persona">
         <div class="d-flex flex-wrap align-items-center gap-2">
             <h2 id="titulo-planes-persona" class="small fw-bold text-primary-emphasis mb-0">Planes de la persona</h2>
-            @unless($modoLectura)
+            {{-- U1: solo si hay algún tipo de plan que se pueda abrir aquí para esta persona --}}
+            @if($this->puedeAbrirPlan)
             <a href="{{ route('intervencion.plan.crear', ['historia' => $this->historia->id]) }}" wire:navigate
                class="btn btn-sm btn-outline-primary ms-auto">
                 + Abrir plan
             </a>
-            @endunless
+            @endif
         </div>
         @forelse($this->planesDeLaPersona as $fila)
             <div class="d-flex flex-wrap align-items-center gap-3 pt-2" wire:key="plan-persona-{{ $fila['plan']->id }}">
@@ -82,22 +83,122 @@
                 Recursos prescritos ({{ $this->prescripcionesActivas->count() }})
             </span>
             <div class="d-flex gap-2 flex-wrap">
+                {{-- U2: cada recurso con su nombre; la modal da el resumen y la cancelación --}}
                 @foreach($this->prescripcionesActivas as $presc)
-                    <span class="badge bg-secondary">
-                        {{ ucfirst(str_replace('_', ' ', $presc->estado)) }}
-                        · {{ ucfirst($presc->tipo_destino === 'coleccion_plazas' ? 'Plaza' : 'Actividad') }}
-                    </span>
-                    <button type="button"
-                            wire:click="cancelarPrescripcion({{ $presc->id }})"
-                            class="btn btn-sm btn-outline-danger py-0"
-                            title="Cancelar prescripción"
-                            aria-label="Cancelar prescripción"
-                            wire:confirm="¿Cancelar esta prescripción?">
-                        <x-heroicon-o-x-mark class="icon-12" aria-hidden="true"/>
+                    <button type="button" wire:click="verPrescripcion({{ $presc->id }})"
+                            class="btn btn-sm btn-outline-secondary py-0">
+                        {{ $presc->nombreRecurso() }} · {{ $presc->etiquetaEstado() }}
                     </button>
                 @endforeach
             </div>
         </div>
+    @endif
+
+    {{-- Modal de resumen de una prescripción (U2) con la cancelación motivada (U2.1, U2.2) --}}
+    @if($presc = $this->prescripcionAbierta)
+    @php
+        $destinoPresc = $presc->destino();
+        $centroDestino = $presc->centroDestino();
+        $planPresc = $presc->planIntervencion;
+        $esperaActiva = $presc->listaEspera?->estado === 'activa' ? $presc->listaEspera : null;
+    @endphp
+    <div class="modal fade show d-block"
+         wire:click.self="cerrarPrescripcion"
+         x-data x-init="$nextTick(() => $el.focus())" x-on:keydown.escape.window="$wire.cerrarPrescripcion()"
+         role="dialog" aria-modal="true" aria-labelledby="titulo-prescripcion" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h2 class="modal-title h6 fw-semibold" id="titulo-prescripcion">{{ $presc->nombreRecurso() }}</h2>
+                    <button wire:click="cerrarPrescripcion" type="button" class="btn-close" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <dl class="row small mb-0">
+                        <dt class="col-5 text-body-secondary fw-normal">Prestación</dt>
+                        <dd class="col-7">{{ $presc->prestacion?->nombre ?? '—' }}</dd>
+                        <dt class="col-5 text-body-secondary fw-normal">Destino</dt>
+                        <dd class="col-7">
+                            @if($destinoPresc instanceof \Modules\Centro\Models\SesionActividad)
+                                {{ $destinoPresc->actividad?->nombre }}
+                                <span class="d-block text-body-secondary">Sesión del {{ $destinoPresc->fecha->format('d/m/Y') }} a las {{ \Illuminate\Support\Str::of($destinoPresc->hora_inicio)->substr(0, 5) }}</span>
+                            @elseif($destinoPresc)
+                                {{ $destinoPresc->nombre }}
+                            @else
+                                —
+                            @endif
+                            @if($centroDestino)
+                                <span class="d-block text-body-secondary">{{ $centroDestino->nombre }}</span>
+                            @endif
+                        </dd>
+                        @if($presc->plaza)
+                            <dt class="col-5 text-body-secondary fw-normal">Plaza asignada</dt>
+                            <dd class="col-7">{{ $presc->plaza->nombre }}</dd>
+                        @endif
+                        <dt class="col-5 text-body-secondary fw-normal">Estado</dt>
+                        <dd class="col-7">{{ $presc->etiquetaEstado() }}</dd>
+                        @if($esperaActiva)
+                            <dt class="col-5 text-body-secondary fw-normal">Lista de espera</dt>
+                            <dd class="col-7">Posición {{ $esperaActiva->posicion }}</dd>
+                        @endif
+                        <dt class="col-5 text-body-secondary fw-normal">Prescripción</dt>
+                        <dd class="col-7">{{ $presc->fecha_prescripcion?->format('d/m/Y') ?? '—' }}</dd>
+                        @if($presc->fecha_asignacion)
+                            <dt class="col-5 text-body-secondary fw-normal">Asignación</dt>
+                            <dd class="col-7">{{ $presc->fecha_asignacion->format('d/m/Y') }}</dd>
+                        @endif
+                        <dt class="col-5 text-body-secondary fw-normal">Inicio y fin</dt>
+                        <dd class="col-7">{{ $presc->fecha_inicio?->format('d/m/Y') ?? '—' }} – {{ $presc->fecha_fin?->format('d/m/Y') ?? '—' }}</dd>
+                        <dt class="col-5 text-body-secondary fw-normal">Plan</dt>
+                        <dd class="col-7">
+                            @if($planPresc)
+                                @can('view', $planPresc)
+                                    <a href="{{ route('intervencion.plan.show', $planPresc) }}" wire:navigate>{{ $planPresc->tipoPlan?->nombre ?? 'Plan' }}</a>
+                                @else
+                                    {{ $planPresc->tipoPlan?->nombre ?? 'Plan' }}
+                                @endcan
+                            @else
+                                Sin plan vinculado
+                            @endif
+                        </dd>
+                        @if($presc->compromiso)
+                            <dt class="col-5 text-body-secondary fw-normal">Compromiso</dt>
+                            <dd class="col-7">{{ $presc->compromiso->prestacion?->nombre }}@if($presc->compromiso->descripcion_especifica) · {{ $presc->compromiso->descripcion_especifica }}@endif</dd>
+                        @endif
+                        <dt class="col-5 text-body-secondary fw-normal">Prescrita por</dt>
+                        <dd class="col-7">{{ $presc->profesional?->nombre_completo ?? '—' }}</dd>
+                        @if($presc->notas)
+                            <dt class="col-5 text-body-secondary fw-normal">Notas</dt>
+                            <dd class="col-7">{!! nl2br(e($presc->notas)) !!}</dd>
+                        @endif
+                    </dl>
+
+                    @if($cancelandoPrescripcion)
+                        <form wire:submit="cancelarPrescripcion" class="border-top pt-3 mt-3">
+                            <label for="motivo-cancelacion" class="form-label small fw-semibold">Motivo de la cancelación</label>
+                            <textarea id="motivo-cancelacion" wire:model="motivoCancelacion" rows="3"
+                                      class="form-control @error('motivoCancelacion') is-invalid @enderror"
+                                      aria-describedby="motivo-cancelacion-ayuda"></textarea>
+                            <div id="motivo-cancelacion-ayuda" class="form-text">Obligatorio, al menos 10 caracteres. Queda en la auditoría.</div>
+                            @error('motivoCancelacion')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <div class="d-flex justify-content-end gap-2 mt-2">
+                                <button type="button" wire:click="$set('cancelandoPrescripcion', false)" class="btn btn-outline-secondary btn-sm">Volver</button>
+                                <button type="submit" class="btn btn-danger btn-sm" wire:loading.attr="disabled">Confirmar la cancelación</button>
+                            </div>
+                        </form>
+                    @endif
+                </div>
+                <div class="modal-footer justify-content-between">
+                    @if(! $cancelandoPrescripcion && ! $modoLectura)
+                        @can('cancel', $presc)
+                            <button type="button" wire:click="iniciarCancelacionPrescripcion" class="btn btn-outline-danger btn-sm">Cancelar prescripción</button>
+                        @endcan
+                    @endif
+                    <button type="button" wire:click="cerrarPrescripcion" class="btn btn-outline-secondary btn-sm ms-auto">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
     @endif
 
     {{-- ------------------------------------------------------------------ --}}
@@ -390,7 +491,7 @@
                                     {{ $apunte->tipo->label() }}
                                 </div>
                                 <div class="small text-body-secondary">
-                                    {{ $apunte->fecha->format('d/m/Y') }} · {{ $apunte->autor?->name ?? '' }}
+                                    {{ $apunte->fecha->format('d/m/Y') }} · {{ $apunte->autor?->nombreVisible() ?? '' }}
                                 </div>
                                 @if($marcaEncargo = $apunte->marcaEncargo())
                                     <span class="badge rounded-pill text-bg-light border fw-normal">{{ $marcaEncargo }}</span>
@@ -659,76 +760,51 @@
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <h3 id="titulo-accesos" class="small text-uppercase fw-bold text-body-secondary mb-0">Últimos accesos</h3>
                         @if($this->puedeVerTodosLosAccesos)
-                            {{-- TODO: modal historial completo --}}
-                            <a href="#" class="btn btn-link btn-sm text-decoration-none px-0">Ver todo</a>
+                            {{-- U3.3: historial completo paginado en el drawer --}}
+                            <button type="button" wire:click="$dispatch('abrir-historial-accesos')" class="btn btn-link btn-sm text-decoration-none px-0">Ver todo</button>
                         @endif
                     </div>
 
                     @if($this->accesosRecientes->isNotEmpty())
                         <div class="list-group list-group-flush">
                             @foreach($this->accesosRecientes as $acceso)
-                                @php
-                                    $esPropio  = $acceso->user_id === Auth::id();
-                                    $uoAcceso  = $acceso->contexto['unidad_organizativa_id'] ?? null;
-                                    $uoAcceso  = $uoAcceso ?? $acceso->user?->profesional?->unidad_organizativa_id;
-                                    $esOtraUo  = $uoAcceso !== null && $uoAcceso !== $historia->unidad_organizativa_id;
-                                    $esCambio  = in_array($acceso->accion?->value, ['crear', 'editar', 'eliminar']);
-                                    // Otra UO: la lectura es sospechosa; la modificación, una anomalía grave que hay que revisar
-                                    $esAnomalo    = $esOtraUo && $esCambio;
-                                    $esSospechoso = $esOtraUo && ! $esCambio;
-                                    $tipoAcceso   = $esAnomalo ? 'anomalo' : ($esSospechoso ? 'sospechoso' : ($esPropio ? 'propio' : 'normal'));
-                                @endphp
-                                <div data-acceso="{{ $tipoAcceso }}" @class([
-                                    'list-group-item px-2 py-2 small',
-                                    'bg-transparent' => ! $esOtraUo,
-                                    'opacity-75' => $esPropio,
-                                    'bg-warning-subtle rounded' => $esSospechoso,
-                                    'bg-danger-subtle border-start border-3 border-danger rounded' => $esAnomalo,
+                                @php $claseAcceso = \App\Support\Auditoria\ClasificacionAcceso::de($acceso, $historia); @endphp
+                                {{-- U3: cada entrada abre su detalle en el drawer --}}
+                                <button type="button" wire:click="$dispatch('abrir-detalle-acceso', { id: {{ $acceso->id }} })"
+                                        data-acceso="{{ $claseAcceso->tipo() }}" @class([
+                                    'list-group-item list-group-item-action px-2 py-2 small text-start',
+                                    'bg-transparent' => ! $claseAcceso->esOtraUo,
+                                    'opacity-75' => $claseAcceso->esPropio,
+                                    'bg-warning-subtle rounded' => $claseAcceso->esSospechoso(),
+                                    'bg-danger-subtle border-start border-3 border-danger rounded' => $claseAcceso->esAnomalo(),
                                 ])>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="fw-semibold">
-                                            {{ $acceso->user?->profesional?->nombre_completo ?? $acceso->user?->name ?? '—' }}
-                                        </span>
-                                        @if($esOtraUo)
-                                            <span @class(['badge', 'bg-danger-subtle text-danger-emphasis' => $esAnomalo, 'bg-warning-subtle text-warning-emphasis' => ! $esAnomalo]) title="Profesional de otra UO">Otra UO</span>
+                                    <span class="d-flex align-items-center gap-2">
+                                        <span class="fw-semibold">{{ $acceso->user?->nombreVisible() ?? '—' }}</span>
+                                        @if($claseAcceso->esOtraUo)
+                                            <span @class(['badge', 'bg-danger-subtle text-danger-emphasis' => $claseAcceso->esAnomalo(), 'bg-warning-subtle text-warning-emphasis' => ! $claseAcceso->esAnomalo()]) title="Profesional de otra UO">Otra UO</span>
                                         @endif
-                                    </div>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span @class(['fw-semibold' => $esCambio, 'text-body-secondary' => ! $esCambio])>
-                                            {{ $acceso->accion?->etiqueta() ?? '—' }}
+                                    </span>
+                                    <span class="d-flex align-items-center gap-2">
+                                        <span @class(['fw-semibold' => $claseAcceso->esCambio, 'text-body-secondary' => ! $claseAcceso->esCambio])>
+                                            {{ \App\Support\Auditoria\ClasificacionAcceso::texto($acceso) }}
                                         </span>
-                                        @if($esAnomalo)
+                                        @if($claseAcceso->esAnomalo())
                                             <span class="text-danger" title="Modificación desde otra UO — revisar">
                                                 <x-heroicon-o-exclamation-triangle class="icon-14" aria-hidden="true"/>
                                                 <span class="visually-hidden">Modificación desde otra UO — revisar</span>
                                             </span>
                                         @endif
                                         <span class="text-body-secondary ms-auto">{{ $acceso->created_at->diffForHumans() }}</span>
-                                    </div>
-                                </div>
+                                    </span>
+                                </button>
                             @endforeach
                         </div>
                     @else
                         <p class="small text-body-secondary mb-0">Sin accesos registrados.</p>
                     @endif
                 </section>
+                @livewire('intervencion.detalle-acceso-drawer', ['historiaId' => $historia->id], key('drawer-accesos-'.$historia->id))
 
-            </div>
-
-            {{-- Barra de estadísticas de contexto --}}
-            <div class="d-flex border-top bg-white text-center">
-                <div class="flex-fill py-2 border-end">
-                    <div class="fw-semibold text-primary">{{ $this->statApuntes }}</div>
-                    <div class="small text-body-secondary">Apuntes</div>
-                </div>
-                <div class="flex-fill py-2 border-end">
-                    <div class="fw-semibold text-primary">{{ $this->statPrestaciones ?? '—' }}</div>
-                    <div class="small text-body-secondary">Prestaciones activas</div>
-                </div>
-                <div class="flex-fill py-2">
-                    <div class="fw-semibold text-primary">{{ $this->statUltimoContacto ?? '—' }}</div>
-                    <div class="small text-body-secondary">Último contacto</div>
-                </div>
             </div>
 
         </div>

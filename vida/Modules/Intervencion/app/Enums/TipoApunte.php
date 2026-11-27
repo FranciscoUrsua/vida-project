@@ -55,4 +55,26 @@ enum TipoApunte: string
             self::Anotacion, self::GestionCoordinacion, self::Documento => Tono::Neutro,
         };
     }
+
+    /**
+     * Nombre del tipo con artículo indeterminado, para los resúmenes de auditoría
+     * («Registró una anotación»).
+     *
+     * @return string
+     */
+    public function conArticulo(): string
+    {
+        return match ($this) {
+            self::Entrevista => 'una entrevista',
+            self::Documento => 'un documento',
+            self::Derivacion => 'una derivación',
+            self::Seguimiento => 'un seguimiento',
+            self::Anotacion => 'una anotación',
+            self::Valoracion => 'una valoración',
+            self::Escala => 'una escala',
+            self::GestionCoordinacion => 'una gestión o coordinación',
+            self::PlanIntervencion => 'un apunte del plan de intervención',
+            self::Encargo => 'un encargo profesional',
+        };
+    }
 }

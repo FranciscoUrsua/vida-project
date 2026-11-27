@@ -162,7 +162,7 @@ class FichaPersonaInterfazTest extends TestCase
             ->assertSee('640')
             ->assertSee('No desea contestar')
             ->assertSee(now()->setDate(2026, 3, 14)->translatedFormat('j M Y'))
-            ->assertSee($this->tsNorte->name);
+            ->assertSee($this->tsNorte->nombreVisible());
 
         // Mostrarla es leerla: queda en la auditoría
         $this->assertTrue(Audit::where('auditable_type', Ficha::class)->where('auditable_id', $ficha->id)

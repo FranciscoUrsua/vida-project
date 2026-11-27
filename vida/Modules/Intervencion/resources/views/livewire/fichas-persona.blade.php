@@ -54,7 +54,7 @@
                     @endif
                     <p class="small text-body-secondary mb-0">
                         Actualizado el {{ $vigente->created_at->translatedFormat('j M Y') }}
-                        · {{ $vigente->profesional?->name ?? '—' }}
+                        · {{ $vigente->profesional?->nombreVisible() ?? '—' }}
                         · <a href="{{ route('intervencion.fichas-persona.ver', ['ciudadano' => $ciudadanoId, 'ficha' => $vigente->id]) }}" wire:navigate>Ver completa</a>
                     </p>
                 @else
@@ -64,7 +64,7 @@
                 @if($borrador)
                     <p class="small mb-0 mt-2">
                         <span class="badge bg-warning-subtle text-warning-emphasis">Borrador</span>
-                        Sin completar, del {{ $borrador->created_at->translatedFormat('j M Y') }} · {{ $borrador->profesional?->name ?? '—' }}
+                        Sin completar, del {{ $borrador->created_at->translatedFormat('j M Y') }} · {{ $borrador->profesional?->nombreVisible() ?? '—' }}
                         · <a href="{{ route('intervencion.fichas-persona.ver', ['ciudadano' => $ciudadanoId, 'ficha' => $borrador->id]) }}" wire:navigate>Ver</a>
                     </p>
                 @endif
@@ -78,7 +78,7 @@
                         <ul class="list-group list-group-flush small mt-2">
                             @foreach($anteriores as $anterior)
                                 <li class="list-group-item px-0 d-flex align-items-center gap-2" wire:key="ficha-persona-anterior-{{ $anterior->id }}">
-                                    <span>{{ $anterior->created_at->translatedFormat('j M Y') }} · {{ $anterior->profesional?->name ?? '—' }}</span>
+                                    <span>{{ $anterior->created_at->translatedFormat('j M Y') }} · {{ $anterior->profesional?->nombreVisible() ?? '—' }}</span>
                                     @unless($anterior->completada)
                                         <span class="badge bg-warning-subtle text-warning-emphasis">Borrador</span>
                                     @endunless

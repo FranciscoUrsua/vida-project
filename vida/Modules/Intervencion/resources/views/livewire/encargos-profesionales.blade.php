@@ -53,7 +53,7 @@
                         @foreach($actuacionesEncargo as $actuacion)
                             <li class="mb-1" wire:key="encargo-{{ $encargo->id }}-actuacion-{{ $actuacion->id }}">
                                 <a href="{{ $this->urlApunte($actuacion) }}" wire:navigate class="fw-semibold">{{ $actuacion->tipo->label() }}</a>
-                                <span class="text-body-secondary">· {{ $actuacion->fecha->format('d/m/Y') }} · {{ $actuacion->autor?->name }}</span>
+                                <span class="text-body-secondary">· {{ $actuacion->fecha->format('d/m/Y') }} · {{ $actuacion->autor?->nombreVisible() }}</span>
                                 @if($actuacion->contenido)
                                     <span class="d-block text-truncate">{{ $actuacion->contenido }}</span>
                                 @endif

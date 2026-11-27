@@ -3,10 +3,12 @@
 namespace Modules\Intervencion\Models;
 
 use App\Models\User;
+use App\Traits\Auditable;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Centro\Models\Servicio;
+use Modules\Intervencion\Models\Concerns\CiudadanoDelPlan;
 
 /**
  * Profesional participante en un Plan de Intervención distinto del responsable.
@@ -25,6 +27,11 @@ use Modules\Centro\Models\Servicio;
  */
 class PlanParticipante extends Model
 {
+    use Auditable, CiudadanoDelPlan {
+        // El ciudadano sale del plan; la versión vacía de Auditable no aplica
+        CiudadanoDelPlan::getCiudadanoId insteadof Auditable;
+    }
+
     protected $table = 'plan_participantes';
 
     protected $fillable = [

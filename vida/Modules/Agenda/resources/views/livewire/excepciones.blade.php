@@ -1,7 +1,7 @@
 <div>
     <div class="op-page">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2>Excepciones — {{ $profesional->name }}</h2>
+            <h2>Excepciones — {{ $profesional->nombreVisible() }}</h2>
             <button wire:click="abrirModal()" class="btn btn-primary">+ Registrar excepción</button>
         </div>
 

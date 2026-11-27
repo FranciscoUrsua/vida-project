@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Models;
 
+use App\Enums\AccionAuditEnum;
 use App\Models\CatalogoSistema;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
@@ -377,5 +378,28 @@ class Ficha extends Model
         }
 
         return ['datos' => $datos, 'avisos' => $avisos];
+    }
+
+    /**
+     * Resumen de auditoría (U3): «Registró la valoración X» o, en las fichas de la persona,
+     * «Registró la ficha X».
+     *
+     * @param AccionAuditEnum $accion
+     * @param array<string, mixed> $antes
+     * @param array<string, mixed> $despues
+     *
+     * @return string|null
+     */
+    public function resumenAuditoria(AccionAuditEnum $accion, array $antes, array $despues): ?string
+    {
+        $nombre = $this->tipoFicha()->value('nombre') ?? 'sin tipo';
+        $que = $this->ciudadano_id !== null ? "la ficha {$nombre}" : "la valoración {$nombre}";
+
+        return match ($accion) {
+            AccionAuditEnum::Crear => "Registró {$que}",
+            AccionAuditEnum::Editar => "Modificó {$que}",
+            AccionAuditEnum::Eliminar => "Eliminó {$que}",
+            default => null,
+        };
     }
 }

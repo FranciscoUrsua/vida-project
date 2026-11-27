@@ -2,8 +2,10 @@
 
 namespace Modules\Intervencion\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Modules\Intervencion\Models\Concerns\CiudadanoDelPlan;
 
 /**
  * Pivote entre un Plan de Intervención y las fichas de valoración
@@ -16,6 +18,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class PlanFichaDiagnostico extends Model
 {
+    use Auditable, CiudadanoDelPlan {
+        // El ciudadano sale del plan; la versión vacía de Auditable no aplica
+        CiudadanoDelPlan::getCiudadanoId insteadof Auditable;
+    }
+
     protected $table = 'plan_fichas_diagnostico';
 
     protected $fillable = ['plan_id', 'ficha_id', 'orden'];

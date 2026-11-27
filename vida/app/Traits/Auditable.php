@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Enums\AccionAuditEnum;
 use App\Models\Audit;
 use App\Observers\AuditObserver;
 use App\Services\AuditService;
@@ -64,5 +65,28 @@ trait Auditable
     public function getCiudadanoId(): ?int
     {
         return null;
+    }
+
+    /**
+     * Resumen legible por defecto de una escritura (U3): «Registró / Modificó / Eliminó» y el
+     * nombre del modelo de `lang/es/auditoria.php` (`modelos`). Cada modelo lo concreta si
+     * hace falta (p. ej. «Canceló la prescripción de “X”»).
+     *
+     * @param AccionAuditEnum $accion
+     * @param array<string, mixed> $antes
+     * @param array<string, mixed> $despues
+     *
+     * @return string|null
+     */
+    public function resumenAuditoria(AccionAuditEnum $accion, array $antes, array $despues): ?string
+    {
+        $modelo = __('auditoria.modelos')[static::class] ?? 'un registro';
+
+        return match ($accion) {
+            AccionAuditEnum::Crear => "Registró {$modelo}",
+            AccionAuditEnum::Editar => "Modificó {$modelo}",
+            AccionAuditEnum::Eliminar => "Eliminó {$modelo}",
+            default => null,
+        };
     }
 }
