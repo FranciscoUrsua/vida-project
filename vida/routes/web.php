@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\ContrasenaOlvidadaController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OnboardingController;
 use App\Http\Controllers\PaginaInicioController;
@@ -10,6 +11,9 @@ use Illuminate\Support\Facades\Route;
 // Autenticación
 Route::get('/login', [LoginController::class, 'mostrar'])->name('login')->middleware('guest');
 Route::post('/login', [LoginController::class, 'autenticar'])->name('login.post')->middleware('guest');
+// Contraseña olvidada: sin correo, avisa a la supervisión del centro (AvisoContrasenaOlvidada)
+Route::get('/contrasena-olvidada', [ContrasenaOlvidadaController::class, 'mostrar'])->name('contrasena.olvidada')->middleware('guest');
+Route::post('/contrasena-olvidada', [ContrasenaOlvidadaController::class, 'enviar'])->name('contrasena.olvidada.enviar')->middleware('guest');
 Route::post('/logout', [LoginController::class, 'cerrarSesion'])->name('logout')->middleware('auth');
 
 // Onboarding (primer acceso)

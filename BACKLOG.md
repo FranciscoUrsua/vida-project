@@ -9,9 +9,17 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Envío de correos: VIDA no envía correo electrónico** — 2026-11-27
+Transversal / autenticación / notificaciones
+- La aplicación no tiene configurado el envío de correo (ni servidor SMTP corporativo ni proveedor). Sin él no hay recuperación de contraseña estándar (enlace con token por correo, `Password::sendResetLink`), ni avisos por correo de alertas o citas.
+- **Atajo actual (27 nov 2026, decisión del desarrollador):** «¿Olvidaste tu contraseña?» avisa dentro de VIDA a la supervisión del centro y a `adm_usuarios` de su ámbito (`App\Services\Auth\AvisoContrasenaOlvidada`); la supervisión comprueba la identidad en persona y `adm_usuarios` asigna una contraseña nueva en el backoffice. Solo se avisa: la supervisión no restablece contraseñas.
+- Por decidir: servidor de correo (¿SMTP del Ayuntamiento?), remitente, plantillas y si la recuperación pasa a ser por correo o por el directorio corporativo (LDAP/AD, `modulo-usuarios-permisos.md`). Cuando exista el correo, sustituir el atajo por el flujo estándar de Laravel y obligar a cambiar la contraseña asignada por `adm_usuarios` en el primer acceso.
+
+---
+
 **Contraseñas: política definitiva, auditoría y recuperación** — 2026-11-27
 Usuarios / autenticación / seguridad
-- El 27 nov se añadió el cambio de la propia contraseña (`App\Livewire\CambiarContrasena`) con una política provisional: 12 caracteres con letras y números, distinta de la actual, cierre de las demás sesiones. Falta: (1) confirmar la política con el Ayuntamiento (o dejarla al directorio corporativo si se federa la identidad, `modulo-usuarios-permisos.md`); (2) dejar en la auditoría los cambios de contraseña y los inicios de sesión, que hoy no se registran; (3) el enlace «¿Olvidaste tu contraseña?» del login no tiene flujo de recuperación.
+- El 27 nov se añadió el cambio de la propia contraseña (`App\Livewire\CambiarContrasena`) con una política provisional: 12 caracteres con letras y números, distinta de la actual, cierre de las demás sesiones. Falta: (1) confirmar la política con el Ayuntamiento (o dejarla al directorio corporativo si se federa la identidad, `modulo-usuarios-permisos.md`); (2) dejar en la auditoría los cambios de contraseña y los inicios de sesión, que hoy no se registran. La recuperación de contraseña es provisional: ver «Envío de correos».
 
 ---
 

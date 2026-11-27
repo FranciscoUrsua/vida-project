@@ -1,8 +1,10 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-27 (desplegable del usuario: puesto y cambio de contraseña)
+**Última actualización:** 2026-11-27 («¿Olvidaste tu contraseña?» con aviso a la supervisión)
 
 ---
+
+**Última tarea (27 nov, 6):** «¿Olvidaste tu contraseña?» sin correo: el enlace del login lleva a un formulario que avisa (aviso de Mensajes) a la supervisión de las UO del usuario y a `adm_usuarios` de su ámbito (`AvisoContrasenaOlvidada`); solo avisa, por decisión del desarrollador. Misma respuesta exista o no la cuenta, sin repetir en una hora, 5 intentos por IP y hora. 5 tests en verde con negativo; sin migraciones. Envío de correos, al BACKLOG. **Siguiente paso:** revisar la suite completa (lanzada tras el commit anterior; TF-TCE-25 ya corregido) y que el desarrollador pruebe en staging el desplegable, el cambio de contraseña, la recuperación y la tarjeta «Datos sociodemográficos».
 
 **Última tarea (27 nov, 5):** desplegable del usuario de la barra superior: muestra el puesto (cargo del profesional) en lugar del rol técnico, y nueva opción «Cambiar contraseña» (`App\Livewire\CambiarContrasena`, ruta `cuenta.contrasena`; contraseña actual, 12 caracteres con letras y números, distinta de la actual, cierra las demás sesiones). Política provisional: decisión de implementación, al BACKLOG con la auditoría del login y la recuperación de contraseña. 6 tests en verde con negativo; sin migraciones. **Siguiente paso:** el desarrollador prueba en staging el desplegable y el cambio de contraseña, y la tarjeta «Datos sociodemográficos» (ver la entrada siguiente); revisar la suite completa lanzada tras el push de los bloques D y E.
 

@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-11-27 — «¿Olvidaste tu contraseña?»: aviso a la supervisión del centro
+
+Área: autenticación / Mensajes. Sin migraciones.
+
+- **Atajo sin correo** (VIDA no envía correos; BACKLOG): el enlace del login lleva a `/contrasena-olvidada` (`ContrasenaOlvidadaController`, rutas `contrasena.olvidada` y `.enviar`, solo invitados). Con el correo de la cuenta, `App\Services\Auth\AvisoContrasenaOlvidada` crea un **aviso** «Usuario bloqueado: no recuerda su contraseña» para la supervisión de las UO del usuario y para `adm_usuarios` cuyo ámbito incluye alguna (si no hay nadie, `adm_sistema`). El texto pide comprobar la identidad en persona, asignar la contraseña nueva en el backoffice y no enviar contraseñas por mensaje.
+- **Decisión del desarrollador:** solo se avisa; la supervisión no restablece contraseñas.
+- **Decisiones de implementación:** misma respuesta exista o no la cuenta (no revela qué correos tienen acceso); cuentas desactivadas sin aviso; no se repite el aviso de una cuenta en una hora; máximo 5 intentos por IP y hora; correo sin distinguir mayúsculas.
+- **Tests:** `tests/Feature/Auth/ContrasenaOlvidadaTest.php` (5), en verde; negativo de los destinatarios comprobado.
+- Al BACKLOG: envío de correos (recuperación estándar, avisos) y política de contraseñas actualizada.
+
+---
+
 ## 2026-11-27 — Desplegable del usuario: puesto y cambio de contraseña
 
 Área: interfaz operativa (barra superior) y autenticación. Sin migraciones.

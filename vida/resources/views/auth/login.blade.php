@@ -95,7 +95,7 @@
                             <hr>
 
                             <div class="text-center small text-body-secondary">
-                                <a href="#" class="text-decoration-none">¿Olvidaste tu contraseña?</a>
+                                <a href="{{ route('contrasena.olvidada') }}" class="text-decoration-none">¿Olvidaste tu contraseña?</a>
                             </div>
 
                             <div class="text-center small text-body-secondary mt-3">
