@@ -3,7 +3,7 @@
 **Origen:** decisión del 26 nov 2026, `docs/decisiones-tecnicas.md` sección 19.1. Los datos sociodemográficos de la persona (país de nacimiento, nacionalidad, estudios, situación laboral, ingresos…) se recogen con una ficha configurable más (`TipoFicha`), no con una tabla de formulario fijo. Para que los campos codificados usen clasificaciones estándar sin teclear cientos de opciones a mano, se amplía `catalogos_sistema` con catálogos versionados que se cargan desde ficheros oficiales, y se añade un tipo de campo «selector de catálogo».
 **Requisito previo:** bloque B de `docs/instrucciones-cli/2026-11-encargo-actuaciones.md` cerrado (extrae el guardado de fichas a un servicio y añade `fichas.derivacion_id`). Si no lo está, **detente y pregunta**.
 **Tests:** TF-SDE-01 a TF-SDE-34 (al final de este documento).
-**Estado:** revisado por el desarrollador el 26 nov 2026. Paso 0 y bloque A hechos el 26 nov 2026. Las claves especiales de `comun.pais` (OACI) y `equivalencias.ine` quedan aplazadas por decisión del desarrollador (BACKLOG).
+**Estado:** revisado por el desarrollador el 26 nov 2026. Paso 0 y bloques A y B hechos el 26 y 27 nov 2026. Las claves especiales de `comun.pais` (OACI) y `equivalencias.ine` quedan aplazadas por decisión del desarrollador (BACKLOG).
 
 **Alcance:**
 - **A.** Catálogos versionados en `catalogos_sistema` y carga desde fuentes oficiales.
@@ -142,6 +142,16 @@ Si al descargarlas encuentras una fuente mejor o más actual que las de la tabla
 5. `ValorCampo::mostrar()` (SD-5) y sustitución en todas las vistas de fichas guardadas listadas en el paso 0. Las vistas antiguas no deben cambiar de aspecto para los tipos que ya existían.
 6. Pre-relleno (SD-8): `prerellenarDesde()` deja vacía una clave de catálogo que ya no está vigente y devuelve la lista de campos afectados para avisar.
 
+**Hecho el 27 nov 2026.** Migración `2026_11_26_200003` (`tipo_fichas.codigo`), que se aplica con el despliegue. Decisiones de implementación:
+- La validación en el servidor de las claves es común: `App\Support\Fichas\ValidadorDatosFicha::validar()`, llamada desde `ValoracionService::registrar()` y `SolicitudPrestacionService::guardarDatos()` (la usará también `FichaPersonaService`). Error por campo («Elige un valor de la lista.»). `SolicitudPrestacionPage::ejecutar()` deja pasar la `ValidationException` para que se pinte en el campo (antes la habría convertido en un error genérico).
+- Selector: componente Livewire `App\Livewire\Fichas\SelectorCatalogo` (`<livewire:fichas.selector-catalogo>`, `#[Modelable]` sobre `datos.{campo}`). Los catálogos de hasta 30 valores se listan enteros; los largos piden escribir y muestran hasta 20 resultados. Busca por etiqueta (sin acentos ni mayúsculas) o por clave exacta, en PHP sobre los vigentes del grupo. Sin clases nuevas: `list-group` y `op-lista-scroll`.
+- `ValorCampo::mostrar(array $campo, mixed $valor, string $formatoFecha = 'j M Y')`: el formato de fecha es un parámetro opcional porque el PDF usa `d/m/Y`; **no incluye la unidad** (cada vista la pinta como antes). `ValorCampo::tieneValor()` decide qué cuenta como respuesta.
+- La tarjeta de diagnóstico de `plan-page` pasa a mostrar los campos del schema con respuesta, con su etiqueta (antes, el `campo_id` crudo). El resto de vistas no cambian de aspecto para los tipos antiguos (TF-SDE-15).
+- Pre-relleno: método nuevo `Ficha::prerellenarConAvisos()` (`datos` y `avisos`); `prerellenarDesde()` se conserva y devuelve solo los datos, ya sin las claves no vigentes.
+- `TipoFichaResource`: columna y campo `codigo` (deshabilitado con fichas), uso `persona`, bloque «Catálogo» con los grupos que tienen al menos dos valores vigentes y su número. Para uso persona el toggle «obligatorio» se oculta y `convertirSchemaBlocks()` guarda `obligatorio = false` cuando no llega. El selector de catálogo no se bloquea en la interfaz con fichas: lo rechaza el modelo con un mensaje claro.
+- `TipoFicha::validarSchema()` ya rechaza un campo obligatorio en uso persona (SD-9; TF-SDE-24 se prueba en el bloque C). El código se valida en el modelo (formato `^[a-z][a-z0-9_]*$`, único, inmutable con fichas).
+- Pendiente para el bloque D: la cabecera de `ver-ficha-page` dice «Ficha de valoración» fija.
+
 ## Bloque C — Fichas de persona
 
 1. Migración: `fichas.ciudadano_id` (FK a `ciudadanos`, nullable, índice), `fichas.no_contesta` (jsonb, nullable) y el `CHECK` de SD-7 (si el `CHECK` no puede leer `uso` del tipo, valídalo en el servicio y pruébalo).
@@ -241,7 +251,7 @@ Lógica condicional mínima, si el schema la admite ya: `anio_llegada_espana` so
 | Grupo | Tests | Estado |
 |---|---|---|
 | A — Catálogos | TF-SDE-01..08 (+07 bis) | Hecho (26 nov; negativos 04, 05 y 06 comprobados) |
-| B — Tipo de campo «catálogo» | TF-SDE-09..17 | Pendiente |
+| B — Tipo de campo «catálogo» | TF-SDE-09..17 (+09 bis) y TF-SDE-31 | Hecho (27 nov; negativos 10, 11, 13, 16 y 17 comprobados) |
 | C — Fichas de persona | TF-SDE-18..25 | Pendiente |
 | D — Permisos e interfaz | TF-SDE-26..31 | Pendiente |
 | E — Ficha inicial | TF-SDE-32..34 | Pendiente |

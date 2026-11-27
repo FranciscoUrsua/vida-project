@@ -2,7 +2,9 @@
 
 namespace Modules\Intervencion\Models;
 
+use App\Models\CatalogoSistema;
 use App\Models\HistoriaSocial;
+use App\Support\Fichas\ValorCampo;
 use App\Traits\Auditable;
 use App\Traits\Versionable;
 use Illuminate\Database\Eloquent\Builder;
@@ -160,12 +162,13 @@ class Ficha extends Model
     }
 
     /**
-     * Genera el array de datos pre-rellenado para una nueva valoración.
+     * Genera el array de datos pre-rellenado para una nueva ficha.
      *
-     * Reglas:
+     * Reglas (ver `prerellenarConAvisos()`):
      * - Campo en schema actual Y en datos anteriores → se copia.
      * - Campo en schema actual pero no en datos anteriores → null (campo nuevo).
      * - Campo en datos anteriores pero no en schema actual → se descarta (retirado).
+     * - Campo de catálogo cuya clave ya no está vigente → null (SD-8).
      *
      * @param self $fichaAnterior Ficha de referencia.
      * @param TipoFicha $tipoFicha TipoFicha con el schema actual.
@@ -174,29 +177,47 @@ class Ficha extends Model
      */
     public static function prerellenarDesde(self $fichaAnterior, TipoFicha $tipoFicha): array
     {
+        return self::prerellenarConAvisos($fichaAnterior, $tipoFicha)['datos'];
+    }
+
+    /**
+     * Pre-relleno con la lista de campos de catálogo que se han dejado vacíos porque su clave
+     * ya no está activa o vigente, para avisar al profesional (SD-8).
+     *
+     * @param self $fichaAnterior Ficha de referencia.
+     * @param TipoFicha $tipoFicha TipoFicha con el schema actual.
+     *
+     * @return array{datos: array<string, mixed>, avisos: list<array{campo_id: string, etiqueta: string, valor_anterior: string}>}
+     */
+    public static function prerellenarConAvisos(self $fichaAnterior, TipoFicha $tipoFicha): array
+    {
         $camposSchema = $tipoFicha->schema['campos'] ?? [];
-        $camposActuales = [];
-
-        if (is_array($camposSchema)) {
-            foreach ($camposSchema as $campo) {
-                if (! is_array($campo)) {
-                    continue;
-                }
-
-                $campoId = $campo['id'] ?? null;
-                if (is_string($campoId) && $campoId !== '') {
-                    $camposActuales[] = $campoId;
-                }
-            }
-        }
-
         $datosAnteriores = is_array($fichaAnterior->datos) ? $fichaAnterior->datos : [];
-        $resultado = [];
+        $datos = [];
+        $avisos = [];
 
-        foreach ($camposActuales as $campoId) {
-            $resultado[$campoId] = $datosAnteriores[$campoId] ?? null;
+        foreach (is_array($camposSchema) ? $camposSchema : [] as $campo) {
+            $campoId = is_array($campo) ? ($campo['id'] ?? null) : null;
+            if (! is_string($campoId) || $campoId === '') {
+                continue;
+            }
+
+            $valor = $datosAnteriores[$campoId] ?? null;
+
+            // Una clave que ya no se puede elegir no se arrastra: se deja vacía y se avisa
+            if (($campo['tipo'] ?? null) === 'catalogo' && ValorCampo::tieneValor($valor)
+                && ! CatalogoSistema::where('grupo', (string) ($campo['catalogo'] ?? ''))->where('clave', (string) $valor)->vigentes()->exists()) {
+                $avisos[] = [
+                    'campo_id' => $campoId,
+                    'etiqueta' => (string) ($campo['etiqueta'] ?? $campoId),
+                    'valor_anterior' => ValorCampo::mostrar($campo, $valor),
+                ];
+                $valor = null;
+            }
+
+            $datos[$campoId] = $valor;
         }
 
-        return $resultado;
+        return ['datos' => $datos, 'avisos' => $avisos];
     }
 }

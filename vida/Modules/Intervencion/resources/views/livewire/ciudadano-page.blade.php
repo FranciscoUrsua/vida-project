@@ -813,15 +813,9 @@
                     @foreach($modalApunteDatos['ficha_campos'] as $campo)
                         <div class="bg-body-tertiary border rounded p-2">
                             <p class="small text-uppercase fw-semibold text-body-secondary mb-1">{{ $campo['etiqueta'] }}</p>
-                            @if(filled($campo['valor']))
+                            @if($campo['texto'] !== '')
                                 <p class="mb-0">
-                                    @if($campo['tipo'] === 'booleano')
-                                        {{ $campo['valor'] ? 'Sí' : 'No' }}
-                                    @elseif($campo['tipo'] === 'fecha')
-                                        {{ \Carbon\Carbon::parse($campo['valor'])->translatedFormat('j M Y') }}
-                                    @else
-                                        {{ $campo['valor'] }}{{ $campo['unidad'] ? ' '.$campo['unidad'] : '' }}
-                                    @endif
+                                    {{ $campo['texto'] }}{{ $campo['unidad'] && ! in_array($campo['tipo'], ['booleano', 'fecha'], true) ? ' '.$campo['unidad'] : '' }}
                                 </p>
                             @else
                                 <p class="small text-body-tertiary fst-italic mb-0">Sin respuesta</p>

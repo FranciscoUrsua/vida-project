@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Concerns\AutorizaGestion;
 use App\Filament\Resources\TipoFichaResource\Pages;
+use App\Models\CatalogoSistema;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Builder;
@@ -19,6 +20,7 @@ use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
@@ -33,7 +35,9 @@ use Modules\Intervencion\Models\TipoFicha;
  * Recurso Filament para la gestión de fichas de valoración configurables.
  *
  * Cada TipoFicha define un formulario con campos tipados: texto, número, select,
- * booleano, fecha y escala.
+ * booleano, fecha, escala y catálogo (valores de un grupo de `catalogos_sistema`, SD-4).
+ * Tres usos: valoración, formulario de solicitud de prestación y ficha de la persona
+ * (en esta, ningún campo es obligatorio: SD-9).
  *
  * El schema JSON se edita mediante un Builder visual con bloques por tipo de campo.
  */
@@ -55,6 +59,13 @@ class TipoFichaResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    /** Etiquetas de los usos del tipo de ficha. */
+    private const USOS = [
+        'valoracion' => 'Ficha de valoración',
+        'solicitud' => 'Formulario de solicitud de prestación',
+        'persona' => 'Ficha de la persona (datos sociodemográficos…)',
+    ];
+
     // -------------------------------------------------------------------------
     // Listado
     // -------------------------------------------------------------------------
@@ -73,6 +84,11 @@ class TipoFichaResource extends Resource
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('codigo')
+                    ->label('Código')
+                    ->searchable()
+                    ->placeholder('—'),
+
                 TextColumn::make('descripcion')
                     ->label('Contexto y uso')
                     ->limit(80)
@@ -80,7 +96,7 @@ class TipoFichaResource extends Resource
 
                 TextColumn::make('uso')
                     ->label('Uso')
-                    ->formatStateUsing(fn (string $state): string => $state === 'solicitud' ? 'Solicitud de prestación' : 'Valoración'),
+                    ->formatStateUsing(fn (string $state): string => self::USOS[$state] ?? $state),
 
                 TextColumn::make('num_campos')
                     ->label('Campos')
@@ -97,7 +113,7 @@ class TipoFichaResource extends Resource
             ->filters([
                 SelectFilter::make('uso')
                     ->label('Uso')
-                    ->options(['valoracion' => 'Valoración', 'solicitud' => 'Solicitud de prestación']),
+                    ->options(self::USOS),
                 TernaryFilter::make('activo')
                     ->label('Estado')
                     ->trueLabel('Activas')
@@ -137,11 +153,22 @@ class TipoFichaResource extends Resource
                                         ->required()
                                         ->maxLength(200),
 
-                                    // Fase 3 bis: los formularios de solicitud de prestación usan el mismo mecanismo
+                                    // SD-6: identificador estable para la analítica y el código; fijo en cuanto hay fichas
+                                    TextInput::make('codigo')
+                                        ->label('Código')
+                                        ->helperText('Identificador estable (minúsculas, cifras y guion bajo). No se puede cambiar cuando ya hay fichas.')
+                                        ->maxLength(60)
+                                        ->regex('/^[a-z][a-z0-9_]*$/')
+                                        ->unique(ignoreRecord: true)
+                                        ->nullable()
+                                        ->disabled(fn (?TipoFicha $record): bool => $record !== null && $record->tieneFichasAsociadas()),
+
+                                    // Fase 3 bis: formularios de solicitud; SD-7: fichas de la persona
                                     Select::make('uso')
                                         ->label('Uso')
-                                        ->options(['valoracion' => 'Ficha de valoración', 'solicitud' => 'Formulario de solicitud de prestación'])
+                                        ->options(self::USOS)
                                         ->default('valoracion')
+                                        ->live()
                                         ->required(),
 
                                     Textarea::make('descripcion')
@@ -197,6 +224,18 @@ class TipoFichaResource extends Resource
                                     Builder\Block::make('fecha')
                                         ->label(fn (?array $state): string => 'Fecha: '.($state['etiqueta'] ?? '—'))
                                         ->schema(self::camposBase()),
+
+                                    Builder\Block::make('catalogo')
+                                        ->label(fn (?array $state): string => 'Catálogo: '.($state['etiqueta'] ?? '—'))
+                                        ->schema([
+                                            ...self::camposBase(),
+                                            Select::make('catalogo')
+                                                ->label('Catálogo del que salen los valores')
+                                                ->options(fn (): array => self::catalogosDisponibles())
+                                                ->searchable()
+                                                ->required()
+                                                ->helperText('La ficha guarda el código del valor elegido. Con fichas cumplimentadas no se puede cambiar el catálogo.'),
+                                        ]),
 
                                     Builder\Block::make('escala')
                                         ->label(fn (?array $state): string => 'Escala: '.($state['etiqueta'] ?? '—'))
@@ -349,6 +388,8 @@ class TipoFichaResource extends Resource
 
             $idsUsados[] = $data['id'];
             $data['tipo'] = $tipo;
+            // Oculto (fichas de la persona) no llega: se guarda como no obligatorio
+            $data['obligatorio'] = (bool) ($data['obligatorio'] ?? false);
             $data['orden'] = $i + 1;
 
             // Opciones de select como array plano de strings
@@ -408,6 +449,25 @@ class TipoFichaResource extends Resource
     }
 
     /**
+     * Grupos de `catalogos_sistema` que se pueden usar en un campo catálogo (al menos dos
+     * valores vigentes), con su número de valores.
+     *
+     * @return array<string, string> [grupo => «grupo (N valores)»]
+     */
+    private static function catalogosDisponibles(): array
+    {
+        return CatalogoSistema::query()
+            ->vigentes()
+            ->selectRaw('grupo, count(*) as total')
+            ->groupBy('grupo')
+            ->havingRaw('count(*) >= 2')
+            ->orderBy('grupo')
+            ->get()
+            ->mapWithKeys(fn (CatalogoSistema $fila): array => [$fila->grupo => "{$fila->grupo} ({$fila->getAttribute('total')} valores)"])
+            ->all();
+    }
+
+    /**
      * Campos base compartidos por todos los bloques del Builder.
      *
      * @return array<int, Component>
@@ -424,9 +484,11 @@ class TipoFichaResource extends Resource
                 ->rows(2)
                 ->nullable(),
 
+            // SD-9: en las fichas de la persona todo es voluntario (el modelo lo rechaza igualmente)
             Toggle::make('obligatorio')
                 ->label('Campo obligatorio')
-                ->default(false),
+                ->default(false)
+                ->visible(fn (Get $get): bool => $get('../../../uso') !== 'persona'),
         ];
     }
 }

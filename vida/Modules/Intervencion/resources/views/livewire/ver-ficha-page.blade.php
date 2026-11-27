@@ -39,17 +39,11 @@
                     <p class="small text-uppercase fw-semibold text-body-secondary mb-1">
                         {{ $campo['etiqueta'] }}
                     </p>
-                    @if($campo['valor'] !== null && $campo['valor'] !== '')
+                    @if($campo['texto'] !== '')
                         <p class="mb-0">
-                            @if($campo['tipo'] === 'booleano')
-                                {{ $campo['valor'] ? 'Sí' : 'No' }}
-                            @elseif($campo['tipo'] === 'fecha')
-                                {{ \Carbon\Carbon::parse($campo['valor'])->translatedFormat('j M Y') }}
-                            @else
-                                {{ $campo['valor'] }}
-                                @if($campo['unidad'])
-                                    <span class="small text-body-secondary">{{ $campo['unidad'] }}</span>
-                                @endif
+                            {{ $campo['texto'] }}
+                            @if($campo['unidad'] && ! in_array($campo['tipo'], ['booleano', 'fecha'], true))
+                                <span class="small text-body-secondary">{{ $campo['unidad'] }}</span>
                             @endif
                         </p>
                     @else

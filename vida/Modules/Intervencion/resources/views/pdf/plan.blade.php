@@ -197,17 +197,12 @@ body {
                 </div>
                 @foreach($ficha->schema_snapshot['campos'] ?? [] as $campo)
                     @php $valor = ($ficha->datos ?? [])[$campo['id']] ?? null; @endphp
-                    @if($valor !== null && $valor !== '')
+                    @if(\App\Support\Fichas\ValorCampo::tieneValor($valor))
                     <div style="margin-bottom: 2px; font-size: 8.5pt;">
                         <strong>{{ $campo['etiqueta'] ?? $campo['id'] }}:</strong>
-                        @if(($campo['tipo'] ?? '') === 'booleano')
-                            {{ $valor == '1' ? 'Sí' : 'No' }}
-                        @elseif(($campo['tipo'] ?? '') === 'fecha')
-                            {{ \Carbon\Carbon::parse($valor)->format('d/m/Y') }}
-                        @elseif(in_array($campo['tipo'] ?? '', ['escala', 'numero']) && ($campo['unidad'] ?? null))
-                            {{ $valor }} {{ $campo['unidad'] }}
-                        @else
-                            {{ $valor }}
+                        {{ \App\Support\Fichas\ValorCampo::mostrar($campo, $valor, 'd/m/Y') }}
+                        @if(in_array($campo['tipo'] ?? '', ['escala', 'numero']) && ($campo['unidad'] ?? null))
+                            {{ $campo['unidad'] }}
                         @endif
                     </div>
                     @endif

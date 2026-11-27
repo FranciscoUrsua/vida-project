@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Http\Livewire\Concerns;
 
+use App\Support\Fichas\ValorCampo;
 use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\TipoFicha;
 
@@ -45,9 +46,10 @@ trait MuestraFicha
 
     /**
      * Devuelve los campos del schema_snapshot con su valor correspondiente
-     * en datos[], listos para renderizar.
+     * en datos[], listos para renderizar. `texto` es el valor formateado con
+     * `ValorCampo::mostrar()` (cadena vacía si no hay respuesta).
      *
-     * @return array<int, array{etiqueta: string, tipo: string, valor: mixed, unidad: string|null, obligatorio: bool}>
+     * @return array<int, array{etiqueta: string, tipo: string, valor: mixed, texto: string, unidad: string|null, obligatorio: bool}>
      */
     public function camposConValor(): array
     {
@@ -60,6 +62,7 @@ trait MuestraFicha
                 'etiqueta' => $campo['etiqueta'] ?? $campo['id'],
                 'tipo' => $campo['tipo'] ?? 'texto',
                 'valor' => $datos[$campo['id']] ?? null,
+                'texto' => ValorCampo::mostrar($campo, $datos[$campo['id']] ?? null),
                 'unidad' => $campo['unidad'] ?? null,
                 'obligatorio' => $campo['obligatorio'] ?? false,
             ];

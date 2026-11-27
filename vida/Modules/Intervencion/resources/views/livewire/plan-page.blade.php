@@ -228,11 +228,16 @@
                     </div>
                     <div class="collapse" id="pfd-content-{{ $pfd->id }}">
                     <div class="card-body py-2 px-3">
-                        @php $datos = $pfd->ficha?->datos ?? [] @endphp
-                        @forelse($datos as $campo => $valor)
+                        {{-- Campos del schema con respuesta, con su etiqueta y el valor formateado (SD-5) --}}
+                        @php
+                            $datos = $pfd->ficha?->datos ?? [];
+                            $camposConDato = collect($pfd->ficha?->schema_snapshot['campos'] ?? [])
+                                ->filter(fn ($c) => is_array($c) && \App\Support\Fichas\ValorCampo::tieneValor($datos[$c['id'] ?? ''] ?? null));
+                        @endphp
+                        @forelse($camposConDato as $campo)
                         <div class="d-flex gap-2 mb-1">
-                            <span class="fw-semibold text-nowrap">{{ $campo }}</span>
-                            <span class="text-secondary">{{ is_array($valor) ? implode(', ', $valor) : $valor }}</span>
+                            <span class="fw-semibold text-nowrap">{{ $campo['etiqueta'] ?? $campo['id'] }}</span>
+                            <span class="text-secondary">{{ \App\Support\Fichas\ValorCampo::mostrar($campo, $datos[$campo['id']]) }}{{ ($campo['unidad'] ?? null) && ! in_array($campo['tipo'] ?? '', ['booleano', 'fecha'], true) ? ' '.$campo['unidad'] : '' }}</span>
                         </div>
                         @empty
                         <span class="text-body-secondary">Sin datos registrados.</span>

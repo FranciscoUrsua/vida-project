@@ -2,8 +2,10 @@
 
 namespace Modules\Intervencion\Services\Actuaciones;
 
+use App\Support\Fichas\ValidadorDatosFicha;
 use DomainException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Modules\Intervencion\Enums\TipoApunte;
 use Modules\Intervencion\Enums\VisibilidadApunte;
 use Modules\Intervencion\Models\Apunte;
@@ -38,6 +40,7 @@ class ValoracionService
      * @return Ficha
      *
      * @throws DomainException Si no puede actuar (RN-15, EA-4) o la ficha no es del área del encargo.
+     * @throws ValidationException Si un campo de catálogo no trae una clave vigente de su grupo.
      */
     public function registrar(ContextoActuacion $contexto, TipoFicha $tipoFicha, array $datos, ?string $notas = null): Ficha
     {
@@ -46,6 +49,9 @@ class ValoracionService
         }
 
         $contexto->exigirActuacion();
+
+        // Claves de catálogo vigentes, también ante una petición forjada (SD-4)
+        ValidadorDatosFicha::validar($tipoFicha->schema['campos'] ?? [], $datos);
 
         // Ficha y apunte juntos: el apunte comprueba RN-15 con el centro de la operación y, si
         // lo rechaza, no queda una ficha huérfana (EST-04, ficha 14 de staging)

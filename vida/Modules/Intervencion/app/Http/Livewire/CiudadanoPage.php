@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Queries\AccesosExpedienteQuery;
 use App\Services\AccesoExpediente;
 use App\Services\PresentacionPersona;
+use App\Support\Fichas\ValorCampo;
 use DomainException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -1260,6 +1261,7 @@ class CiudadanoPage extends Component
                         'etiqueta' => $c['etiqueta'] ?? $c['id'],
                         'tipo' => $c['tipo'] ?? 'texto',
                         'valor' => ($ficha->datos ?? [])[$c['id']] ?? null,
+                        'texto' => ValorCampo::mostrar($c, ($ficha->datos ?? [])[$c['id']] ?? null),
                         'unidad' => $c['unidad'] ?? null,
                     ])
                     ->all();

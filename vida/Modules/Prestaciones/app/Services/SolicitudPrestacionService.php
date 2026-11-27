@@ -5,6 +5,7 @@ namespace Modules\Prestaciones\Services;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\User;
+use App\Support\Fichas\ValidadorDatosFicha;
 use DomainException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\UploadedFile;
@@ -12,6 +13,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Modules\Centro\Models\Centro;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
 use Modules\Centro\Services\ConfiguracionEfectivaCentro;
@@ -161,6 +163,7 @@ class SolicitudPrestacionService
      * @return void
      *
      * @throws AuthorizationException|DomainException
+     * @throws ValidationException Si un campo de catálogo no trae una clave vigente de su grupo.
      */
     public function guardarDatos(SolicitudPrestacion $solicitud, array $datos, User $actor): void
     {
@@ -169,6 +172,9 @@ class SolicitudPrestacionService
         if ($solicitud->ficha === null) {
             throw new DomainException('Esta prestación no tiene formulario de solicitud.');
         }
+
+        // Claves de catálogo vigentes, también ante una petición forjada (SD-4)
+        ValidadorDatosFicha::validar($solicitud->ficha->schema_snapshot['campos'] ?? [], $datos);
 
         $solicitud->ficha->update(['datos' => $datos]);
     }

@@ -2,6 +2,7 @@
 
 namespace Modules\Intervencion\Models;
 
+use App\Models\CatalogoSistema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,9 +15,17 @@ use Modules\Intervencion\Database\Factories\TipoFichaFactory;
  *
  * Tipo de ficha configurable desde el backoffice.
  *
- * Define la estructura de campos de una ficha de valoración: qué campos existen,
- * su tipo, orden y reglas de visibilidad condicional. El campo schema es un array
- * JSON con la clave raíz "campos" que contiene la lista de definiciones de campo.
+ * Define la estructura de campos de una ficha: qué campos existen, su tipo y su orden
+ * (no hay visibilidad condicional: ver BACKLOG). El campo schema es un array JSON con la
+ * clave raíz "campos" que contiene la lista de definiciones de campo.
+ *
+ * Usos: `valoracion` (fichas de valoración de la Historia Social), `solicitud` (formularios
+ * de solicitud de prestación, fase 3 bis) y `persona` (datos de la persona, como la ficha
+ * sociodemográfica: pertenecen al ciudadano y todos sus campos son voluntarios, SD-9).
+ *
+ * Un campo `catalogo` guarda la clave de un grupo de `catalogos_sistema` (SD-4): el grupo
+ * no se puede cambiar si hay fichas, porque las claves guardadas dejarían de significar lo mismo.
+ * `codigo` es el identificador estable del tipo (SD-6) e igual de inmutable con fichas.
  *
  * La validación del schema se aplica en el evento saving para garantizar la
  * integridad estructural independientemente del canal de entrada.
@@ -24,18 +33,25 @@ use Modules\Intervencion\Database\Factories\TipoFichaFactory;
  * está prohibido; eliminar campos está permitido (las fichas conservan schema_snapshot).
  *
  * @property int $id
+ * @property string|null $codigo Identificador estable (analítica y código); inmutable si hay fichas (SD-6).
  * @property string $nombre
  * @property string|null $descripcion
  * @property array<string, mixed> $schema Definición de campos — estructura: {'campos': [{id, tipo, etiqueta, obligatorio, orden, ...}]}
  * @property bool $activo
- * @property string $uso 'valoracion' | 'solicitud' (fase 3 bis): las de solicitud son formularios de prestación
+ * @property string $uso 'valoracion' | 'solicitud' (formularios de prestación, fase 3 bis) | 'persona' (datos de la persona, SD-7)
  */
 class TipoFicha extends Model
 {
     use HasFactory;
 
     /** Tipos de campo válidos en el schema JSON. */
-    public const TIPOS_CAMPO = ['texto', 'numero', 'select', 'booleano', 'fecha', 'escala'];
+    public const TIPOS_CAMPO = ['texto', 'numero', 'select', 'booleano', 'fecha', 'escala', 'catalogo'];
+
+    /** Usos válidos del tipo de ficha. */
+    public const USOS = ['valoracion', 'solicitud', 'persona'];
+
+    /** Formato del código estable: minúsculas, cifras y guion bajo, empezando por letra. */
+    private const FORMATO_CODIGO = '/^[a-z][a-z0-9_]*$/';
 
     /**
      * Factoría del modelo (vive en el módulo, no en database/factories).
@@ -50,6 +66,7 @@ class TipoFicha extends Model
     protected $table = 'tipo_fichas';
 
     protected $fillable = [
+        'codigo',
         'nombre',
         'descripcion',
         'schema',
@@ -72,6 +89,7 @@ class TipoFicha extends Model
     {
         // Ningún tipo de ficha se guarda con un schema inválido, venga de donde venga
         static::saving(function (TipoFicha $ficha): void {
+            $ficha->validarCodigo();
             $ficha->validarSchema();
         });
     }
@@ -147,6 +165,38 @@ class TipoFicha extends Model
     }
 
     /**
+     * Valida el código estable (SD-6): formato, unicidad e inmutabilidad si hay fichas.
+     *
+     * @return void
+     *
+     * @throws ValidationException
+     */
+    public function validarCodigo(): void
+    {
+        if ($this->exists && $this->isDirty('codigo') && $this->tieneFichasAsociadas()) {
+            throw ValidationException::withMessages([
+                'codigo' => 'No se puede cambiar el código: ya hay fichas de este tipo y el código las identifica en la analítica.',
+            ]);
+        }
+
+        if ($this->codigo === null || $this->codigo === '') {
+            $this->codigo = null;
+
+            return;
+        }
+
+        if (! preg_match(self::FORMATO_CODIGO, $this->codigo)) {
+            throw ValidationException::withMessages([
+                'codigo' => 'El código solo admite minúsculas, cifras y guion bajo, y empieza por una letra.',
+            ]);
+        }
+
+        if (static::where('codigo', $this->codigo)->whereKeyNot($this->getKey())->exists()) {
+            throw ValidationException::withMessages(['codigo' => "Ya hay otro tipo de ficha con el código {$this->codigo}."]);
+        }
+    }
+
+    /**
      * Valida la estructura del schema JSON antes de persistir.
      * Lanza ValidationException si el schema no cumple el contrato.
      *
@@ -196,6 +246,17 @@ class TipoFicha extends Model
                 }
             }
 
+            if ($campo['tipo'] === 'catalogo') {
+                $this->validarCampoCatalogo($campo, $prefijo, $i);
+            }
+
+            // SD-9: en las fichas de la persona todo es voluntario
+            if ($this->uso === 'persona' && ! empty($campo['obligatorio'])) {
+                throw ValidationException::withMessages([
+                    "{$prefijo}.obligatorio" => "El campo [{$i}] no puede ser obligatorio: en las fichas de la persona todos los datos son voluntarios.",
+                ]);
+            }
+
             if ($campo['tipo'] === 'escala' && empty($campo['tipo_escala_id'])) {
                 throw ValidationException::withMessages([
                     "{$prefijo}.tipo_escala_id" => "El campo escala [{$i}] requiere 'tipo_escala_id'.",
@@ -215,6 +276,7 @@ class TipoFicha extends Model
             $schemaOriginal = TipoFicha::findOrFail($this->id)->schema;
             $camposOriginales = $schemaOriginal['campos'] ?? [];
             $tiposOriginales = [];
+            $gruposOriginales = [];
 
             if (is_array($camposOriginales)) {
                 foreach ($camposOriginales as $campoOriginal) {
@@ -227,6 +289,7 @@ class TipoFicha extends Model
 
                     if (is_string($id) && is_string($tipo)) {
                         $tiposOriginales[$id] = $tipo;
+                        $gruposOriginales[$id] = $campoOriginal['catalogo'] ?? null;
                     }
                 }
             }
@@ -252,7 +315,44 @@ class TipoFicha extends Model
                             ."como {$campoActual['tipo']}.",
                     ]);
                 }
+
+                // SD-4: las fichas guardan claves del grupo; con otro grupo dejarían de significar lo mismo
+                if ($tipo === 'catalogo' && ($campoActual['catalogo'] ?? null) !== $gruposOriginales[$id]) {
+                    throw ValidationException::withMessages([
+                        'schema' => "No se puede cambiar el catálogo del campo '{$id}': ya existen fichas "
+                            .'cumplimentadas que guardan claves del catálogo actual.',
+                    ]);
+                }
             }
+        }
+    }
+
+    /**
+     * Valida un campo de tipo catálogo (SD-4): indica un grupo de `catalogos_sistema` con al
+     * menos dos valores vigentes.
+     *
+     * @param array<string, mixed> $campo Definición del campo.
+     * @param string $prefijo Ruta del campo para el mensaje.
+     * @param int|string $i Posición del campo.
+     *
+     * @return void
+     *
+     * @throws ValidationException
+     */
+    private function validarCampoCatalogo(array $campo, string $prefijo, int|string $i): void
+    {
+        $grupo = $campo['catalogo'] ?? null;
+
+        if (! is_string($grupo) || $grupo === '') {
+            throw ValidationException::withMessages([
+                "{$prefijo}.catalogo" => "El campo catálogo [{$i}] debe indicar el catálogo del que salen sus valores.",
+            ]);
+        }
+
+        if (CatalogoSistema::where('grupo', $grupo)->vigentes()->count() < 2) {
+            throw ValidationException::withMessages([
+                "{$prefijo}.catalogo" => "El catálogo '{$grupo}' del campo [{$i}] no existe o tiene menos de dos valores vigentes.",
+            ]);
         }
     }
 

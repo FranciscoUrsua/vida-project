@@ -61,6 +61,15 @@
                         <input id="{{ $idCampo }}" type="date" wire:model.live="{{ $prefijo }}.{{ $campo['id'] }}"
                                @class(['form-control form-control-sm w-auto', 'is-invalid' => $conError])>
 
+                    @elseif($tipo === 'catalogo')
+                        {{-- Guarda la clave del catálogo; el servicio la vuelve a validar (SD-4) --}}
+                        <livewire:fichas.selector-catalogo
+                            wire:model.live="{{ $prefijo }}.{{ $campo['id'] }}"
+                            :grupo="$campo['catalogo'] ?? ''"
+                            :id-campo="$idCampo"
+                            :deshabilitado="(bool) $deshabilitado"
+                            :wire:key="'catalogo-'.$prefijo.'-'.$campo['id']" />
+
                     @elseif($tipo === 'escala')
                         {{-- Solo puntuación total; el pase completo se hace en módulo Escalas --}}
                         <div class="d-flex align-items-center gap-2">

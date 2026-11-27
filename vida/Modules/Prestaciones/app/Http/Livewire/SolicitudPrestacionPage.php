@@ -13,6 +13,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use InvalidArgumentException;
 use Livewire\Attributes\Computed;
@@ -499,6 +500,9 @@ class SolicitudPrestacionPage extends Component
             $this->addError('accion', $e->getMessage());
 
             return false;
+        } catch (ValidationException $e) {
+            // Errores por campo (p. ej. una clave de catálogo no vigente): Livewire los pinta en su campo
+            throw $e;
         } catch (Throwable $e) {
             report($e);
             $this->addError('accion', 'No se ha podido completar la operación.');

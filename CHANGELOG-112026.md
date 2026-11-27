@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-11-27 — Ficha sociodemográfica: tipo de campo «catálogo» (bloque B)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-ficha-sociodemografica.md`, bloque B.
+
+- **Migración** `2026_11_26_200003`: `tipo_fichas.codigo` (único, nullable). Se aplica con el despliegue.
+- **`TipoFicha`:** tipo de campo `catalogo` (grupo con al menos dos valores vigentes; con fichas no se cambia el grupo), uso `persona` (ningún campo obligatorio), `codigo` validado (formato, único, inmutable con fichas). Corregido el docblock que hablaba de visibilidad condicional.
+- **`TipoFichaResource`:** columna y campo `codigo`, uso «Ficha de la persona», bloque «Catálogo» con los grupos disponibles, «obligatorio» oculto para uso persona.
+- **Selector con búsqueda:** `App\Livewire\Fichas\SelectorCatalogo` en `<x-ficha.campos>`; guarda la clave.
+- **Validación en el servidor:** `App\Support\Fichas\ValidadorDatosFicha` en `ValoracionService` y `SolicitudPrestacionService::guardarDatos()`; `SolicitudPrestacionPage` deja pasar la `ValidationException` al campo.
+- **Visualización única:** `App\Support\Fichas\ValorCampo::mostrar()` en `MuestraFicha`/`ver-ficha-page`, el modal de apunte de `CiudadanoPage`, la tarjeta de diagnóstico de `plan-page` (ahora con etiquetas) y `pdf/plan`.
+- **Pre-relleno:** `Ficha::prerellenarConAvisos()`; `prerellenarDesde()` vacía las claves no vigentes.
+- **Tests:** `Modules/Intervencion/tests/Feature/FichaPersona/CampoCatalogoTest.php`, TF-SDE-09 a 17, 09 bis y 31, en verde; negativos 10, 11, 13, 16 y 17 comprobados. Regresión de fichas, valoración, ficha en lectura, plan, modal de apunte, solicitudes, encargo y citas, en verde. `ui:auditar` sin infracciones.
+- **Decisiones de implementación:** ver «Hecho el 27 nov 2026» del bloque B en las instrucciones (formato de fecha como parámetro, unidad fuera de `ValorCampo`, umbral de 30 valores para listar entero, `prerellenarConAvisos()` como método nuevo).
+
+---
+
 ## 2026-11-26 — Ficha sociodemográfica: catálogos versionados y carga oficial (bloque A)
 
 Instrucciones: `docs/instrucciones-cli/2026-11-ficha-sociodemografica.md`, bloque A.
