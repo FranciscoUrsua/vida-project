@@ -21,15 +21,12 @@
     };
 
 
-    $nombrePlan = $this->nombrePlanAsp();
-
     // Columnas de la tabla: [campo de orden o null si no se ordena, etiqueta]
     $columnas = [
         ['ciudadano', 'Ciudadano/a'],
         ['historia', 'Historia Social'],
         ['seg', 'Próximo seguimiento'],
-        [null, $nombrePlan],
-        ['esp', 'Especializados'],
+        [null, 'Planes'],
         ['inicio', 'Inicio'],
     ];
 @endphp
@@ -64,19 +61,12 @@
             </div>
 
             <div class="col-auto">
-                <select wire:model.live="filtroPiso" class="form-select form-select-sm" aria-label="Filtrar por {{ $nombrePlan }}">
-                    <option value="">Todos los {{ $nombrePlan }}</option>
-                    <option value="activo">{{ $nombrePlan }} activo</option>
-                    <option value="revision">{{ $nombrePlan }} en revision</option>
-                    <option value="sin">Sin {{ $nombrePlan }}</option>
-                </select>
-            </div>
-
-            <div class="col-auto">
-                <select wire:model.live="filtroEsp" class="form-select form-select-sm" aria-label="Filtrar por especializados">
-                    <option value="">Con/sin especializados</option>
-                    <option value="con">Con derivacion</option>
-                    <option value="sin">Sin derivacion</option>
+                <select wire:model.live="filtroPlanes" class="form-select form-select-sm" aria-label="Filtrar por planes">
+                    <option value="">Todos los planes</option>
+                    @foreach($this->tiposPlan as $tipoId => $tipoNombre)
+                        <option value="{{ $tipoId }}">Con {{ $tipoNombre }}</option>
+                    @endforeach
+                    <option value="{{ \Modules\Intervencion\Http\Livewire\MisCasosPage::SIN_PLAN }}">Sin plan en curso</option>
                 </select>
             </div>
         </div>
@@ -106,13 +96,16 @@
                             @foreach($this->casos as $caso)
                                 @php
                                     $estado = $estadoSeguimiento($caso->fecha_siguiente_seguimiento);
-                                    $nombreCiudadano = $this->ciudadanosDelPage->get($caso->ciudadano_id)?->nombre_completo ?? 'Ciudadano #' . $caso->ciudadano_id;
+                                    $persona = $this->personasDelPage[$caso->ciudadano_id] ?? null;
+                                    $planes = $this->planesDelPage->get($caso->historia_id, collect());
                                 @endphp
-                                <tr role="button" onclick="event.target.closest('a') || (window.location.href='{{ route('intervencion.ciudadano.show', $caso->historia_id) }}')">
+                                <tr wire:key="caso-{{ $caso->historia_id }}" role="button" onclick="event.target.closest('a') || (window.location.href='{{ route('intervencion.ciudadano.show', $caso->historia_id) }}')">
                                     <td class="fw-semibold">
-                                        <a href="{{ route('ciudadania.ciudadano.ficha', $caso->ciudadano_id) }}" class="text-decoration-none">
-                                            {{ $nombreCiudadano }}
-                                        </a>
+                                        @if($persona['url'] ?? null)
+                                            <a href="{{ $persona['url'] }}" class="text-decoration-none">{{ $persona['nombre'] }}</a>
+                                        @else
+                                            {{ $persona['nombre'] ?? '—' }}
+                                        @endif
                                     </td>
                                     <td class="font-monospace small">
                                         <a href="{{ route('intervencion.ciudadano.show', $caso->historia_id) }}" class="link-secondary text-decoration-none">
@@ -132,22 +125,21 @@
                                         </span>
                                     </td>
                                     <td>
-                                        @if($caso->plan_id === null)
-                                            <span class="small text-body-secondary">Sin plan</span>
-                                        @elseif($caso->plan_estado === 'activo')
-                                            <span class="badge rounded-pill bg-success-subtle text-success-emphasis">Activo</span>
-                                        @elseif($caso->plan_estado === 'en_revision')
-                                            <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis">En revisión</span>
-                                        @else
-                                            <span class="badge rounded-pill bg-secondary-subtle text-secondary-emphasis">Borrador</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        @if($caso->planes_esp_count > 0)
-                                            <span class="badge rounded-pill bg-primary-subtle text-primary-emphasis">{{ $caso->planes_esp_count }}</span>
-                                        @else
+                                        {{-- Todos los planes en curso de la persona, de cualquier centro, por su tipo; el color es su estado --}}
+                                        <div class="d-flex flex-wrap gap-1">
+                                        @forelse($planes as $plan)
+                                            @php
+                                                $tituloPlan = collect([$plan->tipoPlan->nombre ?? 'Plan', $plan->estado->label(), $plan->centro->nombre_corto ?? $plan->centro->nombre ?? null])->filter()->implode(' · ');
+                                            @endphp
+                                            @can('view', $plan)
+                                                <a href="{{ route('intervencion.plan.show', $plan->id) }}" class="badge rounded-pill text-decoration-none {{ $plan->estado->tono()->clasesSuave() }}" title="{{ $tituloPlan }}">{{ $plan->tipoPlan->nombre ?? 'Plan' }}</a>
+                                            @else
+                                                <span class="badge rounded-pill {{ $plan->estado->tono()->clasesSuave() }}" title="{{ $tituloPlan }}">{{ $plan->tipoPlan->nombre ?? 'Plan' }}</span>
+                                            @endcan
+                                        @empty
                                             <span class="text-body-secondary">—</span>
-                                        @endif
+                                        @endforelse
+                                        </div>
                                     </td>
                                     <td class="small text-body-secondary text-nowrap">
                                         {{ Carbon::parse($caso->fecha_inicio)->format('d/m/Y') }}
@@ -169,39 +161,4 @@
             </div>
         @endif
     </section>
-
-    {{-- Planes no principales de los que soy responsable (fase 3, A3.6) --}}
-    @if($this->otrosPlanes->isNotEmpty())
-        <section class="px-3 pb-3" aria-labelledby="titulo-otros-planes">
-            <div class="card">
-                <header class="card-header bg-transparent">
-                    <h2 id="titulo-otros-planes" class="h6 fw-bold mb-0">Otros planes de los que soy responsable</h2>
-                </header>
-                <div class="table-responsive">
-                    <table class="table table-sm table-hover align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <x-op.th-orden columna="persona" accion="ordenarOtros" :actual="$ordenOtros" :direccion="$direccionOtros">Ciudadano/a</x-op.th-orden>
-                                <th scope="col">Plan</th>
-                                <th scope="col">Centro</th>
-                                <x-op.th-orden columna="estado" accion="ordenarOtros" :actual="$ordenOtros" :direccion="$direccionOtros">Estado</x-op.th-orden>
-                                <x-op.th-orden columna="seguimiento" accion="ordenarOtros" :actual="$ordenOtros" :direccion="$direccionOtros">Próximo seguimiento</x-op.th-orden>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($this->otrosPlanes as $fila)
-                                <tr wire:key="otro-plan-{{ $fila['id'] }}">
-                                    <td><a href="{{ route('intervencion.plan.show', $fila['id']) }}" wire:navigate>{{ $fila['persona'] }}</a></td>
-                                    <td>{{ $fila['tipo'] }}</td>
-                                    <td class="text-body-secondary">{{ $fila['centro'] }}</td>
-                                    <td>{{ $fila['estado'] }}</td>
-                                    <td class="text-body-secondary">{{ $fila['proximo_seguimiento'] ? Carbon::parse($fila['proximo_seguimiento'])->format('d/m/Y') : '—' }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-    @endif
 </div>

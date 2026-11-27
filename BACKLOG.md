@@ -80,7 +80,7 @@ Actualizar con fecha y contexto breve al añadir cada entrada. Lo cerrado se ret
 - Consultas en la vista: `Ciudadano::find($ucCiudadanoSeleccionado)` en `ciudadano-page.blade.php`; `$datos`, `$doc` y `$yaEnPlan` en bucles de `plan-page`; `Configuracion::logoUrl()` y `nombreAplicacion()` en cada request (cachear).
 - `$herramientas` del expediente: sacarla a una constante.
 
-**Código muerto** — retirar tras confirmar: `agenda.supervisor.sidebar` (Agenda), middleware `AuditarAccesoCiudadano` (o aplicarlo a rutas `{historia}` sin duplicar filas), grupo `documento.tipo` de `catalogos_sistema` (migrado a `tipos_documentales`; desactivar `informe_generado`).
+**Código muerto** — retirar tras confirmar: `agenda.supervisor.sidebar` (Agenda), middleware `AuditarAccesoCiudadano` (o aplicarlo a rutas `{historia}` sin duplicar filas), grupo `documento.tipo` de `catalogos_sistema` (migrado a `tipos_documentales`; desactivar `informe_generado`), clave `configuracion.nombre_plan_asp` de `catalogos_sistema` (desde el 27 nov «Mis casos» nombra los planes por su tipo de plan y ya nadie la lee).
 
 ---
 

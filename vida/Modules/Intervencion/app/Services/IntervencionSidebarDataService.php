@@ -3,7 +3,7 @@
 namespace Modules\Intervencion\Services;
 
 use Illuminate\Support\Facades\Auth;
-use Modules\Intervencion\Models\AsignacionProfesional;
+use Modules\Intervencion\Queries\MisCasosQuery;
 use Modules\Mensajes\Services\ContadoresBandejaService;
 
 /**
@@ -11,13 +11,15 @@ use Modules\Mensajes\Services\ContadoresBandejaService;
  *
  * Proporciona:
  * - Alertas, avisos y mensajes pendientes (los mismos que la bandeja)
- * - Número de ciudadanos con plan activo asignados al profesional
+ * - Número de casos del profesional: los mismos que el listado «Mis casos» (MisCasosQuery)
  */
 class IntervencionSidebarDataService
 {
     /**
-     * Número de historias sociales asignadas al profesional con asignación vigente.
-     * Usado para el badge del ítem "Mis casos".
+     * Número de historias sociales del listado «Mis casos»: de las que es referencia
+     * o responsable de un plan en curso. Usado para el badge del ítem "Mis casos".
+     *
+     * @return int
      */
     public function misCasosCount(): int
     {
@@ -25,10 +27,7 @@ class IntervencionSidebarDataService
             return 0;
         }
 
-        return AsignacionProfesional::where('profesional_id', Auth::id())
-            ->whereNull('fecha_fin')
-            ->whereNull('deleted_at')
-            ->count();
+        return MisCasosQuery::historias((int) Auth::id())->count();
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace Modules\Intervencion\Tests\Feature\Livewire;
 
-use App\Models\CatalogoSistema;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Models\UnidadOrganizativa;
@@ -202,30 +201,28 @@ class MisCasosPageTest extends TestCase
 
         $items = $componente->get('casos')->items();
         $this->assertCount(1, $items);
-        $this->assertEquals($planVencido->id, $items[0]->plan_id);
+        $this->assertEquals($planVencido->historia_id, $items[0]->historia_id);
     }
 
     /**
-     * TF-LW-CAS-03 — Filtro PISO 'sin' devuelve solo ciudadanos sin plan general activo.
-     * (No aplica tal cual al query actual que ya filtra por 'general_asp' activo — verificamos
-     *  que el filtro 'sin' vacía los resultados cuando todos tienen plan activo.)
+     * TF-LW-CAS-03 — El filtro de planes por tipo deja solo las historias con un plan
+     * en curso de ese tipo; un id que no es numérico se ignora. [negativo]
      */
     #[Test]
-    public function filtro_piso_sin_devuelve_lista_vacia_cuando_todos_tienen_plan(): void
+    public function filtro_planes_por_tipo_deja_solo_las_historias_con_ese_plan(): void
     {
         $usuario = $this->crearUsuario();
-        $this->crearPlan($usuario);
+        $conPiso = $this->crearPlan($usuario);
+        $this->crearAsignacion($usuario);
 
-        // El filtro 'sin' busca planes sin PISO — como todos tienen plan, la tabla sale vacía
-        // El componente no implementa este subtipo todavía (no aplica al query actual),
-        // pero el filtro se envía y el resultado depende del estado del desarrollo.
         $componente = Livewire::actingAs($usuario)
             ->test(MisCasosPage::class)
-            ->set('filtroPiso', 'sin');
+            ->set('filtroPlanes', (string) $conPiso->tipo_plan_id);
 
-        // El componente renderiza sin errores
-        $componente->assertHasNoErrors();
-        $componente->assertOk();
+        $this->assertSame([$conPiso->historia_id], collect($componente->get('casos')->items())->pluck('historia_id')->all());
+
+        $componente->set('filtroPlanes', 'x; drop');
+        $this->assertCount(2, $componente->get('casos')->items());
     }
 
     /**
@@ -253,24 +250,22 @@ class MisCasosPageTest extends TestCase
     }
 
     /**
-     * TF-LW-CAS-05 — La cabecera de la columna PISO usa el valor de catalogos_sistema.
+     * TF-LW-CAS-05 — La columna «Planes» nombra cada plan por su tipo de plan y la
+     * historia sin planes en curso muestra «—»; ya no hay columna «Especializados».
      */
     #[Test]
-    public function cabecera_piso_usa_valor_de_catalogo(): void
+    public function columna_planes_usa_el_nombre_del_tipo_de_plan(): void
     {
         $usuario = $this->crearUsuario();
-
-        CatalogoSistema::create([
-            'grupo' => 'configuracion',
-            'clave' => 'nombre_plan_asp',
-            'etiqueta' => 'Plan Social Integrado',
-            'orden' => 1,
-            'activo' => true,
-        ]);
+        $plan = $this->crearPlan($usuario);
+        $plan->tipoPlan->update(['nombre' => 'Plan Social Integrado']);
 
         Livewire::actingAs($usuario)
             ->test(MisCasosPage::class)
-            ->assertSee('Plan Social Integrado');
+            ->assertSee('Planes')
+            ->assertSee('Plan Social Integrado')
+            ->assertSee('Con Plan Social Integrado')
+            ->assertDontSee('Especializados');
     }
 
     /**
@@ -326,10 +321,10 @@ class MisCasosPageTest extends TestCase
         AsignacionProfesional::where('historia_id', $antiguo->historia_id)->update(['fecha_inicio' => today()->subYear()->toDateString()]);
 
         $componente = Livewire::actingAs($usuario)->test(MisCasosPage::class)->call('ordenar', 'inicio');
-        $this->assertSame([$antiguo->id, $reciente->id], collect($componente->get('casos')->items())->pluck('plan_id')->all());
+        $this->assertSame([$antiguo->historia_id, $reciente->historia_id], collect($componente->get('casos')->items())->pluck('historia_id')->all());
 
         $componente->call('ordenar', 'inicio');
-        $this->assertSame([$reciente->id, $antiguo->id], collect($componente->get('casos')->items())->pluck('plan_id')->all());
+        $this->assertSame([$reciente->historia_id, $antiguo->historia_id], collect($componente->get('casos')->items())->pluck('historia_id')->all());
 
         $componente->call('ordenar', 'nada')->assertSet('ordenarPor', 'inicio');
     }
@@ -354,7 +349,7 @@ class MisCasosPageTest extends TestCase
 
         $items = $componente->get('casos')->items();
         $this->assertNotEmpty($items);
-        $this->assertEquals($planVencido->id, $items[0]->plan_id);
+        $this->assertEquals($planVencido->historia_id, $items[0]->historia_id);
     }
 
     /**
@@ -371,7 +366,6 @@ class MisCasosPageTest extends TestCase
         $items = $componente->get('casos')->items();
         $this->assertCount(1, $items);
         $this->assertEquals($historia->id, $items[0]->historia_id);
-        $this->assertNull($items[0]->plan_id);
     }
 
     /**
@@ -410,10 +404,10 @@ class MisCasosPageTest extends TestCase
     }
 
     /**
-     * TF-LW-CAS-10 — Filtro PISO 'sin' devuelve solo ciudadanos sin plan no cerrado.
+     * TF-LW-CAS-10 — Filtro de planes 'sin' devuelve solo historias sin ningún plan en curso.
      */
     #[Test]
-    public function filtro_piso_sin_muestra_solo_casos_sin_plan(): void
+    public function filtro_planes_sin_muestra_solo_casos_sin_plan(): void
     {
         $usuario = $this->crearUsuario();
 
@@ -421,14 +415,14 @@ class MisCasosPageTest extends TestCase
         $this->crearPlan($usuario);
 
         // Caso sin plan
-        $this->crearAsignacion($usuario);
+        $historia = $this->crearAsignacion($usuario);
 
         $componente = Livewire::actingAs($usuario)
             ->test(MisCasosPage::class)
-            ->set('filtroPiso', 'sin');
+            ->set('filtroPlanes', MisCasosPage::SIN_PLAN);
 
         $items = $componente->get('casos')->items();
         $this->assertCount(1, $items);
-        $this->assertNull($items[0]->plan_id);
+        $this->assertEquals($historia->id, $items[0]->historia_id);
     }
 }

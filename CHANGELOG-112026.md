@@ -4,6 +4,19 @@
 
 ---
 
+## 2026-11-27 — «Mis casos» como listado único
+
+Área: Intervención (`/intervencion/casos`). Sin migraciones. Petición del desarrollador: en el CIAM, la TS veía arriba sus casos de referencia y abajo «Otros planes de los que soy responsable» (los PIA), con las mismas personas en las dos tablas.
+
+- **Listado único:** una fila por Historia Social, sea el profesional su referencia (asignación vigente) o responsable de un plan en curso (no cerrado). La definición sale a `Modules\Intervencion\Queries\MisCasosQuery` (`referencias()`, `historias()`), que usan el listado y el contador del menú (`IntervencionSidebarDataService::misCasosCount()`, que antes solo contaba referencias). Fuera la tabla inferior (`otrosPlanes`, `ordenarOtros`).
+- **Columna «Planes»:** sustituye a «PISO» y a «Especializados». Muestra todos los planes en curso de la persona, de cualquier centro y responsable, por el nombre de su tipo de plan (el principal primero), coloreados por su estado (`EstadoPlan::tono()`), con centro y estado en el `title` y enlace al plan si la policy lo permite; «—» sin planes en curso.
+- **Filtro «Planes»:** sustituye a los de PISO y de especializados: «Todos los planes», «Con {tipo}» por cada tipo de plan activo y «Sin plan en curso» (`filtroPlanes`).
+- **Nombres:** la persona se pinta con `PresentacionPersona::paraListado()` (`personasDelPage`, antes `ciudadanosDelPage`), y la búsqueda y el orden por nombre usan ese mismo nombre visible.
+- **Decisiones de implementación:** (1) el próximo seguimiento de la fila es el más cercano de los planes que lleva el profesional (los que tiene como responsable y el principal si es la referencia): el de un plan de otro profesional sale en «Planes» pero no marca su urgencia; (2) «Inicio» es la fecha más antigua de las dos vías; (3) «en curso» es todo lo no cerrado (incluye en revisión, que la tabla inferior perdía por usar `vigentes()`); (4) se retiran la columna y el filtro de especializados porque los cubren «Planes» y su filtro; (5) la cabecera ya no lee `configuracion.nombre_plan_asp` (al BACKLOG como código muerto).
+- **Tests:** TF-LW-CAS-11 a 17 en `MisCasosListadoUnicoTest` (nuevo), con negativos comprobados (sin la vía del plan fallan 12, 15, 16 y 17). Adaptados TF-LW-CAS-03, 05 y 10 de `MisCasosPageTest` (filtro y columna nuevos), los que identificaban la fila por `plan_id`, TF-CIR-02 de `PlanTipoTest` (retirado TF-LW-CAS-ORD-03, la tabla ya no existe) y TF-LW-NAV-04/05. Regresión en verde (91 tests); `ui:auditar` sin infracciones; PHPStan sin avisos en los ficheros tocados.
+
+---
+
 ## 2026-11-27 — Test inestable TF-AUTH-17
 
 Área: autenticación (tests). Sin migraciones.

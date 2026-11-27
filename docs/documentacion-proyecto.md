@@ -94,7 +94,7 @@ Los modelos sensibles de ciudadanos (`HistoriaSocial`, `Apunte`, `Ciudadano`, `P
 La interfaz operativa (Livewire) tiene su propio layout (`operativo.blade.php`) con sidebar de 196px, topbar de 56px y área principal flexible. Las pantallas principales son:
 
 - `/intervencion/agenda` — AgendaPage (vistas día/semana/mes, fixture de desarrollo)
-- `/intervencion/casos` — MisCasosPage (planes activos del profesional)
+- `/intervencion/casos` — MisCasosPage (historias del profesional: referencia o responsable de un plan en curso)
 - `/intervencion/buscar` — BuscarCiudadanoPage (búsqueda con tres niveles de acceso)
 - `/intervencion/mensajes` — BuzonPage (alertas / avisos / mensajes)
 - `/intervencion/ciudadano/{historia}` — CiudadanoPage (pantalla de trabajo con Historia Social)
@@ -354,7 +354,7 @@ Gestión de la Historia Social, planes de intervención, apuntes y herramientas 
 **Componentes implementados:**
 - `CiudadanoPage`: pantalla principal de trabajo. Layout de 4 cuadrantes (datos ciudadano + UC / toolbox / timeline + accesos / trabajo + stats). Banda PISO activo a ancho completo. 7 herramientas: entrevista, anotación, derivación, gestión/coordinación (inline), valoración y escala (pantalla completa). Cabecera estructurada del ciudadano con nombre, HS, UO, badge estado, fecha nacimiento, teléfono y domicilio. Estadísticas de contexto (`statApuntes`, `statPrestaciones`—null—, `statUltimoContacto`).
 - `RegistrarValoracionPage`, `RegistrarEscalaPage`.
-- `MisCasosPage`: tabla paginada de planes activos con semáforo de colores y cabecera PISO configurable.
+- `MisCasosPage`: listado único y paginado de las historias del profesional (referencia o responsable de un plan en curso, `MisCasosQuery`), con semáforo de seguimiento, columna «Planes» (PISO, PIA… por tipo de plan, «—» sin planes en curso) y filtro por tipo de plan.
 - `AccesosExpedienteQuery`: query object compartido que encapsula la lógica de filtrado por visibilidad.
 - Panel de últimos accesos al expediente en `CiudadanoPage` y `FichaCiudadanoPage`.
 

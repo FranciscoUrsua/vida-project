@@ -82,37 +82,15 @@ class PlanTipoTest extends TestCase
         $this->assertFalse(PlanDeIntervencion::withoutGlobalScopes()->where('historia_id', $historia->id)->principal()->exists());
         $this->assertTrue(PlanDeIntervencion::withoutGlobalScopes()->whereKey($this->pisoAna->id)->principal()->exists());
 
-        // MisCasos: cada responsable ve su plan por su tipo; la referencia, el caso sin PISO.
-        $otros = Livewire::actingAs($this->psicologoNorte)->test(MisCasosPage::class)->get('otrosPlanes');
-        $this->assertSame([[$psico->id, 'Plan de intervención psicológica']], $otros->map(fn ($f) => [$f['id'], $f['tipo']])->all());
-
-        $otros = Livewire::actingAs($this->psicologaVallecas)->test(MisCasosPage::class)->get('otrosPlanes');
-        $this->assertSame([[$pia->id, 'PIA']], $otros->map(fn ($f) => [$f['id'], $f['tipo']])->all());
-
-        $casos = collect(Livewire::actingAs($this->tsNorte)->test(MisCasosPage::class)->get('casos')->items());
-        $caso = $casos->firstWhere('historia_id', $historia->id);
-        $this->assertNotNull($caso);
-        $this->assertNull($caso->plan_id, 'Ningún plan de la persona figura como su PISO');
-    }
-
-    /** TF-LW-CAS-ORD-03 — «Otros planes» se ordena por persona (nombre descifrado, sin tildes). */
-    #[Test]
-    public function otros_planes_se_ordenan_por_persona(): void
-    {
-        $planes = [];
-        foreach (['Zoe', 'Álvaro', 'Marta'] as $nombre) {
-            [$persona, $historia] = $this->personaEnCentro($this->cssNorte, referencia: $this->tsNorte);
-            $persona->update(['nombre' => $nombre, 'apellido1' => 'Prueba', 'apellido2' => null]);
-            $planes[$nombre] = $this->planActivo($historia, $this->planPsicologico, $this->cssNorte, $this->psicologoNorte)->id;
+        // MisCasos: cada responsable ve la historia con su plan nombrado por su tipo; nadie ve un PISO.
+        foreach ([$this->psicologoNorte, $this->psicologaVallecas, $this->tsNorte] as $usuario) {
+            $componente = Livewire::actingAs($usuario)->test(MisCasosPage::class);
+            $this->assertContains($historia->id, collect($componente->get('casos')->items())->pluck('historia_id')->all());
+            $this->assertEqualsCanonicalizing(
+                ['PIA', 'Plan de intervención psicológica'],
+                $componente->get('planesDelPage')->get($historia->id)->map(fn ($p) => $p->tipoPlan->nombre)->all(),
+            );
         }
-
-        $componente = Livewire::actingAs($this->psicologoNorte)->test(MisCasosPage::class)->call('ordenarOtros', 'persona');
-        $ids = fn () => $componente->get('otrosPlanes')->pluck('id')->intersect($planes)->values()->all();
-
-        $this->assertSame([$planes['Álvaro'], $planes['Marta'], $planes['Zoe']], $ids());
-
-        $componente->call('ordenarOtros', 'persona');
-        $this->assertSame([$planes['Zoe'], $planes['Marta'], $planes['Álvaro']], $ids());
     }
 
     /** TF-CIR-39 — Varios tipos de plan en ASP: hay que elegir, y el principal no se ofrece si ya existe. */

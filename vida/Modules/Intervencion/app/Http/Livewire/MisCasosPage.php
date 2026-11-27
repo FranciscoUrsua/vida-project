@@ -3,7 +3,6 @@
 namespace Modules\Intervencion\Http\Livewire;
 
 use App\Livewire\Concerns\OrdenaPorColumnas;
-use App\Models\CatalogoSistema;
 use App\Models\Ciudadano;
 use App\Models\Scopes\AmbitoUoScope;
 use App\Services\PresentacionPersona;
@@ -17,14 +16,20 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Modules\Intervencion\Enums\EstadoPlan;
 use Modules\Intervencion\Models\PlanDeIntervencion;
+use Modules\Intervencion\Models\TipoPlan;
+use Modules\Intervencion\Queries\MisCasosQuery;
 
 /**
  * Pantalla "Mis casos" del interfaz operativo de Intervención.
  *
- * Muestra la lista paginada de ciudadanos con plan general activo
- * asignados al profesional autenticado. Incluye filtros por estado
- * de seguimiento, plan ASP y derivaciones especializadas.
+ * Listado único de las Historias Sociales que lleva el profesional autenticado:
+ * aquellas de las que es profesional de referencia y aquellas con un plan en curso
+ * del que es responsable (p. ej. el PIA en el CIAM), cada una una sola vez. La columna
+ * «Planes» muestra todos los planes en curso de la persona por su tipo de plan
+ * (PISO, PIA, plan psicológico…), de cualquier centro. Filtros por seguimiento y por
+ * tipo de plan.
  *
  * @see docs/instrucciones-cli/ui-intervencion-entrega2.md §3
  */
@@ -34,23 +39,17 @@ class MisCasosPage extends Component
     use OrdenaPorColumnas;
     use WithPagination;
 
+    /** Valor del filtro de planes para las historias sin ningún plan en curso. */
+    public const SIN_PLAN = 'sin';
+
     /** @var string Búsqueda textual por nombre/apellido; se resuelve en memoria (datos cifrados) */
     public string $busqueda = '';
 
     /** @var string Filtro por estado de seguimiento: '' | 'vencido' | 'proximo' | 'programado' | 'sin' */
     public string $filtroSeguimiento = '';
 
-    /** @var string Filtro por estado del plan ASP: '' | 'activo' | 'revision' | 'sin' */
-    public string $filtroPiso = '';
-
-    /** @var string Filtro por derivación especializada: '' | 'con' | 'sin' */
-    public string $filtroEsp = '';
-
-    /** @var string Columna de ordenación de «Otros planes»: persona | estado | seguimiento */
-    public string $ordenOtros = 'seguimiento';
-
-    /** @var string Dirección de ordenación de «Otros planes»: asc | desc */
-    public string $direccionOtros = 'asc';
+    /** @var string Filtro por planes: '' (todos) | 'sin' (ningún plan en curso) | id de un tipo de plan */
+    public string $filtroPlanes = '';
 
     /** @var int Número de resultados por página */
     public int $porPagina = 10;
@@ -61,6 +60,8 @@ class MisCasosPage extends Component
 
     /**
      * Resetea la paginación al cambiar el filtro de seguimiento.
+     *
+     * @return void
      */
     public function updatedFiltroSeguimiento(): void
     {
@@ -68,23 +69,19 @@ class MisCasosPage extends Component
     }
 
     /**
-     * Resetea la paginación al cambiar el filtro de plan ASP.
+     * Resetea la paginación al cambiar el filtro de planes.
+     *
+     * @return void
      */
-    public function updatedFiltroPiso(): void
-    {
-        $this->resetPage();
-    }
-
-    /**
-     * Resetea la paginación al cambiar el filtro de derivación especializada.
-     */
-    public function updatedFiltroEsp(): void
+    public function updatedFiltroPlanes(): void
     {
         $this->resetPage();
     }
 
     /**
      * Resetea la paginación al cambiar el texto de búsqueda.
+     *
+     * @return void
      */
     public function updatedBusqueda(): void
     {
@@ -92,14 +89,14 @@ class MisCasosPage extends Component
     }
 
     /**
-     * Columnas ordenables de la tabla principal. 'seg' ordena por urgencia del
-     * seguimiento, no por fecha simple; 'ciudadano' se ordena en memoria (nombre cifrado).
+     * Columnas ordenables de la tabla. 'seg' ordena por urgencia del seguimiento,
+     * no por fecha simple; 'ciudadano' se ordena en memoria (nombre cifrado).
      *
      * @return array<string, 'asc'|'desc'>
      */
     protected function columnasOrdenables(): array
     {
-        return ['ciudadano' => 'asc', 'historia' => 'asc', 'seg' => 'asc', 'inicio' => 'asc', 'esp' => 'asc'];
+        return ['ciudadano' => 'asc', 'historia' => 'asc', 'seg' => 'asc', 'inicio' => 'asc'];
     }
 
     /**
@@ -112,38 +109,23 @@ class MisCasosPage extends Component
         return ['seg', 'asc'];
     }
 
-    /**
-     * Ordena la tabla «Otros planes»; si la columna ya era la activa, invierte la dirección.
-     *
-     * @param string $columna persona | estado | seguimiento
-     *
-     * @return void
-     */
-    public function ordenarOtros(string $columna): void
-    {
-        if (! in_array($columna, ['persona', 'estado', 'seguimiento'], true)) {
-            return;
-        }
-
-        if ($this->ordenOtros === $columna) {
-            $this->direccionOtros = $this->direccionOtros === 'asc' ? 'desc' : 'asc';
-        } else {
-            $this->ordenOtros = $columna;
-            $this->direccionOtros = 'asc';
-        }
-    }
-
     // -------------------------------------------------------------------------
-    // Nombre configurable del plan ASP
+    // Opciones del filtro de planes
     // -------------------------------------------------------------------------
 
     /**
-     * Etiqueta configurable del tipo de plan general (PISO o nombre alternativo).
-     * Se lee del catálogo de sistema para permitir cambio sin deploy.
+     * Tipos de plan activos para el filtro «Planes», el principal (PISO) primero.
+     *
+     * @return Collection<int, string> Nombre del tipo de plan por id.
      */
-    public function nombrePlanAsp(): string
+    #[Computed]
+    public function tiposPlan(): Collection
     {
-        return CatalogoSistema::valor('nombre_plan_asp', 'PISO');
+        return TipoPlan::query()
+            ->where('activo', true)
+            ->orderByDesc('es_principal')
+            ->orderBy('nombre')
+            ->pluck('nombre', 'id');
     }
 
     // -------------------------------------------------------------------------
@@ -151,61 +133,45 @@ class MisCasosPage extends Component
     // -------------------------------------------------------------------------
 
     /**
-     * Lista paginada de casos asignados al profesional autenticado.
+     * Lista paginada de los casos del profesional autenticado, una fila por Historia Social.
      *
-     * El origen es la tabla asignaciones_profesional (vigentes). Los planes
-     * generales ASP y los seguimientos se incorporan como LEFT JOIN para
-     * mostrar información adicional; su ausencia no excluye el caso.
+     * Una historia es del profesional si es su referencia (asignación vigente) o si es
+     * responsable de alguno de sus planes en curso. «Inicio» es la fecha más antigua de
+     * las dos vías. El próximo seguimiento es el más cercano de *sus* planes: los que
+     * tiene como responsable y, si es la referencia, el plan principal; los planes de
+     * otros profesionales salen en «Planes» pero no marcan su urgencia.
+     *
+     * @return LengthAwarePaginator<int, \stdClass>
      */
     #[Computed]
     public function casos(): LengthAwarePaginator
     {
         $hoy = today();
+        $usuarioId = (int) Auth::id();
 
-        // Subconsulta: seguimiento más reciente por plan
-        $subSeguimiento = DB::table('seguimientos_plan')
+        // Seguimiento más reciente por plan
+        $ultimoSeguimiento = DB::table('seguimientos_plan')
             ->select(DB::raw('DISTINCT ON (plan_id) plan_id, fecha_siguiente_seguimiento'))
             ->orderBy('plan_id')
             ->orderByDesc('created_at');
 
-        // Subconsulta: plan principal (el PISO) más relevante por historia (activo > en_revision > borrador).
-        // El plan principal lo decide su tipo de plan, no `tipo` (fase 3, F3-1).
-        $subPlan = DB::table('planes_intervencion as pp')
-            ->select(DB::raw('DISTINCT ON (pp.historia_id) pp.historia_id, pp.id as plan_id, pp.estado as plan_estado'))
-            ->join('tipos_plan as tpp', 'tpp.id', '=', 'pp.tipo_plan_id')
-            ->where('tpp.es_principal', true)
-            ->where('pp.estado', '!=', 'cerrado')
-            ->whereNull('pp.deleted_at')
-            ->orderBy('pp.historia_id')
-            ->orderByRaw("CASE pp.estado WHEN 'activo' THEN 0 WHEN 'en_revision' THEN 1 ELSE 2 END")
-            ->orderByDesc('pp.created_at');
+        // Próximo seguimiento por historia, solo de los planes que lleva el profesional
+        $seguimientoPorHistoria = DB::table('planes_intervencion as p')
+            ->joinSub($ultimoSeguimiento, 's', 's.plan_id', '=', 'p.id')
+            ->leftJoin('tipos_plan as tp', 'tp.id', '=', 'p.tipo_plan_id')
+            ->where('p.estado', '!=', EstadoPlan::Cerrado->value)
+            ->whereNull('p.deleted_at')
+            ->where(function ($q) use ($usuarioId): void {
+                $q->where('p.profesional_responsable_id', $usuarioId)
+                    ->orWhere(fn ($q2) => $q2->where('tp.es_principal', true)
+                        ->whereIn('p.historia_id', MisCasosQuery::referencias($usuarioId)->select('historia_id')));
+            })
+            ->selectRaw('p.historia_id, MIN(s.fecha_siguiente_seguimiento) AS fecha_siguiente_seguimiento')
+            ->groupBy('p.historia_id');
 
-        // Subconsulta: nº de planes especializados activos por historia
-        $subEsp = DB::table('planes_intervencion as pe')
-            ->selectRaw('pe.historia_id, COUNT(*) as planes_esp_count')
-            ->where('pe.tipo', 'especializado')
-            ->where('pe.estado', 'activo')
-            ->whereNull('pe.deleted_at')
-            ->groupBy('pe.historia_id');
-
-        $query = DB::table('asignaciones_profesional as ap')
-            ->join('historias_sociales as hs', 'hs.id', '=', 'ap.historia_id')
-            ->leftJoinSub($subPlan, 'pi', 'pi.historia_id', '=', 'ap.historia_id')
-            ->leftJoinSub($subSeguimiento, 'seg', 'seg.plan_id', '=', 'pi.plan_id')
-            ->leftJoinSub($subEsp, 'esp', 'esp.historia_id', '=', 'hs.id')
-            ->where('ap.profesional_id', Auth::id())
-            ->whereNull('ap.fecha_fin')
-            ->whereNull('ap.deleted_at')
-            ->whereNull('hs.deleted_at')
-            ->select([
-                'ap.historia_id',
-                'ap.fecha_inicio',
-                'hs.ciudadano_id',
-                'pi.plan_id',
-                'pi.plan_estado',
-                'seg.fecha_siguiente_seguimiento',
-                DB::raw('COALESCE(esp.planes_esp_count, 0) as planes_esp_count'),
-            ]);
+        $query = MisCasosQuery::historias($usuarioId)
+            ->leftJoinSub($seguimientoPorHistoria, 'seg', 'seg.historia_id', '=', 'mh.historia_id')
+            ->addSelect('seg.fecha_siguiente_seguimiento');
 
         // Filtro de seguimiento
         if ($this->filtroSeguimiento === 'vencido') {
@@ -218,20 +184,18 @@ class MisCasosPage extends Component
             $query->whereNull('seg.fecha_siguiente_seguimiento');
         }
 
-        // Filtro de plan ASP
-        if ($this->filtroPiso === 'activo') {
-            $query->where('pi.plan_estado', 'activo');
-        } elseif ($this->filtroPiso === 'revision') {
-            $query->where('pi.plan_estado', 'en_revision');
-        } elseif ($this->filtroPiso === 'sin') {
-            $query->whereNull('pi.plan_id');
-        }
+        // Filtro de planes: sobre todos los planes en curso de la persona, sean de quien sean
+        $planesEnCurso = fn ($q) => $q->select(DB::raw(1))
+            ->from('planes_intervencion as pf')
+            ->whereColumn('pf.historia_id', 'mh.historia_id')
+            ->where('pf.estado', '!=', EstadoPlan::Cerrado->value)
+            ->whereNull('pf.deleted_at');
 
-        // Filtro de planes especializados
-        if ($this->filtroEsp === 'con') {
-            $query->where(DB::raw('COALESCE(esp.planes_esp_count, 0)'), '>', 0);
-        } elseif ($this->filtroEsp === 'sin') {
-            $query->where(DB::raw('COALESCE(esp.planes_esp_count, 0)'), '=', 0);
+        if ($this->filtroPlanes === self::SIN_PLAN) {
+            $query->whereNotExists($planesEnCurso);
+        } elseif (ctype_digit($this->filtroPlanes)) {
+            $tipoPlanId = (int) $this->filtroPlanes;
+            $query->whereExists(fn ($q) => $planesEnCurso($q)->where('pf.tipo_plan_id', $tipoPlanId));
         }
 
         // Ordenación DB para todos los campos excepto nombre (cifrado, se ordena en memoria)
@@ -249,38 +213,36 @@ class MisCasosPage extends Component
                     END {$dir},
                     seg.fecha_siguiente_seguimiento {$dir} NULLS LAST
                 "),
-                'inicio' => $query->orderBy('ap.fecha_inicio', $this->direccion),
-                'esp' => $query->orderByRaw("COALESCE(esp.planes_esp_count, 0) {$dir}, ap.fecha_inicio ASC"),
-                'historia' => $query->orderBy('ap.historia_id', $this->direccion),
-                default => $query->orderBy('ap.historia_id', $this->direccion),
+                'inicio' => $query->orderBy('mh.fecha_inicio', $this->direccion),
+                default => $query->orderBy('mh.historia_id', $this->direccion),
             };
+
+            // Desempate estable para la paginación
+            $query->orderBy('mh.historia_id');
         }
 
         // Path en memoria: búsqueda activa o sort por nombre (ambos requieren desencriptar)
         if ($this->busqueda !== '' || $this->ordenarPor === 'ciudadano') {
             $allItems = $query->get();
+            $usuario = Auth::user();
 
-            $ciudadanoIds = $allItems->pluck('ciudadano_id')->filter()->unique();
             $ciudadanos = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
-                ->whereIn('id', $ciudadanoIds)
+                ->whereIn('id', $allItems->pluck('ciudadano_id')->filter()->unique())
                 ->get()
                 ->keyBy('id');
 
+            // Se busca y ordena por el nombre que se muestra: una persona protegida
+            // que el usuario no puede ver no se encuentra por su nombre real.
+            $nombre = fn ($caso): string => PresentacionPersona::paraListado($ciudadanos->get($caso->ciudadano_id), $usuario)['nombre'];
+
             if ($this->busqueda !== '') {
                 $term = mb_strtolower($this->busqueda);
-                $allItems = $allItems->filter(
-                    fn ($caso) => str_contains(
-                        mb_strtolower($ciudadanos->get($caso->ciudadano_id)->nombre_completo ?? ''),
-                        $term
-                    )
-                )->values();
+                $allItems = $allItems->filter(fn ($caso) => str_contains(mb_strtolower($nombre($caso)), $term))->values();
             }
 
             if ($this->ordenarPor === 'ciudadano') {
-                $allItems = $this->direccion === 'desc'
-                    ? $allItems->sortByDesc(fn ($caso) => $ciudadanos->get($caso->ciudadano_id)->nombre_completo ?? "\xFF")
-                    : $allItems->sortBy(fn ($caso) => $ciudadanos->get($caso->ciudadano_id)->nombre_completo ?? "\xFF");
-                $allItems = $allItems->values();
+                $clave = fn ($caso) => Str::lower(Str::ascii($nombre($caso)));
+                $allItems = $allItems->sortBy($clave, SORT_REGULAR, $this->direccion === 'desc')->values();
             }
 
             $page = $this->getPage();
@@ -298,69 +260,75 @@ class MisCasosPage extends Component
     }
 
     /**
-     * Mapa de ciudadanos correspondientes a la página actual de casos.
-     * Carga los nombres en una sola consulta para evitar N+1 sobre datos cifrados.
+     * Planes en curso de cada historia de la página, de cualquier centro y responsable,
+     * el principal primero y los demás por fecha de inicio.
      *
-     * @return Collection<int, Ciudadano>
+     * @return Collection<int|string, \Illuminate\Database\Eloquent\Collection<int, PlanDeIntervencion>> Planes por id de historia.
      */
     #[Computed]
-    public function ciudadanosDelPage(): Collection
+    public function planesDelPage(): Collection
     {
-        $ids = collect($this->casos->items())->pluck('ciudadano_id')->filter()->unique()->values();
+        $ids = $this->filasDeLaPagina()->pluck('historia_id')->unique()->values();
 
-        return Ciudadano::withoutGlobalScope(AmbitoUoScope::class)
-            ->whereIn('id', $ids)
+        return PlanDeIntervencion::withoutGlobalScopes()
+            ->with(['tipoPlan', 'centro'])
+            ->whereIn('historia_id', $ids)
+            ->where('estado', '!=', EstadoPlan::Cerrado->value)
             ->get()
-            ->keyBy('id');
+            ->sortBy([
+                fn (PlanDeIntervencion $a, PlanDeIntervencion $b) => self::esPrincipal($b) <=> self::esPrincipal($a),
+                fn (PlanDeIntervencion $a, PlanDeIntervencion $b) => [$a->fecha_inicio, $a->id] <=> [$b->fecha_inicio, $b->id],
+            ])
+            ->groupBy('historia_id');
     }
 
     /**
-     * Planes no principales en curso de los que el profesional es responsable (fase 3, A3.6).
+     * Filas de la página actual del listado.
      *
-     * Planes de ASP como el psicológico o especializados como el PIA: no salen de la
-     * referencia (la tabla de casos) sino de la responsabilidad del plan. Cada uno se
-     * identifica por su tipo de plan, nunca como el PISO.
+     * @return Collection<int, \stdClass>
+     */
+    private function filasDeLaPagina(): Collection
+    {
+        return collect($this->casos->items());
+    }
+
+    /**
+     * Si el plan es del tipo principal (el PISO), para ponerlo el primero en «Planes».
      *
-     * @return Collection<int, array{id: int, persona: string, tipo: string, centro: string, estado: string, proximo_seguimiento: string|null}>
+     * @param PlanDeIntervencion $plan
+     *
+     * @return bool
+     */
+    private static function esPrincipal(PlanDeIntervencion $plan): bool
+    {
+        return $plan->tipoPlan !== null && $plan->tipoPlan->es_principal;
+    }
+
+    /**
+     * Persona de cada caso de la página, ya preparada para el listado: una persona
+     * protegida que el usuario no puede ver sale sin nombre ni enlace a la ficha.
+     * Carga los ciudadanos en una sola consulta para evitar N+1 sobre datos cifrados.
+     *
+     * @return array<int, array{visible: bool, id: int|null, nombre: string, url: string|null, ciudadano: Ciudadano|null}> Por id de ciudadano.
      */
     #[Computed]
-    public function otrosPlanes(): Collection
+    public function personasDelPage(): array
     {
+        $ids = $this->filasDeLaPagina()->pluck('ciudadano_id')->filter()->unique()->values();
         $usuario = Auth::user();
 
-        $filas = PlanDeIntervencion::withoutGlobalScopes()
-            ->with(['tipoPlan', 'centro', 'historia' => fn ($q) => $q->withoutGlobalScopes()])
-            ->where('profesional_responsable_id', $usuario->id)
-            ->vigentes()
-            ->whereNotIn('id', PlanDeIntervencion::withoutGlobalScopes()->select('id')->principal())
-            ->orderBy('fecha_inicio')
-            ->get()
-            ->map(function (PlanDeIntervencion $plan) use ($usuario): array {
-                $persona = Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->find($plan->historia?->ciudadano_id);
+        $personas = [];
+        foreach (Ciudadano::withoutGlobalScope(AmbitoUoScope::class)->whereIn('id', $ids)->get() as $ciudadano) {
+            $personas[$ciudadano->id] = PresentacionPersona::paraListado($ciudadano, $usuario);
+        }
 
-                return [
-                    'id' => $plan->id,
-                    'persona' => PresentacionPersona::paraListado($persona, $usuario)['nombre'],
-                    'tipo' => $plan->tipoPlan->nombre ?? 'Plan',
-                    'centro' => $plan->centro->nombre_corto ?? $plan->centro->nombre ?? '—',
-                    'estado' => $plan->estado->label(),
-                    'proximo_seguimiento' => $plan->seguimientos()->latest()->value('fecha_siguiente_seguimiento'),
-                ];
-            });
-
-        // Se ordena en memoria: el nombre de la persona está cifrado y la lista es corta.
-        // Sin fecha de seguimiento, al final en ambos sentidos.
-        $clave = match ($this->ordenOtros) {
-            'persona' => fn (array $fila) => Str::lower(Str::ascii($fila['persona'])),
-            'estado' => fn (array $fila) => Str::lower(Str::ascii($fila['estado'])),
-            default => fn (array $fila) => $fila['proximo_seguimiento'] ?? ($this->direccionOtros === 'asc' ? '9999-12-31' : '0000-01-01'),
-        };
-
-        return $filas->sortBy($clave, SORT_REGULAR, $this->direccionOtros === 'desc')->values();
+        return $personas;
     }
 
     /**
      * Renderiza la bandeja de casos del profesional.
+     *
+     * @return View
      */
     public function render(): View
     {

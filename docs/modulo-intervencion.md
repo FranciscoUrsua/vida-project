@@ -52,8 +52,11 @@ responsables de planes especializados distintos.
 
 El registro es aditivo: cuando cambia el profesional de referencia se cierra la
 asignación vigente (estableciendo `fecha_fin`) y se crea una nueva con `fecha_fin = null`.
-La tabla mantiene el historial completo. La asignación vigente es la que determina
-qué casos aparecen en "Mis casos" del profesional.
+La tabla mantiene el historial completo. La asignación vigente, junto con los planes
+en curso de los que el profesional es responsable (p. ej. el PIA en el CIAM), determina
+qué casos aparecen en "Mis casos": un listado único, una fila por Historia Social
+(`Modules\Intervencion\Queries\MisCasosQuery`), con la columna «Planes» que muestra
+todos los planes en curso de la persona por su tipo de plan, de cualquier centro.
 
 ### 1.1.3 Origen de la asignación inicial
 

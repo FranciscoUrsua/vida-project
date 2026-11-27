@@ -11,7 +11,6 @@ use App\Models\UsuarioUo;
 use Database\Seeders\PermisosSeeder;
 use Database\Seeders\RolesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Modules\Ciudadania\Http\Livewire\FichaCiudadanoPage;
@@ -158,7 +157,7 @@ class NavegacionTest extends TestCase
      * TF-LW-NAV-04 — La tabla de casos renderiza sin errores y tiene el filtro de ciudadanos.
      *
      * La cabecera "Ciudadano/a" solo es visible con filas de datos.
-     * Verificamos que el componente renderiza correctamente y tiene la propiedad ciudadanosDelPage.
+     * Verificamos que el componente renderiza correctamente y tiene la propiedad personasDelPage.
      */
     #[Test]
     public function tabla_de_casos_tiene_columna_ciudadano(): void
@@ -168,25 +167,25 @@ class NavegacionTest extends TestCase
             ->assertOk()
             ->assertHasNoErrors();
 
-        // La propiedad ciudadanosDelPage debe existir y ser una Collection
-        $ciudadanos = $componente->get('ciudadanosDelPage');
-        $this->assertInstanceOf(Collection::class, $ciudadanos);
+        // La propiedad personasDelPage debe existir y ser un array
+        $ciudadanos = $componente->get('personasDelPage');
+        $this->assertIsArray($ciudadanos);
 
         // La columna Ciudadano/a esta definida en el blade (TF-LW-NAV-03 la verifica con datos).
         // Esta prueba verifica que el componente carga sin errores y expone la propiedad correcta.
     }
 
     /**
-     * TF-LW-NAV-05 — La propiedad computada ciudadanosDelPage devuelve una Collection.
+     * TF-LW-NAV-05 — La propiedad computada personasDelPage devuelve un array por id de ciudadano.
      */
     #[Test]
-    public function ciudadanos_del_page_devuelve_collection(): void
+    public function personas_del_page_devuelve_array(): void
     {
         $componente = Livewire::actingAs($this->usuario)
             ->test(MisCasosPage::class);
 
-        $ciudadanos = $componente->get('ciudadanosDelPage');
-        $this->assertInstanceOf(Collection::class, $ciudadanos);
+        $ciudadanos = $componente->get('personasDelPage');
+        $this->assertIsArray($ciudadanos);
     }
 
     // -------------------------------------------------------------------------
