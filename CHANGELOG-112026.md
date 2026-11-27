@@ -4,6 +4,18 @@
 
 ---
 
+## 2026-11-27 — Revisión completa del BACKLOG
+
+Área: documentación. Sin código.
+
+- Retiradas las 25 entradas ya marcadas como cerradas (su historia está en los CHANGELOG y en git) y las sub-viñetas tachadas de las entradas abiertas. Nueva norma en la cabecera: lo cerrado se retira.
+- Retiradas por obsoletas, comprobado contra el código y la BD compartida: slugs nulos en `tipos_actividad` (no queda ninguno), filtro por segmento de `SelectorPrestacionesCentro` (el componente ya no existe), aplicación de escalas (existe `RegistrarEscalaPage`), resolver del TSR de `PrescripcionService` (conectado en `IntervencionServiceProvider`), migración a `larastan/larastan` (hecha), paleta antigua del tema de Filament, clases sin definir de las vistas públicas y tests con fallo previo de la migración a Bootstrap (resueltos), relaciones de la ficha fuera de la UO (`CiudadanoPolicy::editarRelaciones`) y autor de `VerFichaPage` (`Ficha::profesional()`, 27 nov).
+- «Cuatro ojos» y «Destinatario de la alerta supervisada de roles» fundidas en «Aprobación de roles: pendientes»; la viñeta de CI de la fase 5, en la entrada de «Calidad de código».
+- Puestas al día: encargo profesional (bloque F hecho, descarte de borradores hecho, pre-relleno en las fichas de la persona), callejero (implementado; ámbitos de staging aún vacíos), Madurez personal (#4 ya no existe), planes sin tipo (0 de 50), bandeja de mensajes de `consulta_basica` (ahora por permiso), BDC frente al adaptador `callejero`, `CiudadanoPage` (1.592 líneas), baseline de PHPStan (523 entradas), dependencias de «Requisitos de acción» (todas resueltas), tipo `actividad` del registro de atención y casos de `abogada.ciam` (siguen pendientes).
+- De 975 a 703 líneas.
+
+---
+
 ## 2026-11-27 — «Asignar a este centro» en la ficha del ciudadano
 
 Área: Ciudadanía / asignación de centro. Sin migraciones.

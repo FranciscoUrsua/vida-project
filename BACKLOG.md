@@ -1,7 +1,8 @@
 # BACKLOG — VIDA 360
 
 Registro de ideas, mejoras, decisiones pendientes y deuda técnica.
-Actualizar con fecha y contexto breve al añadir cada entrada.
+Actualizar con fecha y contexto breve al añadir cada entrada. Lo cerrado se retira (queda en el CHANGELOG y en git).
+Revisado entero el 2026-11-27.
 
 ---
 
@@ -60,7 +61,7 @@ Intervención (apuntes) / seguridad
 
 **Casos de `abogada.ciam` pendientes de reparto en staging** — 2026-11-25
 Intervención / Asignación
-- HS 941 a 944 tienen como referencia a `abogada.ciam`, que ya no tiene rol intervención (se lo quitaron antes de que existiera el bloqueo de RN-03 bis). Decidido: la supervisión del CIAM Puente de Vallecas (p. ej. `dir.ciam`) reparte sus casos desde Supervisión → Asignaciones → actividad (ensayado: propone a `ts1`, `ts2` y `ts3`). La relación de la abogada con esas personas será un encargo cuando se implemente `docs/rol-consulta-profesional.md`.
+- HS 941 a 944 tienen como referencia a `abogada.ciam`, que ya no tiene rol intervención (se lo quitaron antes de que existiera el bloqueo de RN-03 bis). Decidido: la supervisión del CIAM Puente de Vallecas (p. ej. `dir.ciam`) reparte sus casos desde Supervisión → Asignaciones → actividad (ensayado: propone a `ts1`, `ts2` y `ts3`). Siguen pendientes a 27 nov (las cuatro con referencia a `abogada.ciam`). El encargo profesional ya existe (25 nov): si la abogada debe seguir con esas personas, el TSR que reciba los casos puede hacerle un encargo.
 
 ---
 
@@ -75,10 +76,9 @@ Transversal
 
 **Domicilio con el callejero oficial de Madrid** — 2026-11-25
 Ciudadanía / Centro (asignación)
-- Hasta que se implemente `docs/instrucciones-cli/2026-11-callejero-madrid.md`, ninguna dirección se normaliza fuera de los tests y la asignación de centro por domicilio no puede resolver: queda pendiente de hacerse a mano.
 - (24 nov) Pasos 0, 1, 2 y 5 hechos; callejero cargado y adaptador activo en staging. En producción: primera importación y después activar `geocoder.proveedor = callejero` (la migración `2026_11_25_100004` solo lo hace si el callejero ya está cargado).
 - (24 nov) Los nombres de vía con cifras («Cañada Real Sector 6», «26 de Abril») no se analizan bien en texto libre: el parser toma la primera cifra como número. Con el autocompletado (25 nov) se eligen sin problema.
-- (25 nov) **Ámbitos territoriales sin configurar en staging:** CSS Arganzuela y CSS Entrevías tienen adscripción por domicilio pero ningún ámbito (barrios, secciones o distritos), y `ambitos_territoriales` está vacía. Sin ellos la asignación por domicilio no resuelve a nadie aunque la dirección tenga sección. Configurarlos en Filament (`CentroResource`) y, después, reevaluar a las 74 personas con domicilio normalizado.
+- (25 nov) **Ámbitos territoriales sin configurar en staging:** CSS Arganzuela y CSS Entrevías tienen adscripción por domicilio pero ningún ámbito (barrios, secciones o distritos), y `ambitos_territoriales` está vacía (comprobado de nuevo el 27 nov). Sin ellos la asignación por domicilio no resuelve a nadie aunque la dirección tenga sección. Configurarlos en Filament (`CentroResource`) y, después, reevaluar a las 74 personas con domicilio normalizado.
 - (25 nov) Quedan 96 direcciones de texto libre sin normalizar en staging (58 sin número, 38 que no están en el callejero): corregirlas a mano desde la ficha con el autocompletado si interesa.
 - (25 nov) El autocompletado solo está en la persona; los centros (`CentroResource`, Filament) siguen con texto libre.
 - (24 nov) Sin aviso si la importación semanal deja de funcionar: `callejero_importaciones` registra cada carga, pero nadie mira si la última tiene más de 40 días. Añadirlo a la vigilancia del sistema cuando exista.
@@ -118,11 +118,11 @@ Transversal (encargo siguiente a la ronda 1)
 **`consulta_profesional` y encargo profesional: lo que queda** — 2026-11-25 (antes 2026-11-24)
 Módulos: Intervención (derivaciones), Supervisión, Documentos, Agenda, Mensajes
 - Hechos los bloques A a F (`docs/instrucciones-cli/2026-11-encargo-profesional.md`, cerrada el 25 nov): el TSR encarga desde la Historia Social o el plan principal, la supervisión del destino asigna en la bandeja y `consulta_profesional` lo trabaja en «Mis derivaciones», con ficha y buscador limitados a sus encargos. Permisos retirados por la migración `2026_11_25_200002`.
-- **Actuaciones del profesional de encargo** (petición del 25 nov): anotaciones, fichas, escalas e informes desde el encargo, limitados por el área del encargo y visibles en la Historia Social. Instrucciones aprobadas: `docs/instrucciones-cli/2026-11-encargo-actuaciones.md` (bloques A a F, TF-EAC-01 a 36). Bloque A hecho el 25 nov y B a E el 26 nov (las citas del encargo ya se cierran con una anotación, ficha o escala vinculada, EA-10); queda F.
-- **Informes del encargo: anular un firmado.** `EncargoPage` lista los informes del encargo (seguir redactando, ver PDF) pero no ofrece anular un firmado ni eliminar un borrador; el bloque F tiene que dar al menos el descarte del borrador (EA-11, no se cierra con borradores). Anular desde el encargo, si hace falta, con la misma regla que `InformesHistorial` (autor, motivo).
+- **Actuaciones del profesional de encargo** (petición del 25 nov): anotaciones, fichas, escalas e informes desde el encargo, limitados por el área del encargo y visibles en la Historia Social. Instrucciones aprobadas: `docs/instrucciones-cli/2026-11-encargo-actuaciones.md` (bloques A a F, TF-EAC-01 a 36). Hechas el 26 nov (bloques A a F).
+- **Informes del encargo: anular un firmado.** El descarte del borrador ya existe (`EncargoPage::eliminarBorrador()`, bloque F). Falta anular un firmado desde el encargo, si hace falta, con la misma regla que `InformesHistorial` (autor, motivo).
 - **Herramientas de prueba del área jurídica** (26 nov): la ficha «Valoración jurídica inicial (prueba)», la escala `prueba_riesgo_vivienda` (sin validar) y la plantilla «Informe jurídico del encargo (prueba)», creadas en la BD compartida con `HerramientasPruebaAreaJuridicaSeeder` (no está en `DatabaseSeeder`). Retirarlas (desactivarlas) antes de la 1.0 o sustituirlas por las herramientas reales de cada área.
 - **Plantillas del encargo en el asistente de la Historia:** el asistente de la Historia Social ofrece toda plantilla activa de la UO del profesional y sus ancestros, también las pensadas para un encargo (con la fuente `encargo.datos`, que fuera de un encargo sale vacía). Decidir si se excluyen del asistente de la Historia las plantillas con `encargo.datos` o si se marcan las plantillas como «de encargo».
-- **Pre-relleno de fichas y serie temporal de escalas** (decisión del 26 nov, bloque D): no existen en ninguna pantalla y no se crean. `Ficha::prerellenarDesde()` solo lo usan tests. Si se añaden, desde un encargo solo pueden proponer o mostrar lo del propio profesional en sus encargos de esa persona (EA-8).
+- **Pre-relleno de fichas y serie temporal de escalas** (decisión del 26 nov, bloque D): no existen en la valoración de la Historia ni en el encargo. Desde el 27 nov el pre-relleno sí se usa en las fichas de la persona (`RegistrarFichaPersonaPage`, `Ficha::prerellenarConAvisos()`). Si se añaden, desde un encargo solo pueden proponer o mostrar lo del propio profesional en sus encargos de esa persona (EA-8).
 - **PostgreSQL local: `max_locks_per_transaction`.** Con 4 procesos de paratest, el borrado de tablas de las BD paralelas falla a veces con «out of shared memory» (25 nov, 79 errores antes de ejecutar los tests; con 2 procesos, todo en verde). Subir `max_locks_per_transaction` en el PostgreSQL local (p. ej. 256) o usar 2 procesos en local.
 - **Test inestable TF-AUTH-17** (`tests/Feature/Auth/AutenticacionTest.php`): `assertDontSee('JU')` busca en toda la página, token CSRF aleatorio incluido; falló una vez el 25 nov y pasó al repetirlo. Acotarlo al avatar.
 - Bloque E, detalle menor: en la agenda, la cita de una persona protegida cuyo encargo ya se cerró sigue mostrando su nombre (la agenda no enmascara; «Atender» lleva a un encargo que responde 403).
@@ -136,10 +136,8 @@ Transversal
 
 ---
 
-**Correcciones de la ronda 1 de staging: pendiente** — 2026-11-23 (actualizada el 2026-11-24)
+**Correcciones de la ronda 1 de staging: pendiente** — 2026-11-23 (actualizada el 2026-11-27)
 Módulos: Usuarios y permisos, Supervisión, transversal
-- ~~**Pasos 1 y 6 en espera** del diseño de superficies~~ Hechos el 2026-11-24 con R4 (ver CHANGELOG).
-- ~~**`supervision` tiene `historia.leer`, `apunte.leer` y `apunte.leer_ajeno`**~~ Retirados el 2026-11-24 junto con `documento.ver_carpeta` (decisión del desarrollador, migración `2026_11_24_100002`).
 - **Supervisión sola sigue viendo prestaciones y atenciones en la ficha** (`solicitud.ver`, `atencion.leer`): R2 no los incluye en su lista de bloques, pero tampoco los excluye. Decidir si se ocultan.
 - **Ficha 14 huérfana en staging:** valoración de `tec.ciam` del 19 nov guardada sin apunte (EST-04). No se ha borrado; el defecto que la produjo (sin transacción) está corregido.
 - **`adm1.css` tiene `consulta_basica` en Spatie pero no en `usuario_rol`**: datos de staging inconsistentes; no se han tocado.
@@ -167,7 +165,7 @@ Módulo: Prestaciones
 
 **Agenda: generación de cuadrantes y slots (incidencia del 16 nov)** — 2026-11-16
 Módulos: Agenda, Centro
-- ~~**Nadie genera cuadrantes automáticamente**~~ Hecho el 2026-11-16: `agenda:publicar-cuadrantes`, programado el día 20. **Comprobar que el servidor ejecuta el planificador** (`* * * * * cd /var/www/vida-project/vida && php artisan schedule:run` en el crontab de `www-data`); si no, ni esta tarea ni el cierre de citas ni la expiración de slots se ejecutan. Pendiente: avisar a la supervisión de los centros saltados (sin horario, sin tipos de slot o sin perfiles).
+- **Planificador en el servidor:** `agenda:publicar-cuadrantes` (16 nov, programado el día 20) depende de él. **Comprobar que el servidor ejecuta el planificador** (`* * * * * cd /var/www/vida-project/vida && php artisan schedule:run` en el crontab de `www-data`); si no, ni esta tarea ni el cierre de citas ni la expiración de slots se ejecutan. Pendiente: avisar a la supervisión de los centros saltados (sin horario, sin tipos de slot o sin perfiles).
 - **Slots solapados con varios tipos de slot:** `SlotMaterializadorService` crea, para cada franja, slots de cada tipo enlazado al horario. Con más de un tipo, un profesional tiene huecos superpuestos a la misma hora y podría recibir dos citas a la vez. Hoy los horarios de staging solo enlazan Entrevista. Decidir cómo reparte el cuadrante las franjas entre tipos.
 - **Fallos silenciosos del materializador:** sin horario vigente o sin tipos de slot devuelve 0 sin avisar; la publicación debería advertirlo al supervisor.
 
@@ -177,8 +175,8 @@ Módulos: Agenda, Centro
 Módulos: Usuarios, Supervisión
 - **Ergonomía (petición del desarrollador):** aprobar y denegar desde la pantalla de usuarios de Filament (p. ej. una acción en la fila del usuario o en su ficha con la solicitud pendiente), no solo desde el escritorio. Reutilizar `ResolucionRolesService`.
 - **Con un solo `adm_sistema`**, sus propias asignaciones con aprobación previa no las resuelve nadie cuando no hay supervisor competente (caso de #41, aprobada a mano el 17 nov). Opciones: un segundo `adm_sistema`, o que `adm_usuarios` haga las asignaciones y `adm_sistema` las apruebe.
-- §2.8 dice «el supervisor de la UO superior», pero la regla (desde antes) admite también la supervisión de la misma UO: la dirección de un centro aprueba al coordinador de su centro. Confirmar si se quiere así.
-- Un supervisor que además es `adm_usuarios` puede asignar un rol y aprobarlo él (no es su propia solicitud): solo `adm_sistema` tiene la regla de «no lo que asignó él». Valorar extenderla a todos.
+- §2.8 dice «el supervisor de la UO superior», pero la regla (y la alerta de `AsignacionRolesService`, que va a la supervisión de la UO de la primera adscripción vigente) (desde antes) admite también la supervisión de la misma UO: la dirección de un centro aprueba al coordinador de su centro. Confirmar si se quiere así.
+- Un supervisor que además es `adm_usuarios` puede asignar un rol y aprobarlo él (no es su propia solicitud): solo `adm_sistema` tiene la regla de «no lo que asignó él». Valorar extenderla a todos (en instalaciones pequeñas puede no haber un segundo supervisor).
 
 ---
 
@@ -192,7 +190,7 @@ Módulos: Usuarios, Intervención
 
 **Fichas de valoración vaciadas por Filament (incidencia del 17 nov)** — 2026-11-17
 Módulos: Intervención, Filament
-- Arreglado el guardado (ver `CHANGELOG-112026.md`). Restaurados el 17 nov, con la conformidad del desarrollador, #1 «Situación económica» (5 campos, copia de la ficha 9) y #2 «Situación de vivienda» (6 campos, copia de la ficha 8). **Pendiente, a mano en Filament:** los campos añadidos después a #2 y todo #4 «Madurez personal». Las fichas 10 a 13 se cumplimentaron con el schema vacío.
+- Arreglado el guardado (ver `CHANGELOG-112026.md`). Restaurados el 17 nov, con la conformidad del desarrollador, #1 «Situación económica» (5 campos, copia de la ficha 9) y #2 «Situación de vivienda» (6 campos, copia de la ficha 8). **Pendiente, a mano en Filament:** los campos añadidos después a #2 (hoy tiene 6). #4 «Madurez personal» ya no existe en la BD (27 nov). Las fichas 10 a 13 se cumplimentaron con el schema vacío.
 - `TipoFicha` no tiene `Versionable` ni auditoría: un cambio de schema no deja rastro. Valorar versionarlo (principio 3.5).
 
 ---
@@ -218,7 +216,6 @@ Módulos: Documentos, Intervención
 - **Editor de texto libre:** es el `contenteditable` de la síntesis del plan (negrita, cursiva, lista, `document.execCommand`, en desuso en los navegadores). Si se necesita más (tablas, insertar variables con un clic), valorar un editor de verdad empaquetado con Vite.
 - **El autor como firmante:** hoy cualquier certificado íntegro vale; ligar el titular del certificado al profesional (DNI del certificado frente al de la ficha) cuando se haga la validación completa.
 - **Parámetros configurables por UO** — actualmente los parámetros de `parametros_informe` son globales. Variables como `{{ distrito }}` o `{{ nombre_centro }}` podrían necesitar valores distintos según la UO del autor del informe. Diseño previsto: añadir `unidad_organizativa_id nullable` a `parametros_informe` y aplicar resolución jerárquica igual que en `EstiloInforme` — buscar en la UO del autor y subir por la jerarquía hasta encontrar valor. Si no hay valor en ningún nivel, usar el parámetro global (sin UO).
-- **Job «Calidad de código» en rojo desde antes de la fase** (ya fallaba en el commit de la fase 4): el paso de PHPStan da errores en otros módulos (p. ej. `Modules/Agenda/app/Models/Cita.php`, `SemanaTypoComponent`, `PerfilHorarioComponent`). Además, la entrada del baseline de `Modules/Documentos/config/documentos.php` espera 5 llamadas a `env()` y hay 19 antes de la fase (23 después). No bloquea el despliegue (workflow aparte). Los ficheros nuevos y reescritos de la fase 5 pasan PHPStan.
 
 ---
 
@@ -227,7 +224,7 @@ Módulos: Ciudadanía, Agenda, Documentos, Intervención, Prestaciones
 - **Probar en staging** con un usuario `consulta_basica` y otro `tramitacion` adscritos a un centro: inicio en el buscador, ficha (estado de la historia, citas, documentos del día), alta, relaciones, citación y retirada de un documento. La migración de permisos y la de retirada se aplican con el despliegue.
 - **Layout de la ficha y del buscador para `tramitacion`:** `FichaCiudadanoPage`, `BuscarCiudadanoPage` y `AltaCiudadano` fijan `layouts.operativo`, así que tramitación los ve con el menú operativo (que ya solo muestra búsqueda, alta y citación sin `intervencion`). La citación ya usa su layout (`User::layoutOperativo()`); extenderlo a esas tres pantallas.
 - **Decisiones de interfaz que aún miran el rol en la ficha y el alta:** «Ir a HS» y el menú operativo reproducen el middleware `role:intervencion` de las rutas de Intervención (documentado); el tipo de atención del modal «Nueva atención» se oculta a `consulta_basica` por rol, y `AltaCiudadano` ofrece las excepciones de padrón PSH y VVG por rol (`intervencion`/`supervision`). Pasarlos a permisos cuando se revise el registro de atención.
-- **Bandeja de alertas y mensajes para `consulta_basica`:** recibe los avisos de solicitud de cita como toast, pero la bandeja de mensajes vive en rutas `role:intervencion` y no la tiene en su menú.
+- **Bandeja de alertas y mensajes para `consulta_basica`:** recibe los avisos de solicitud de cita como toast, pero no tiene la bandeja: su ruta exige `agenda.ver_propia` o `derivacion.ver_asignadas` (R4 y encargo), y `consulta_basica` no tiene ninguno de los dos.
 - **Retirar documentos fuera del día:** solo se retiran los propios del día. Si hace falta que intervención o supervisión retiren un documento subido por error, decidir quién y añadir la acción (el servicio ya existe: `CicloVidaDocumentoService::retirar()`).
 - **Avisos duplicados:** un usuario con `consulta_basica` y `tramitacion` a la vez recibe dos avisos por cada solicitud de cita (uno por rol, `AvisosCitas::solicitudCreada()`).
 
@@ -239,7 +236,6 @@ Módulos: Prestaciones, Intervención, Documentos
 - **Unidades tramitadoras reales:** la migración dejó las prestaciones de expediente externo con unidad «centro de solicitud». Configurar en el panel la UO que tramita cada una (p. ej. un servicio central de SAD) y sus formularios y documentos exigidos.
 - **Pendientes del diseño (§8 de `modulo-solicitudes-expedientes.md`):** listas de espera de prestaciones con plaza, aviso por demora de inicio, integración con proveedores para el inicio efectivo, cofinanciación e HSU, indicadores.
 - **Reasignar una solicitud tomada** (la supervisión, según TF-SOL-12): no hay acción; hoy solo la suelta quien la tiene.
-- ~~**Bandeja de tramitación sin buscador de personas ni enlace a la ficha**~~ Hecho el 2026-11-15 (fase 4): el menú de tramitación tiene «Citación» y «Buscar ciudadano/a».
 - **Prescripciones de plaza abiertas desde Recursos** (sin pasar por «Solicitar prestación») no tienen prestación y no crean prestación de la persona al asignarse.
 - **Prestaciones de la persona en el expediente (`CiudadanoPage`):** solo el resumen de la cabecera; el bloque completo está en la ficha (Ciudadanía).
 
@@ -250,8 +246,8 @@ Módulos: Intervención, Supervisión, Centro, Prestaciones
 - **«Cambiar referencia» en Mi equipo y en la bandeja de asignaciones** (E1): de momento solo está en la ficha (`intervencion.cambio-referencia`). El componente se puede incrustar tal cual.
 - **Supervisión de UO superiores y referencias:** `cambiarManual()` exige ahora supervisión **adscrita** al centro (TF-CIR-37). La bandeja de asignaciones «sin referencia» deja de poder resolverla una coordinación de UO superior que entre por el selector de centro. Confirmar que es lo querido o abrir una excepción para la bandeja.
 - **Centro obligatorio en el modelo:** hoy lo exige `PlanDeIntervencionService::crear()`; las factorías y los escenarios de demo crean planes sin centro. Pasarlo al modelo cuando los escenarios de demo y las factorías lo den (y queden resueltos los planes antiguos sin centro deducible).
-- **`PlanPage::asignarTipoPlan()`** (planes antiguos sin tipo): no pasa por las reglas del servicio (tipo del centro, uno vigente por tipo); si choca con el índice único, salta una excepción de base de datos. Llevarlo al servicio.
-- **Datos antiguos tras la migración:** 25 planes cerrados sin tipo (no se tocan) y 1 PISO tipado con historia en el CIAM Puente de Vallecas (se queda como PISO).
+- **`PlanPage::asignarTipoPlan()`** (planes antiguos sin tipo; hoy no queda ninguno, así que solo importa para datos importados): no pasa por las reglas del servicio (tipo del centro, uno vigente por tipo); si choca con el índice único, salta una excepción de base de datos. Llevarlo al servicio.
+- **Datos antiguos tras la migración:** 1 PISO tipado con historia en el CIAM Puente de Vallecas (se queda como PISO). Ya no queda ningún plan sin tipo (27 nov: 0 de 50).
 - **Contador de derivaciones pendientes en el menú de Supervisión** (como el de asignaciones).
 - **`AsignarPlazaModal::coleccionesDelCentro()`** decide el centro por `Profesional::unidad_organizativa_id` (dato antiguo) y no por `CentroDeUsuario`: un profesional sin ese campo no ve plazas.
 - **`CuadranteSupervisorTest` (Agenda) falla también sin la fase 3** (2 tests: «franjas atención muestran horas correctas» y «publicar dos veces no duplica slots»), visto el 14 nov 2026 (sábado): probablemente dependen de la fecha. Revisar con `Carbon::setTestNow()`.
@@ -299,86 +295,37 @@ Módulo: transversal / dependencias
 
 ---
 
-**~~Citas: delta de la revisión del 30 sep~~** — 2026-11-10 · **Cerrado el 2026-11-15** (fase 4: historial de citas en la ficha, `cita.ver_historial` y permisos `citas.*` de `tramitacion`; ver `CHANGELOG-112026.md`).
-Módulos: Agenda, Ciudadanía
-`docs/modulo-citas.md` se implementó el 2026-09-30 sobre la versión de la mañana; la revisión de la tarde (incorporada al repo el 2026-11-10) añade reglas que no están en el código:
-- **§6 bis — historial de citas en la ficha del ciudadano** para `consulta_basica` y `tramitacion`: pasadas y programadas de cualquier centro, con etiqueta pública, centro, profesional, modalidad y estado; reprogramadas agrupadas con su sustituta; reprogramar y cancelar desde ahí las de su UO (no las propias). `FichaCiudadanoPage` no tiene ese bloque: solo usa citas para vincular el registro de atención (`citaVinculable()`, línea 1069) y el botón «Dar cita» (`puedeDarCita()`, línea 1081). Falta también el permiso `cita.ver_historial` (`docs/roles-consulta-basica-tramitacion.md` §5).
-- **`tramitacion` en citas (§7, ⏸):** la migración `2026_09_30_120006_add_permisos_citas.php` no le da permisos `citas.*`. Se implanta con el resto del rol (diferido).
-- **RN-05 ter ya se cumple** (gestión limitada a centros de la UO del usuario): `CitaPolicy::citar()` (línea 55), `gestionaAjena()` (línea 152) y `SolicitudCitaPolicy::verBandeja()/gestionar()` (líneas 37 y 49) usan `AlcanceCentro::incluye()` (UO activas del usuario), y `CitacionService` autoriza con ellas (líneas 72, 133, 160–161 y 216). No requiere cambios.
-Se implementa junto con `consulta_basica` (ver la entrada siguiente).
-
----
-
-**~~`consulta_basica`: diseño cerrado sin instrucciones de implementación~~** — 2026-11-10 · **Cerrado el 2026-11-15** (fase 4, `docs/instrucciones-cli/2026-11-fase4-consulta-basica.md`, TF-CBA-01 a 30; ver `CHANGELOG-112026.md`).
-Módulos: Usuarios, Ciudadanía, Agenda, Documentos
-`docs/roles-consulta-basica-tramitacion.md` §3. Faltan instrucciones CLI y tests. Incluye la ficha por rol (§3.1: sin prestaciones ni situación social, sin banner de protegido), el bloque de estado de la Historia Social con profesional de referencia, el historial de citas (`docs/modulo-citas.md` §6 bis), el alta de ciudadanos, la edición de relaciones, los documentos propios del día (retirada lógica y vínculo con solicitud aún no existen en la custodia v2: `docs/modulo-documentos.md` §2.1) y los permisos nuevos de §5.
-
----
-
-**~~Tipo de Centro: en ejecución~~** — 2026-11-10 · **Cerrado el 2026-11-13** (pasos 1 a 10, TF-TCE-01 a 60; ver `CHANGELOG-112026.md`). Lo que queda va en «Tipo de Centro: decisiones pendientes del diseño» y «Tipo de Centro: interfaz, pendientes».
-Módulos: Centro, Organización, Prestaciones, Agenda, Intervención, Usuarios
-Diseño (`docs/modulo-tipo-centro.md`), instrucciones (`docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md`) y tests TF-TCE-01 a 34 (`docs/instrucciones-cli/2026-10-tipo-centro-tests.md`) en el repo. Se sigue la rama A (la asignación ya está implementada). Depende de la decisión sobre varias UO con varios centros (ver «Perfil horario por defecto: pendientes») y de que los centros de un mismo tipo tengan la misma configuración de asignación (ver el aviso en «Asignación de centro y referencia: pendientes»).
-
----
-
 **Requisitos de acción y tareas guiadas — en análisis** — 2026-11-10
 Módulos: transversal
-`docs/propuesta-requisitos-y-tareas-guiadas.md`, con bastante por decidir (sus apartados «Por decidir»). Dependencias: TipoCentro (ver «Tipo de Centro: listo para ejecutar»), varios centros por UO (ver «Perfil horario por defecto: pendientes») e inscripción de ciudadanos en actividades (ver «Actividades grupales — gestión completa»).
+`docs/propuesta-requisitos-y-tareas-guiadas.md`, con bastante por decidir (sus apartados «Por decidir»). Sus dependencias ya están resueltas: Tipo de Centro (13 nov), centro y UO 1:1 (D1, 13 nov) e inscripción en actividades (fase 6, 17 nov).
 
 ---
 
 **Acceso a expedientes: pendientes tras AccesoExpediente** — 2026-10-02
 Módulo: Ciudadanía / Intervención / Supervisión
-- ~~**Personas relacionadas sin filtro de protegido:**~~ Cerrado el 2026-11-11 (B1, TF-ACC-PR-01 a 08): `App\Services\PresentacionPersona` en ficha, expediente, plan (pantalla y PDF), alta de documentos, buscadores y bandeja; acciones rechazadas en servidor. Ver `CHANGELOG-112026.md`.
-- ~~**`VerFichaPage` no comprueba que la ficha pertenezca a la historia**~~ Cerrado el 2026-11-12 (B2, TF-ACC-17, 18 y 18 bis): `Ficha::perteneceAHistoria()` en `mount()`; una ficha de otra historia responde 404 sin datos. Ver `CHANGELOG-112026.md`.
-- ~~**Búsqueda por documento en `BuscarCiudadanoPage`**~~ Cerrado el 2026-11-12 (B4, TF-ACC-21 a 22): coincidencia exacta por `CiudadanoIdentificador::hashDe()`, sin filtrar por UO; `hsu` filtra por `ni_hsu_cm`. Ver `CHANGELOG-112026.md`.
 - **Normalización de los documentos de identidad** (2026-11-12, visto en B4): el alta (`AltaCiudadano`, por `NormalizadorCiudadano::documento()`) guarda el NIF en mayúsculas sin espacios ni guiones y el NIE **con guiones** (`X-1234567-L`); la ficha (`FichaCiudadanoPage::guardarDocumento()`) guarda el valor tal como se escribe. Como `valor_hash` solo pasa a minúsculas, la búsqueda exacta (buscador, citas, matching, cita externa) encuentra o no según por dónde se guardó y cómo se escriba: `X1234567L` no encuentra un NIE dado de alta en el alta, y `12345678-Z` no encuentra `12345678Z`. Los 2 NIE de la BD compartida están sin guiones. Propuesta: una forma canónica única (mayúsculas, sin espacios ni guiones) en `hashDe()` y en lo guardado, con una migración que recalcule `valor_hash` de los existentes; no se ha hecho porque cambia lo guardado (instrucción B4).
-- ~~**Bandeja de asignaciones con protegidos:**~~ Cerrado el 2026-11-13 (RN-19, TF-TCE-53): la supervisión adscrita al centro la ve con identidad y la resuelve; la de una UO superior la ve sin identidad y no puede resolverla. Antes: el supervisor veía «Persona con protección especial» y puede resolver la entrada sin saber de quién es. Decidir si la bandeja de la UO responsable debe verla siempre (hoy sin historia la policy pide acceso aprobado).
 - **`AuditarAccesoCiudadano`** ya no cubre ninguna ruta útil (la ficha audita en el servicio). Valorar retirarlo o aplicarlo a las rutas `{historia}` como red de seguridad sin duplicar filas.
-- ~~**`guardar()` de la ficha** sigue decidiendo por rol~~ Cerrado el 2026-11-12 (B3, TF-ACC-19 a 20 quater): `guardar()` autoriza con `Gate::authorize('update')` y `puedeEditar()` delega en la policy. Ver `CHANGELOG-112026.md`.
-- **Relaciones de la ficha fuera de la UO** (2026-11-12, visto en B3): `FichaCiudadanoPage::puedeEditarRelaciones()` sigue decidiendo por rol (`intervencion`, `tramitacion`), así que en consulta libre (nivel 2) se pueden crear, editar y cerrar relaciones de una persona de otra UO, aunque sus datos ya son de solo lectura. Decidir si pasa también por `CiudadanoPolicy::update` (y lo mismo para la UC del expediente).
 - **`CiudadanoPolicy::create()` y `delete()` con supervisión y otro rol** (2026-11-12): el 12 nov se decidió que en `update()` gane el otro rol (supervisión solo bloquea si el usuario no tiene otro rol con `ciudadano.editar`). `create()` y `delete()` siguen bloqueando a todo usuario con `supervision`. Decidir si se igualan.
-- **`VerFichaPage`: el autor de la ficha nunca se muestra** (2026-11-12, visto en B2): la vista lee `$ficha->profesional?->name`, pero `Ficha` no tiene relación `profesional` y siempre sale «—». Además, `RegistrarValoracionPage` guarda `profesional_id = auth()->id()` (id de usuario), así que la relación sería con `User` y el nombre, `nombreVisible()`. Fuera del alcance de B2.
 - **`Ficha`: doble vínculo con la historia** (2026-11-12): `historia_id` (el que se usa) y `valoracion_id` (nulo en todas las fichas de la BD compartida a 2026-11-12, 11 fichas). `perteneceAHistoria()` usa la valoración solo si `historia_id` es nulo. Cuando se cierre el TODO de vincular siempre a `Valoracion`, mantener `historia_id` o derivarlo, pero no dejar dos fuentes que puedan discrepar.
 
 ---
 
 **Supervisión: «Aprobaciones» fuera del menú** — 2026-11-11
 Módulo: Supervision
-Se retiró del menú el 2026-06-29, cuando la pantalla no tenía contenido operativo. Desde el 2026-09-25 resuelve las solicitudes de rol y de acceso, y `docs/modulo-usuarios-permisos.md` y el CHANGELOG hablan de «Supervisión → Aprobaciones». Hoy solo se llega desde la zona de aprobaciones de Inicio (si hay pendientes) y desde las alertas. Decidido el 2026-11-11 dejarlo así; reconsiderar si los supervisores no la encuentran. `Sidebar::aprobacionesPendientes()` (computed) ya no lo usa la vista: retirarlo o volver a usarlo según se decida.
-
----
-
-**✅ CERRADO 2026-11-11 — ~~Suite de tests: Supervisión no se ejecuta~~** — 2026-09-30
-Módulo: transversal
-`Modules/Supervision/tests/Feature` está en la suite `Feature` de `phpunit.xml` (único fichero: `tests/Feature/Livewire/SupervisionTest.php`). `Modules/Supervision/tests`: 38 passed. Los tres fallos eran tests desfasados:
-- `sidebar_sin_plazas_no_muestra_item_plazas`: «Aprobaciones» se retiró del menú a propósito el 2026-06-29 (`3eb4458`, «pantalla sin contenido operativo»), sin entrada en el CHANGELOG. Confirmado por el desarrollador el 2026-11-11: el test pasa a exigir que no esté. Los tests del badge (B03/B04) pasaban en vacío y ahora comprueban el contador de `SupervisionSidebarDataService`. Ver la entrada «Supervisión: "Aprobaciones" fuera del menú».
-- `ficha_profesional_muestra_tres_pestanas`: las pestañas se retiraron el 2026-06-29 (`a81f340`, «eran stubs») y se sustituyeron por el botón «Perfil horario» de cada fila. Reescrito como `el_perfil_horario_se_abre_desde_la_fila_del_profesional_con_cuenta`.
-- `auditoria_con_colectivos_muestra_columna_protegido`: ver «TF-SUP-F03 falla» (cerrada).
-La viñeta «Tipo de slot genérico en modo básico» pasa a «Citas: pendientes de la fase».
-
----
-
-**~~Borrar un usuario con casos vigentes~~** — 2026-10-01 · **Cerrado el 2026-11-13** (D5, RN-20 a 23): no se borra nadie; «Desactivar» y la salida de un centro se rechazan con casos de referencia o citas confirmadas pendientes, con enlaces al reparto y a la gestión de ausencias (`decisiones-tecnicas.md` §15). Las relaciones a `User` (planes, apuntes, entrevistas) ya no pueden apuntar a un borrado nuevo.
-Módulo: Usuarios / Asignación
-- Filament permitía dar de baja (soft delete) a un profesional que aún es referencia de casos; esos casos quedan con un profesional borrado hasta que el supervisor los reparte. Desde el 2026-10-01 la actividad del equipo lo muestra con «Dado de baja», pero conviene decidir si el borrado debe avisar, bloquearse o lanzar el reparto por salida (RN-08). Revisar también otras relaciones a `User` del módulo (planes, apuntes, entrevistas) que no incluyen borrados.
+Se retiró del menú el 2026-06-29, cuando la pantalla no tenía contenido operativo. Desde el 2026-09-25 resuelve las solicitudes de rol y de acceso, y `docs/modulo-usuarios-permisos.md` y el CHANGELOG hablan de «Supervisión → Aprobaciones». Hoy solo se llega desde la zona de aprobaciones de Inicio (si hay pendientes) y desde las alertas. Decidido el 2026-11-11 dejarlo así; reconsiderar si los supervisores no la encuentran. (El computed `Sidebar::aprobacionesPendientes()` ya se retiró; el contador sigue en `SupervisionSidebarDataService`.)
 
 ---
 
 **Perfil horario por defecto: pendientes** — 2026-10-01
 Módulo: Agenda / Supervisión
 - El horario por defecto va de apertura a cierre sin pausa (en el CIAM son 45 h/semana). Valorar descontar una pausa o usar la jornada estándar del tipo de relación.
-- ~~Si una UO llega a tener varios centros, el profesional recibe un perfil en cada uno; habría que decidir el centro de destino al adscribir.~~ Cerrado el 2026-11-13 (D1): una UO tiene como mucho un centro (RN-14); el perfil se crea por adscripción a centro.
-- ~~«Mi equipo», el cuadrante y la asignación resuelven el centro con `Centro::where('unidad_organizativa_id', …)->first()` repetido en varias páginas: extraerlo a un único sitio.~~ Cerrado el 2026-11-13: `CentroDeUsuario` (`centroActivo()`, `centroSupervisado()`).
-- ~~Las fichas de profesional sin cuenta de usuario no pueden tener horario ni entrar en el sorteo; Mi equipo no lo indica.~~ Resuelto el 2026-10-02: badge «Sin cuenta de usuario».
-- ~~Varias UO con varios centros: el desarrollador lo está pensando (2026-10-02).~~ Decidido el 2026-11-11 (D1 del plan de cierre) e implementado el 2026-11-13: UO de centro 1:1, ámbito por las jerarquías orgánica y funcional, profesional multicentro con centro activo.
 
 ---
 
 **CI «Calidad de código» (PHPStan + Pint) en rojo** — 2026-09-29 · 2026-10-01 · 2026-11-11
 Módulo: transversal
 *(2026-11-10: fundidas las dos entradas del 2026-09-29 y del 2026-10-01. 2026-11-11: medido y reescrito, punto A3 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`.)*
-El workflow falla desde junio de 2026 (último verde: `80c3325`, 2026-06-27); el despliegue no depende de él. Desde el 2026-11-11 `analyse-ci` usa `--memory-limit=2G`. En CI ya terminaba con 512M (1 min 36 s): el fallo es por errores, no por memoria. En la máquina de desarrollo (1 CPU, 1 GB) el análisis paralelo no termina; hay que lanzarlo por módulo con `--debug` (sin workers).
+El workflow falla desde junio de 2026 (último verde: `80c3325`, 2026-06-27) y sigue en rojo el 27 nov (las anotaciones del run 45983064405 son de Agenda: `missingType.iterableValue` en `SemanaTypoComponent`, `PerfilHorarioComponent`, `ExcepcionesComponent` y `CuadranteMesComponent`, `return.type` en `HistorialCitasFicha::grupos()`, `nullsafe.neverNull` en `CitaCierreJob`); hay que repetir el recuento; el despliegue no depende de él. Desde el 2026-11-11 `analyse-ci` usa `--memory-limit=2G`. En CI ya terminaba con 512M (1 min 36 s): el fallo es por errores, no por memoria. En la máquina de desarrollo (1 CPU, 1 GB) el análisis paralelo no termina; hay que lanzarlo por módulo con `--debug` (sin workers).
 
 **Recuento (2026-11-11, local por módulo, 281 errores; CI daba 287 sobre `584d5ad`)** por identificador:
 
@@ -401,8 +348,7 @@ Ningún fallo real pendiente con corrección local evidente: el único (`Resoluc
 
 **Propuesta para `argument.templateType`:** el docblock de `LivewireManager::test()` (Livewire 4.4.8, la última) declara `class-string<TComponent>|TComponent|string|array`, y con ese `|string` PHPStan no infiere `TComponent` aunque se pase `Componente::class` (comprobado con `dumpType`: `Testable<Livewire\Component>`). No hay extensión ni stubs oficiales de Larastan para Livewire. Propuesta: en `phpstan.neon`, `ignoreErrors` con `identifier: argument.templateType` limitado a `Modules/*/tests/*` y `tests/*`, y retirar del baseline las entradas equivalentes. Los `property.notFound`/`method.notFound` de tests sobre `Livewire\Component` tienen la misma causa (`Testable` no conoce el componente) y seguirían; para ellos no hay solución sin ignorar también esos identificadores en tests. Pendiente de decisión del desarrollador (no se amplía el baseline).
 
-*2026-11-13: resuelto. El auto-commit sí llegó a funcionar (`db260c7`, 382 ficheros, quitó los `@return`); revertido, `"no_superfluous_phpdoc_tags": false` en `pint.json` y Pint pasado en local con esa configuración (decisión del desarrollador). Queda abierto si el CI debe seguir commiteando o pasar a `pint --test`.*
-**Pint y PHPDoc (decisión pendiente):** el preset `laravel` de `pint.json` incluye `no_superfluous_phpdoc_tags`, que borra los `@param`/`@return` obligatorios por `CLAUDE.md` §2 (277 de los 334 ficheros que Pint cambiaría). El paso «Commit cambios de formato» del workflow no llega a commitear nada porque `file_pattern: "vida/**/*.php"` se expande en el shell sin `globstar` (solo `vida/*/*.php`); si se arreglara el patrón sin más, el CI borraría los docblocks en cada push. Propuesta: `"no_superfluous_phpdoc_tags": false` en `pint.json` y, después, pasar Pint a `--test` en CI (o arreglar el patrón del auto-commit).
+*2026-11-13: resuelto. El auto-commit sí llegó a funcionar (`db260c7`, 382 ficheros, quitó los `@return`); revertido, `"no_superfluous_phpdoc_tags": false` en `pint.json` y Pint pasado en local con esa configuración (decisión del desarrollador). Queda abierto si el CI debe seguir commiteando (`quality.yml`, paso «Commit cambios de formato») o pasar a `pint --test`.*
 
 **Actualizaciones disponibles** (sin aplicar, para no cambiar la medición): `larastan/larastan` 3.10 → 3.14, `phpstan/phpstan` 2.2.1 → 2.3.5.
 
@@ -413,7 +359,6 @@ Módulos: Agenda, Atención, demo
 - **Citas en los mundos demo (paso 10, pospuesto por decisión del desarrollador):** los mundos demo no crean agenda (horario de centro, tipos de slot, cuadrante publicado ni slots), y una cita necesita un slot libre: `CitacionService::citarDirecto()` no basta. Hace falta una agenda mínima para el centro demo (horario, tipo de slot enlazado a tipos de cita, cuadrante publicado y slots de las próximas semanas de los TSR) y después dar citas en algunos escenarios (`TrayectoriaNueva`, `TrayectoriaActiva`). Solo se podrá probar con tests: `demo:reset` no se lanza desde local (BD compartida con staging).
 - **Contrato con Cita Previa:** mapeo de servicios a tipos de cita, datos de identificación que envía y reconciliación. Hoy solo el mock (`MockCitaPrevia`). Ver `docs/modulo-citas.md` §11.
 - **Indicadores de citas** (demora, incomparecencias, atención por sustituto, reprogramaciones): con el módulo de analítica (principio 3.14). El historial (`cita_eventos`) ya guarda los datos.
-- ~~**Buscador de personas de citación y colectivos protegidos:**~~ Cerrado el 2026-10-02 (TF-ACC-09): por documento exacto aparece solo «Persona con protección especial», sin nombre, documento ni opción de citar.
 - **Gestión de citas desde la agenda del centro:** reprogramar y cancelar se hacen desde el detalle de la cita, al que se llega por la pestaña «Citas del día» de la bandeja de citación. El cuadrante del supervisor aún no enlaza las citas con su detalle.
 
 - **Tipo de slot genérico en modo básico:** `modulo-agenda.md` prevé un tipo «Cita» automático para los centros en `modo_agenda = basico`, pero no existe ni hay forma estable de identificarlo (`tipos_slot` no tiene código). Hoy también el horario básico debe tener sus tipos elegidos en Filament. *(movida el 2026-11-11 desde «Suite de tests: Supervisión no se ejecuta»)*
@@ -421,28 +366,22 @@ Módulos: Agenda, Atención, demo
 
 **Asignación de centro y referencia: pendientes** — 2026-09-30
 Módulos: Centro, Intervención, Ciudadanía, geocodificación
-- **Adaptador real de la BDC** (`BdcGeocodificador`): NDP, distrito, barrio y sección, código INE de la sección y conversión UTM (ETRS89 30N) → WGS84. Hoy solo el mock rellena los códigos. Ver `docs/geocodificacion.md` §6.
+- **Adaptador real de la BDC** (`BdcGeocodificador`): NDP, distrito, barrio y sección, código INE de la sección y conversión UTM (ETRS89 30N) → WGS84. Hoy solo el mock rellena los códigos. Ver `docs/geocodificacion.md` §6. Desde el 25 nov, en Madrid los códigos los da el adaptador `callejero` (activo en staging): decidir si la BDC sigue haciendo falta.
 - **Decisiones pendientes de `docs/modulo-asignacion.md` §11:** personas sin hogar (asignación por coordenadas de pernocta y zonificación de equipos de calle; hoy, «quien abre» y centro manual); asignación geográfica de profesionales (zonas por profesional); cambio a petición de la persona y cupos; fórmulas mixtas de centro (elegir dentro del distrito); procedimiento de revisión de secciones censales y reasignación por NDP.
-- ~~**Cambiar la referencia de un caso ya asignado desde la interfaz:**~~ Cerrado el 2026-11-14 (fase 3, bloque E, TF-CIR-36 a 38): acción en la ficha para la supervisión adscrita al centro. Antes: el servicio existe (`AsignacionReferenciaService::cambiarManual()`, TF-ASG-30), pero la pantalla solo lo usa para historias sin referencia (bandeja) y en el reparto. Falta la acción del supervisor en la ficha o el expediente (conflicto, parentesco, corrección…).
-- ~~**Autorización por centro en los servicios:**~~ Cerrado el 2026-11-14 (fase 3, E4): los tres métodos comprueban el centro. Antes: `AsignacionCentroService::asignarManual()/descartar()` y `AsignacionReferenciaService::cambiarManual()` exigen rol `supervision`, pero no que el supervisor lo sea del centro afectado; hoy lo garantiza la pantalla. Valorar moverlo al servicio, como ya hace `RepartoCasosService`.
-- ~~**Colectivos protegidos en la bandeja:**~~ Cerrado el 2026-10-02 (TF-ACC-10): sin nombre ni enlace si la policy no deja ver a la persona. Queda por decidir cómo resuelve el supervisor una entrada que no puede identificar (ver «Acceso a expedientes: pendientes»).
-- **Configurar los centros reales en staging:** tras el despliegue todos quedan en `quien_abre` y sin tipo. Para probar el sorteo hay que dar tipo, ámbito y modo a algún centro en Filament. **Aviso (2026-11-10):** el paso 3 de `docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md` aborta si dos centros del mismo tipo tienen distinto modo de asignación, ventana o segmentos. Al configurar centros para probar el sorteo, configurar igual todos los del tipo.
+- **Configurar los centros reales en staging:** ver también los ámbitos sin configurar en «Domicilio con el callejero oficial de Madrid». Para probar el sorteo hay que dar tipo, ámbito y modo a algún centro en Filament. **Aviso (2026-11-10):** el paso 3 de `docs/instrucciones-cli/2026-10-tipo-centro-implementacion.md` aborta si dos centros del mismo tipo tienen distinto modo de asignación, ventana o segmentos. Al configurar centros para probar el sorteo, configurar igual todos los del tipo.
 
 ---
 
 **Bootstrap único: pendientes fuera del plan** — 2026-09-28
 Módulo: Frontend / Filament
-- **Tema de Filament con la paleta antigua:** `resources/css/filament/admin/theme.css` conserva `success` #4B8A5B, `warning` #B8852F, `danger` #B0432E e `info` #3F6E99, que no son los canónicos (ver anexo A de `docs/instrucciones-cli/2026-09-bootstrap-unico.md`) y en success/warning no llegan a AA. Filament queda fuera del plan; decidir si se alinea.
 - **R5 da por usada una clase que coincide con un nombre de vista o ruta.** Valorar excluir de la búsqueda de usos las cadenas `vista::…`/`route('…')`.
-- **Tests con fallo previo detectados al migrar**: TF-AUTH-16/17 (`User::name` devuelve el correo en la portada `inicio`), `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`; corregido el 2026-11-15), Agenda (columna `horario_centro_id` inexistente en `tipos_slot` en `vida_testing`; `foreach` sobre cadena en `cuadrante-supervisor-page`).
-- **Vistas públicas con clases sin definir:** `welcome-page__hero`, `welcome-page__summary-section` (welcome) y `auth-card__form` (login). Se resuelven en la fase 3.
 
 ---
 
 **Frontend: rendimiento de las pantallas grandes (revisión de Grok, fases 6 y 7)** — 2026-09-29
 Módulo: Intervención / Ciudadanía / Mensajes
 Detalle en `docs/front/revision-frontend-ui.md` §6 y `docs/front/plan-correccion-frontend-ui.md` fases 6 y 7.
-- **`CiudadanoPage`** (1.131 líneas, ~20 `#[Computed]`) y **`plan-page`** (~66 KB): un buscador `wire:model.live` (UC en el expediente, `relacionBusqueda` en la ficha) vuelve a pintar toda la pantalla. Partir en componentes hijos (timeline, accesos, UC, herramientas).
+- **`CiudadanoPage`** (1.592 líneas el 27 nov) y **`plan-page`** (~66 KB): un buscador `wire:model.live` (UC en el expediente, `relacionBusqueda` en la ficha) vuelve a pintar toda la pantalla. Partir en componentes hijos (timeline, accesos, UC, herramientas).
 - **Consultas en la vista:** `\App\Models\Ciudadano::find($ucCiudadanoSeleccionado)` en `ciudadano-page.blade.php`; `$datos`, `$doc` y `$yaEnPlan` dentro de bucles en `plan-page`; `Configuracion::logoUrl()` y `nombreAplicacion()` en cada request del shell.
 - **Toasts:** `wire:poll.60s` sobre todo el árbol de `AlertaToast` en todas las pantallas. No volver a Alpine con `wire:ignore`: el morph rompía el estado minimizado (ver CHANGELOG 2026-09-27). Buscar un polling más ligero (solo el contador).
 - `$herramientas` del expediente se reconstruye en cada render: sacarla a una constante.
@@ -452,14 +391,6 @@ Detalle en `docs/front/revision-frontend-ui.md` §6 y `docs/front/plan-correccio
 **Dato de sexo fuera del catálogo** — 2026-09-29
 Módulo: Ciudadanía
 En la BD compartida hay un ciudadano con `sexo = 'H'`, guardado desde la ficha antes de alinearla con el catálogo `ciudadano.sexo` (M/F/D). La ficha lo muestra tal cual («H»). Corregirlo desde la ficha (editar y guardar) para que quede versionado; no con un `UPDATE`.
-
----
-
-**✅ CERRADO 2026-10-02 (TF-ACC-01 a TF-ACC-12) — ~~La ficha del ciudadano no aplica la restricción de colectivos protegidos~~** — 2026-09-25
-Módulo: Ciudadanía (prioritario: restricción crítica de `CLAUDE.md` §3)
-`FichaCiudadanoPage::mount()` carga al ciudadano con `withoutGlobalScope(AmbitoUoScope::class)` y solo comprueba el rol; no llama a `CiudadanoPolicy::view`. Cualquier profesional con rol `intervencion`, `tramitacion`, `consulta_basica` o `supervision` puede abrir la ficha de una persona de colectivo protegido de otra UO sin acceso aprobado. Detectado al implementar `DocumentoPolicy`, que sí aplica la policy. Solución probable: `Gate::authorize('view', $c)` en `mount()` y un test en negativo.
-*2026-10-01: siguiente tarea tras probar asignación y citas en staging. Abordar a la vez los otros dos puntos que muestran personas protegidas: la bandeja de asignaciones del supervisor (nombre visible) y el buscador de personas de citación (`BuscadorPersonasCita`: por documento exacto sí la encuentra). Ver «Citas: pendientes de la fase» y «Asignación de centro y referencia: pendientes».*
-*2026-10-02: cerrado. Ficha, expediente, plan, valoración y ficha de valoración autorizan y auditan en `App\Services\AccesoExpediente`; las policies de historia y plan delegan el criterio de protegido en `CiudadanoPolicy::consultaExternaPermitida()`; el buscador de ciudadanos, el de citación y la bandeja de asignaciones no muestran nombre ni documento de un protegido sin acceso. Tests en `tests/Feature/Acceso/AccesoExpedienteTest.php` y TF-ACC-11 en `AccesoDocumentoTest`.*
 
 ---
 
@@ -481,16 +412,6 @@ Módulo: Mensajes
 
 ---
 
-**Suite completa con 75 fallos fuera de Documentos** — 2026-09-25
-*2026-11-12: suite completa con 1318 passed, 12 incomplete, 1 skipped y **un solo fallo**: `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`). Es lo único que queda de esta entrada.*
-*2026-11-15: corregido (el test creaba la historia con un ciudadano inexistente). Entrada cerrada; la FK que falta tiene entrada propia.*
-Módulos: Agenda, Mensajes, Ciudadanía, Autenticación, Intervención
-(2026-09-26: los 6 fallos de Mensajes están resueltos; `t_lw_09` se sustituyó por TF-MSG-PAN-10 al retirar `NuevoMensaje`.)
-Primera ejecución completa registrada (908 passed, 76 failed; el fallo de Documentos ya está corregido). Detalle por módulo en `CHANGELOG-092026.md` («Documentos: custodia v2, UI operativa y cierre»). La mayoría son de Agenda (esquema que no existe). En Ciudadanía, dos tests buscan un texto que ya no está en la ficha. Revisarlos antes de un merge a `main`.
-*2026-11-10: los de Agenda están corregidos (ver la entrada cerrada «Suite de `Modules/Agenda` rota»). Quedan: `AutorizacionDatosTest::servicio_historia_social_permite_actualizacion_con_permiso` (FK de `audits.ciudadano_id`; ver «Bootstrap único: pendientes fuera del plan») (TF-AUTH-16/17 y los 2 de Ciudadanía «Ver historia social» corregidos el 2026-11-11). Los 3 de Supervisión, corregidos e incluidos en `phpunit.xml` el 2026-11-11.*
-
----
-
 **Documentos — decisiones y mejoras pendientes de la custodia v2** — 2026-09-25
 Módulo: Documentos
 - Qué hito crea una retención `intervencion_cerrada` (`RetencionService::retener()` existe sin ningún evento conectado).
@@ -509,18 +430,6 @@ Módulo: Documentos
 
 ---
 
-**Cuatro ojos en la aprobación de roles: quien solicita un rol para otro puede aprobarlo** — 2026-09-25
-Módulo: Usuarios / Supervisión
-Desde 2026-09-25 nadie resuelve su propia solicitud de rol. Pero si un usuario tiene `adm_usuarios` y `supervision` en la misma UO, puede pedir `supervision` o `adm_sistema` para un compañero desde el formulario de usuarios y aprobarla él mismo en Supervisión → Aprobaciones (`usuario_rol.asignado_por` = quien aprueba). Decidir si se bloquea también ese caso; en instalaciones pequeñas puede no haber un segundo supervisor.
-
----
-
-**Destinatario de la alerta supervisada de roles: UO del usuario frente a «UO superior»** — 2026-09-25
-Módulo: Usuarios / Mensajes
-La sección 2.8 habla del «supervisor de la UO superior». `AsignacionRolesService` dirige la alerta al rol `supervision` de la UO de la primera adscripción vigente del usuario (a la raíz si no tiene adscripción), igual que las solicitudes de acceso a colectivos protegidos y que `AprobacionesPage`, que muestra al supervisor su propia UO y las inferiores. Confirmar si debe subir a la UO padre.
-
----
-
 **Local y staging comparten la misma base de datos `vida`** — 2026-09-24
 Módulo: Infraestructura
 Detectado en la Fase 0 del mundo «Prueba CIAM»: `~/code/vida-project/vida/.env` (`APP_ENV=local`) y `/var/www/vida-project/vida/.env` (`APP_ENV=staging`) apuntan a `vida@127.0.0.1`. Toda migración o `demo:*` lanzado «en local» se aplica sobre staging, y un `demo:reset` en local truncaría los datos de staging (incluidos los de otros equipos). Recomendación: crear una BD de desarrollo propia (p. ej. `vida_dev`) para el entorno local.
@@ -528,48 +437,9 @@ Detectado en la Fase 0 del mundo «Prueba CIAM»: `~/code/vida-project/vida/.env
 *2026-11-11: **aplazada por decisión del desarrollador** (A4 de `docs/instrucciones-cli/2026_11_estabilizacion_y_privacidad.md`). Con un solo desarrollador, compartir la BD garantiza ver lo mismo en local y en staging y evita cambiar de contexto. Reconsiderar al cerrar la versión 1.0. Mientras tanto siguen vigentes las precauciones: nada de `demo:reset` ni `migrate:fresh` desde local.*
 ---
 
-~~**No existe asociación tipo de plan ↔ centro / UO / servicio** — 2026-09-24~~ Cerrado el 2026-11-14 (fase 3): tipos de plan por tipo de centro desde la fase 2 y, con la fase 3, PIA en `ciam` y PISO en `css_general` en la BD compartida; `PlanDeIntervencionService` rechaza un tipo que el centro no ofrece (TF-CIR-04).
-Módulo: Intervención
-`PlanPage::tiposPlanes()` ofrece todos los tipos activos (`piso`, `pia`…) a cualquier profesional de cualquier centro. El punto 1.4 de `docs/instrucciones-cli/2026-09-demo-ciam-aditivo.md` (asociar `pia` al CIAM) se omitió por decisión del desarrollador: no se crea un mecanismo nuevo sin diseño. Decidir si el tipo de plan se restringe por centro, por UO (junto a `plan_nombre_*`) o por servicio especializado (`planes_intervencion.servicio_especializado_id`, hoy sin uso: la tabla `servicios` está vacía).
-*2026-11-10: resuelto en diseño por `docs/modulo-tipo-centro.md` (tipos de plan por tipo de centro, §6.2). Se cierra al implementar esa fase.*
-
----
-
-~~**La interfaz no permite crear planes especializados; `PlanPage` fija siempre `tipo = general_asp`** — 2026-09-24~~ Cerrado el 2026-11-14 (fase 3, bloque A): `tipo` se deriva del tipo de plan, el plan principal por `es_principal`, entrada directa y derivación (TF-CIR-01 a 07, 39 a 41).
-Módulo: Intervención
-`PlanPage::crearNuevoPlan()` guarda `tipo = TipoPlan::GeneralAsp` sea cual sea el `tipo_plan_id` elegido. Un «PIA» creado hoy desde la UI queda como plan general sin plan ASP, y `CiudadanoPage::pisoActivo()` / `MisCasosPage` lo tratan como el PISO de la persona. Los planes PIA del mundo «Prueba CIAM» sí son `especializado` (entrada directa). Pendiente: derivar `tipo` del `ambito` del tipo de plan al crear, y diseñar el flujo de creación de planes especializados (derivación desde PISO y entrada directa con `admite_entrada_directa`). Fuera del alcance de la sesión CIAM por instrucción explícita.
-*2026-11-10: Tipo de Centro no lo resuelve: solo filtra los tipos de plan ofrecidos. Prioritario para el CIAM.*
-
----
-
 **Retirada de los datos de mundos aditivos (etiqueta `TEST_CIAM`)** — 2026-09-24
 Módulo: Demo / World Building
 Todo lo creado por `demo:load` queda en `demo_world_registros` (`DemoWorldRegistro::de('TEST_CIAM')`), pero no hay comando de purga por etiqueta: por instrucción, la retirada se diseñará aparte (orden de borrado, soft vs hard delete, auditoría generada por la carga, filas pivote no registradas como `model_has_roles`, `actividad_profesional` y `sesion_actividad_profesional`).
-
----
-
-**✅ CERRADO 2026-11-10 — ~~Suite de `Modules/Agenda` rota: `tipos_slot.horario_centro_id` no existe en el esquema~~** — 2026-09-24
-*2026-11-10: cerrado. Paso 0 de citas (`CHANGELOG-092026.md`, «2026-09-30 — Agenda: tests en verde y fallos de la aplicación»): factories y `AgendaSeeder` enlazan por el pivote `horario_centro_tipo_slot`; `Modules/Agenda/tests` 173 passed el 2026-10-01 (SESSION).*
-Módulo: Agenda
-Al ejecutar la suite completa (verificación de una actualización de dependencias) se detectaron ~60 tests de `Modules/Agenda` fallando con `QueryException: column "horario_centro_id" of relation "tipos_slot" does not exist`. Reproducible también con las dependencias de Composer anteriores a la actualización de hoy — no relacionado con dependencias. Probable causa: el commit `3003283` ("convertir TipoSlot en catálogo global del sistema") eliminó esa columna del esquema pero algún factory o helper de test (`Modules/Agenda/database/factories/CitaFactory.php`, `AgendaSupervisorTestHelpers.php`, entre otros) sigue insertándola. Revisar si falta una migración por ejecutar en `vida_testing` o si el factory quedó desactualizado tras ese refactor.
-
----
-
-**✅ CERRADO 2026-11-11** — **TF-AUTH-16 y TF-AUTH-17 fallan: `User::booted()` sobreescribe `name` con el email siempre** — 2026-09-24
-*Cerrado: la UI usa `User::nombreVisible()` (nombre del Profesional vinculado o email) y los tests vinculan el usuario a un Profesional; `booted()` no cambia. Ver `CHANGELOG-112026.md`.*
-Módulo: Usuarios / Auth
-`User::booted()` (hook `creating`) hace `$user->name = $user->email;` de forma incondicional, incluso cuando se crea el usuario con un `name` explícito. Esto rompe `tests/Feature/Auth/AutenticacionTest.php::tf_auth_16_el_nombre_del_usuario_aparece_en_la_ui` y `tf_auth_17_las_iniciales_del_avatar_son_las_dos_primeras_letras_del_name`, que esperan ver "Juana López" y sus iniciales "JL" en la UI tras crear el usuario con ese nombre. Confirmado reproducible en `master` sin relación con ningún cambio de la sesión que lo detectó (soft delete de `User`, ver `docs/decisiones-tecnicas.md` Sección 13). Corrección probable: solo rellenar `name` con el email cuando `name` no se ha establecido explícitamente.
-
----
-
-**✅ CERRADO 2026-11-11 — ~~TF-SUP-F03 falla: columna "Colectivo protegido" en auditoría~~** — 2026-06-29
-Módulo: Supervision
-Confirmado: la marca «Colectivo protegido» solo se pinta en las filas de accesos y el test no creaba ninguno (la página mostraba el estado vacío). El test registra ahora, con `AuditService::registrarAcceso()`, un acceso a un ciudadano protegido de la UO del supervisor. TF-SUP-F02 usa el mismo acceso, para que su negativo no pase en vacío.
----
-
-~~**Notificaciones reales al TSR tras asignación de plaza** — 2026-06-26~~ Cerrado el 2026-11-14 (fase 3, bloque D): alerta por `AlertaService` al TSR vigente o a la supervisión; plaza libre también (TF-CIR-34 y 35).
-Módulo: Intervencion
-`AsignarPlazaModal::notificarTsr()` actualmente solo escribe en el log (`Log::info`). Pendiente implementar notificación real (alerta en bandeja o push) cuando se asigne una plaza a una prescripción de un ciudadano con TSR activo. El módulo de Mensajes deberá gestionar el formato final.
 
 ---
 
@@ -591,75 +461,17 @@ VIDA 360 almacena `sala_id` en `SesionActividad` como dato informativo de ubicac
 
 ---
 
-**Migraciones de slugs en tipos_actividad existentes** — 2026-06-25
-Módulo: Centro
-El campo `slug` se añadió como nullable para compatibilidad con datos existentes. Si hay filas en `tipos_actividad` previas al seeder, tendrán `slug = NULL` hasta que se editen en Filament o se ejecute `db:seed --class=CentroSeeder`. Pendiente: valorar añadir un comando artisan de migración de slugs (slugify del `nombre`) o documentarlo para los administradores del sistema.
-
----
-
-**~~Actividades grupales — gestión completa~~** — 2026-06-25 · **Cerrado el 2026-11-17** (fase 6, `docs/instrucciones-cli/2026-11-fase6-actividades.md`, TF-ACT-01 a 26; ver `CHANGELOG-112026.md`). Lo que queda va en «Fase 6 (actividades): pendientes».
-
----
-
-**Filtro por segmento en SelectorPrestacionesCentro** — 2026-06-08
-Módulo: Centro / Prestaciones
-Implementar el filtro por segmento de población en el selector de prestaciones del centro. Actualmente el filtro aparece en la UI (botones por segmento) pero no aplica ninguna restricción a la query de prestaciones.
-Razón: el campo `poblacion_destinataria` en `Prestacion` es un array JSONB de claves de `catalogos_sistema` (grupo `prestacion.poblacion`), no una FK a `segmentos_poblacion`. Para implementar el filtro es necesario definir un mapeo entre los segmentos de población del centro (`SegmentoPoblacion`) y las claves del campo `poblacion_destinataria`, o añadir una relación directa `Prestacion` ↔ `SegmentoPoblacion`.
-Ver: `app/Livewire/Centros/SelectorPrestacionesCentro.php` — comentario TODO en `prestacionesFiltradas()`.
-
----
-
 **TODOs activos en CiudadanoPage** — 2026-06-15
 Módulo: Intervención / Ciudadanía
 Varios TODOs documentados en `ciudadano-page.blade.php` que requieren trabajo pendiente:
 - `centroActivo()` en `CiudadanoPage.php` — pendiente de implementación. *2026-11-10: el TODO ya no está en la vista y el centro de la persona se ve en el bloque «Centro y referencia» de la ficha (asignación, 2026-09-30), pero la cabecera del expediente sigue sin mostrarlo. Sin cerrar.*
-- ~~DNI en cabecera — requiere `CiudadanoIdentificador::activo()` (tabla `ciudadano_identificadores` aún no existe).~~ *Resuelto (comprobado el 2026-11-10): `CiudadanoPage::ciudadanoDocumento()` lo lee de `documentoVigente` y la cabecera lo muestra (`ciudadano-page.blade.php:145`).*
-- Menú ⋯ contextual — sin implementar (sigue el TODO en `ciudadano-page.blade.php:106`).
-- `statPrestaciones()` devuelve null — pendiente integración con módulo Prestaciones (sigue igual, `CiudadanoPage.php:404`).
-
----
-
-**✅ CERRADO 2026-11-10 — ~~Tabla `ciudadano_identificadores` pendiente de crear~~** — 2026-06-10
-*2026-11-10: cerrado. La tabla existe desde el 2026-06-09 (migración `2026_06_09_100002_create_ciudadano_identificadores_table.php`, `CHANGELOG-062026.md`) y el DNI de la cabecera del expediente sale de ella (`CiudadanoPage::ciudadanoDocumento()`, `documentoVigente`). Sigue abierta la búsqueda por documento de `BuscarCiudadanoPage` (`buscarPorIdentificador()`, línea 143, devuelve vacío): ver «Acceso a expedientes: pendientes tras AccesoExpediente».*
-Módulo: Ciudadanía
-La búsqueda por `doc`/`hsu` en `BuscarCiudadanoPage` devuelve vacío con TODO. La tabla y modelo `CiudadanoIdentificador` no existen aún. Necesario también para `CiudadanoIdentificador::activo()` que se usa en cabecera de ciudadano.
-
----
-
-**✅ CERRADO 2026-11-10 — ~~UC en UI de intervención~~** — 2026-06-16
-*2026-11-10: cerrado. El expediente gestiona la UC (`CiudadanoPage`: modal y buscador de UC, `confirmarAnadirMiembro()`, `confirmarBajaMiembro()`, `verificarMiembro()`, `crearUc()`, líneas 612–732) y el bloque UC de la ficha enlaza la ficha de cada miembro (`ficha-ciudadano-page.blade.php:396`), sin TODO.*
-`Módulo: Ciudadanía / Intervención`
-Los modelos y migraciones de UnidadConvivencia están implementados.
-Pendiente: UI Livewire para gestión de UC dentro de la pantalla de intervención
-del ciudadano (añadir/dar de baja miembros, verificar residencia, ver composición).
-El botón "Ver ficha" en el bloque UC de `FichaCiudadanoPage` sigue apuntando a TODO.
-
----
-
-~~**Tabla `derivaciones` pendiente de crear** — 2026-06-01~~ Cerrado el 2026-11-14 (fase 3, bloque B): `derivaciones` y `derivacion_eventos`, `DerivacionService`, bandeja del destino; la herramienta de la caja se retiró (TF-CIR-15 a 27 y 43).
-Módulo: Intervención
-`crearDerivacion()` en `CiudadanoPage` crea solo el Apunte (tipo `derivacion`); la tabla y modelo `Derivacion` no existen. Añadir cuando esté disponible.
+- Menú ⋯ contextual — sin implementar (sigue el TODO en `ciudadano-page.blade.php:125`).
 
 ---
 
 **Búsqueda por nombre cifrado con índice hash determinista** — 2026-06-01
 Módulo: Ciudadanía
 `BuscarCiudadanoPage` carga ≤ 500 registros y filtra en PHP para evitar el problema de búsqueda sobre campos cifrados. Reemplazar por índice hash determinista cuando el módulo Ciudadanía esté completo.
-
----
-
-**✅ CERRADO 2026-11-10 — ~~Integración real de auditoría en BuscarCiudadanoPage (nivel 2)~~** — 2026-06-01
-*2026-11-10: cerrado el 2026-10-02 (`CHANGELOG-102026.md`, «Acceso: policy y auditoría de lectura de expediente»): `BuscarCiudadanoPage::registrarAccesoNivel2()` (`Modules/Intervencion/app/Http/Livewire/BuscarCiudadanoPage.php:207`) audita con `AccesoExpediente`, sin `Log::info` ni TODO.*
-Módulo: Ciudadanía / Auditoría
-El registro de acceso nivel 2 usa `\Log::info()` con TODO. Ya existe la tabla `audits` e `AuditService` desde 2026-06-14; pendiente conectar `BuscarCiudadanoPage` al `AuditService` en lugar del `\Log::info()`.
-
----
-
-**✅ CERRADO 2026-11-10 — ~~[Demo] Citas en escenarios de demo~~** — 2026-06-03 · *2026-09-30: la creación de citas ya existe, pero falta agenda en los mundos demo; ver «Citas: pendientes de la fase».*
-*2026-11-10: cerrada por duplicada: sigue como viñeta «Citas en los mundos demo (paso 10)» de «Citas: pendientes de la fase».*
-Módulo: Demo world-building
-Las trayectorias del sistema de demo no generan citas porque requieren `slot_id` (FK NOT NULL a la tabla `slots`) y toda la maquinaria de agenda (cuadrantes, perfiles horarios, excepciones). Pendiente para cuando el módulo Agenda exponga una API simplificada de creación de citas de test.
-Ver: `database/seeders/Demo/Scenarios/` — todos los escenarios tienen comentario explicit documentando la omisión.
 
 ---
 
@@ -692,17 +504,6 @@ Ver: `Modules/Intervencion/tests/Feature/Livewire/NavegacionTest.php`
 
 ---
 
-**Módulo Escalas fase 2 — Livewire de aplicación del pase** — 2026-05-26
-Módulo: Escalas / Intervención
-Componente Livewire para aplicar un pase de escala desde la Historia Social del ciudadano:
-selección de instrumento, presentación sección a sección, confirmación de instrucciones si
-`confirmar_instrucciones=true`, cierre del pase con cálculo de scores, y visualización del
-historial de pases por escala ordenado cronológicamente.
-Bloqueante: definir el punto de entrada desde la Historia Social (¿pestaña independiente?
-¿acción en la ficha de valoración?).
-
----
-
 **Clarificación licencia Zarit ZBI** — 2026-05-26
 Módulo: Escalas
 Contactar con Steven Zarit (Pennsylvania State University) para confirmar si el uso en un
@@ -720,39 +521,9 @@ Ref: `docs/modulo-escala.md §7.2`.
 
 ---
 
-**Conectar PrescripcionService al TSR activo del ciudadano** — 2026-05-18
-Módulo: Centros / Ciudadanía
-`PrescripcionService::liberarPlaza()` usa un resolver inyectable para el TSR activo del ciudadano.
-En producción debe conectarse al módulo Ciudadanía (o al registro de HistoriaSocial del módulo Intervención)
-cuando esté disponible. Actualmente el resolver por defecto devuelve null (sin actualización de alerta).
-Ref: `Modules/Centro/app/Services/PrescripcionService.php` — método `setTsrResolver`.
-
----
-
-**✅ CERRADO 2026-11-10 — ~~Implementar servicios pendientes del módulo Agenda (30 tests bloqueados)~~** — 2026-05-18
-*2026-11-10: cerrado. Existen `Services/CuadranteGeneratorService.php`, `Services/DisponibilidadService.php`, `Jobs/SlotExpirationJob.php`, `Services/GestionAusenciaService.php`, el ciclo de vida de `Cita` (`Models/Cita.php` `noShowCiudadano()`, `completar()`, `cancelar()`), el bloqueo y la liberación de slots de `EventoAgenda` (`Models/EventoAgenda.php:197` y `:222`) y PF-02.3 (`tests/Feature/PerfilHorarioTest.php:230`). No queda ningún `markTestIncomplete` en `Modules/Agenda/tests`; Agenda 173 passed el 2026-10-01.*
-Módulo: Agenda
-Tras implementar `SlotMaterializadorService`, quedan pendientes:
-- `CuadranteGeneratorService` (bloquea PF-03.1, PF-03.4, PF-03.5, PF-10.1)
-- `DisponibilidadService` (bloquea PF-04.2, PF-09.1, PF-09.2)
-- `SlotExpirationJob` (bloquea PF-04.4, PF-04.5, PF-06.3)
-- Lógica de ciclo de vida de `Cita` (bloquea PF-05.1, PF-05.2, PF-05.4–PF-05.8)
-- Bloqueo de slots al crear `EventoAgenda` (bloquea PF-04.3, PF-08.1–PF-08.4)
-- `GestionAusenciaService` (bloquea PF-06.1, PF-06.2, PF-07.1–PF-07.5)
-- Validación de solapamiento en `PerfilHorarioProfesional` (bloquea PF-02.3)
-Ver `docs/modulo-agenda.md §8` para detalle de cada test.
-
----
-
-**larastan/larastan — migración pendiente** — 2026-06-03
-Módulo: Tooling
-El paquete `nunomaduro/larastan` está marcado como abandonado upstream; el sucesor es `larastan/larastan`. Migrar en la próxima sesión de actualización de dependencias planificada.
-
----
-
 **Reducir baseline de PHPStan** — 2026-06-03
 Módulo: Tooling
-La baseline actual tiene 772 errores heredados. Reducirlos progresivamente en cada sesión de refactor.
+La baseline tenía 772 errores heredados en junio; el 27 nov tiene 523 entradas. Reducirlos progresivamente en cada sesión de refactor.
 Ref: `phpstan-baseline.neon`.
 
 ---
@@ -903,39 +674,6 @@ en ciudadanos, y decisión sobre nodos ligeros para personas no registradas.
 
 ---
 
-**✅ CERRADO 2026-11-10 — ~~Añadir TipoRelacionSeeder al DatabaseSeeder raíz~~** — 2026-06-16
-*2026-11-10: cerrado: `vida/database/seeders/DatabaseSeeder.php:47` llama a `TipoRelacionSeeder`.*
-`Módulo: Ciudadanía`
-El seeder existe (`TipoRelacionSeeder`) pero no está encadenado al DatabaseSeeder
-raíz del módulo ni al global. Añadir cuando se haga el primer deploy con datos
-del catálogo de relaciones.
-
----
-
-~~**UI del Plan de Intervención en CiudadanoPage**~~ — 2026-06-18 → **COMPLETADO 2026-06-19**
-`Módulo: Intervención`
-PlanPage Livewire implementado con diagnóstico, objetivos, actuaciones, participantes, firmas y PDF.
-
----
-
-**✅ CERRADO 2026-11-10 — ~~Instalar barryvdh/laravel-dompdf si no está~~** — 2026-06-18
-*2026-11-10: cerrado: `"barryvdh/laravel-dompdf": "^3.1"` en `vida/composer.json:10`.*
-`Infraestructura`
-El servicio PlanPdfService usa dompdf. Verificar si está instalado:
-`composer require barryvdh/laravel-dompdf`
-Documentar en SESSION.md tras instalación.
-
----
-
-~~**Seguimiento del plan — UI** — 2026-06-18~~ Cerrado el 2026-11-14 (fase 3, bloque C): evaluación de objetivos con propuesta de estado e historial de valoraciones (TF-CIR-28 a 33).
-`Módulo: Intervención`
-El modelo SeguimientoPlan ya existe (tests TF-INT-C). Pendiente: integrar el
-seguimiento en la UI de CiudadanoPage, con evaluación de objetivos por estado
-y programación del siguiente seguimiento.
-*2026-11-10: la programación del siguiente seguimiento ya existe (casilla «Programar siguiente seguimiento» al guardar una entrevista, `ciudadano-page.blade.php:417`; crea el `SeguimientoPlan` en `CiudadanoPage.php:1135` y pide la cita). Falta la evaluación de objetivos por estado: sin cerrar.*
-
----
-
 **Código de Primera Atención (PA)** — 2026-06-19
 `Módulo: Atención`
 Pendiente decidir si RegistroAtencion necesita un identificador visible
@@ -947,7 +685,8 @@ Ver sección 9 de docs/modulo-atencion.md.
 **Tipo actividad en RegistroAtencion** — 2026-06-19
 `Módulo: Atención / Centro`
 El tipo actividad está definido en el modelo pero sin UI ni generación
-automática. Se activa al implementar el módulo Centro (inscripciones).
+automática. La inscripción en actividades ya existe (fase 6, 17 nov), pero no crea registros de atención:
+`RegistroAtencion::crearDesdeOrigen()` solo lo usan los tests. Decidir si la asistencia a una sesión debe generarlo.
 La relación polimórfica `origen_tipo / origen_id` está preparada.
 
 ---
@@ -956,17 +695,6 @@ La relación polimórfica `origen_tipo / origen_id` está preparada.
 `Módulo: Atención`
 Definido en el modelo pero sin UI específica en fase 1. Se implementará
 cuando el módulo de Agenda esté operativo (llamadas de seguimiento).
-
----
-
-**✅ Resuelto 2026-09-30 — Generar cita desde RegistroAtencion** — 2026-06-19
-Tras registrar una atención, quien da citas ve «Dar cita» en la ficha; la cita directa (`agenda.citas.nueva?atencion=`) la guarda como `cita_generada_id`.
-`Módulo: Atención / Agenda`
-El campo `cita_generada_id` existe en la tabla pero el formulario de nueva
-atención no permite crear la cita desde FichaCiudadanoPage aún. Se activará
-cuando el módulo Agenda exponga una API de creación de citas simplificada.
-
----
 
 ---
 
