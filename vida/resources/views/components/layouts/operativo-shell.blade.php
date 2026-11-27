@@ -73,9 +73,10 @@
                     <div class="small fw-semibold">
                         {{ Auth::user()->nombreVisible() }}
                     </div>
-                    <div class="small text-body-secondary">
-                        {{ Auth::user()->roles->first()?->name ?? '—' }}
-                    </div>
+                    {{-- El puesto (cargo del profesional), no el rol técnico; los perfiles técnicos sin profesional no lo tienen --}}
+                    @if($puestoUsuario = Auth::user()->profesional?->cargo?->nombre)
+                        <div class="small text-body-secondary">{{ $puestoUsuario }}</div>
+                    @endif
                 </div>
 
                 <hr class="dropdown-divider m-0">
@@ -110,6 +111,12 @@
                     </a>
                     <hr class="dropdown-divider m-0">
                 @endif
+
+                <a href="{{ route('cuenta.contrasena') }}" wire:navigate class="dropdown-item d-flex align-items-center gap-2 py-2">
+                    <x-heroicon-o-key class="icon-16" aria-hidden="true"/>
+                    Cambiar contraseña
+                </a>
+                <hr class="dropdown-divider m-0">
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

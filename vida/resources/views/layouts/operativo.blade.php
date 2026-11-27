@@ -13,6 +13,8 @@
         request()->routeIs('intervencion.ciudadano*')  => 'Expediente',
         request()->routeIs('ciudadania.alta*')         => 'Alta de ciudadano/a',
         request()->routeIs('ciudadania.ciudadano*')    => 'Ficha del ciudadano',
+        request()->routeIs('intervencion.fichas-persona*') => 'Ficha del ciudadano',
+        request()->routeIs('cuenta.contrasena')        => 'Mi cuenta',
         default                                        => '',
     };
 @endphp

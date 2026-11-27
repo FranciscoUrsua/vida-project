@@ -78,7 +78,8 @@ class ConfiguracionEfectivaTest extends TestCase
     {
         $this->assertSame([$this->fichaVG->id], $this->config()->tiposFicha($this->ciamVallecas)->pluck('id')->all());
 
-        $todas = TipoFicha::where('activo', true)->pluck('id')->sort()->values()->all();
+        // Solo las de valoración: la ficha inicial de la persona (sociodemográfica) nunca se ofrece aquí
+        $todas = TipoFicha::where('activo', true)->deValoracion()->pluck('id')->sort()->values()->all();
         $this->assertSame($todas, $this->config()->tiposFicha($this->cssNorte)->pluck('id')->sort()->values()->all());
     }
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\OnboardingController;
 use App\Http\Controllers\PaginaInicioController;
+use App\Livewire\CambiarContrasena;
 use App\Support\Superficie\DestinoInicial;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,11 @@ Route::middleware(['web', 'auth'])
 Route::middleware(['web', 'auth'])
     ->post('/preferencias/pagina-inicio', [PaginaInicioController::class, 'guardar'])
     ->name('preferencias.pagina-inicio');
+
+// Cambio de la propia contraseña, desde el desplegable del usuario
+Route::middleware(['web', 'auth'])
+    ->get('/mi-cuenta/contrasena', CambiarContrasena::class)
+    ->name('cuenta.contrasena');
 
 // Pantalla de usuario sin rol — accesible con auth pero sin middleware tiene.rol
 Route::middleware('auth')->get('/sin-rol', fn () => view('errors.sin-rol'))->name('sin-rol');

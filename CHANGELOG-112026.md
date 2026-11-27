@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-11-27 — Desplegable del usuario: puesto y cambio de contraseña
+
+Área: interfaz operativa (barra superior) y autenticación. Sin migraciones.
+
+- **Desplegable del usuario** (`components/layouts/operativo-shell.blade.php`): bajo el nombre muestra el **puesto** (cargo del profesional: «Trabajador/a social», «Director/a»…) en lugar del nombre técnico del rol (`intervencion`, `consulta_basica`). Los perfiles técnicos sin profesional no muestran nada debajo del nombre.
+- **Cambiar contraseña:** entrada nueva en el desplegable y página `App\Livewire\CambiarContrasena` (ruta `cuenta.contrasena`, `/mi-cuenta/contrasena`, con `auth`). Pide la contraseña actual y la nueva dos veces; la guarda el cast `hashed`; cierra las demás sesiones del usuario (tabla `sessions`) y renueva la actual.
+- **Decisión de implementación (no había política definida):** mínimo 12 caracteres con letras y números, distinta de la actual. Sin consulta a servicios externos de contraseñas filtradas (ningún dato sale a terceros).
+- Rótulo de sección «Mi cuenta» y «Ficha del ciudadano» para las fichas de la persona en `layouts/operativo`.
+- **Tests:** `tests/Feature/Auth/MenuUsuarioYContrasenaTest.php` (6), en verde; negativo del puesto comprobado. Regresión de `tests/Feature/Auth`, `Inicio` y `Ui`. `ui:auditar` sin infracciones.
+- **Suite completa tras el push de los bloques D y E** (run 45977478107): un fallo, `ConfiguracionEfectivaTest` TF-TCE-25, que comparaba con todos los tipos de ficha activos (ahora incluye la ficha inicial de la persona). Corregido: compara con los de valoración.
+- Al BACKLOG: auditar los cambios de contraseña y el login, recuperación de contraseña y política definitiva (pendiente de la integración con el directorio corporativo).
+
+---
+
 ## 2026-11-27 — Ficha sociodemográfica: ficha inicial (bloque E) y cierre de las instrucciones
 
 Instrucciones: `docs/instrucciones-cli/2026-11-ficha-sociodemografica.md`, bloque E y cierre (instrucciones cerradas: paso 0 y bloques A a E).

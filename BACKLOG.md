@@ -9,6 +9,12 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Contraseñas: política definitiva, auditoría y recuperación** — 2026-11-27
+Usuarios / autenticación / seguridad
+- El 27 nov se añadió el cambio de la propia contraseña (`App\Livewire\CambiarContrasena`) con una política provisional: 12 caracteres con letras y números, distinta de la actual, cierre de las demás sesiones. Falta: (1) confirmar la política con el Ayuntamiento (o dejarla al directorio corporativo si se federa la identidad, `modulo-usuarios-permisos.md`); (2) dejar en la auditoría los cambios de contraseña y los inicios de sesión, que hoy no se registran; (3) el enlace «¿Olvidaste tu contraseña?» del login no tiene flujo de recuperación.
+
+---
+
 **Campos `numero` de las fichas sin mínimo ni máximo** — 2026-11-27
 Intervención (fichas) / ficha sociodemográfica
 - El tipo `numero` del schema de `TipoFicha` no admite límites. En la ficha «Datos sociodemográficos», `anio_llegada_espana` («año con cuatro cifras») y `numero_pagas` aceptan cualquier número; solo lo indica la ayuda. Valorar `min`/`max` en el schema, en `TipoFichaResource`, en `<x-ficha.campos>` y en `ValidadorDatosFicha::validarTipos()`.
