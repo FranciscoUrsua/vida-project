@@ -3,7 +3,7 @@
 **Origen:** decisión del 26 nov 2026, `docs/decisiones-tecnicas.md` sección 19.1. Los datos sociodemográficos de la persona (país de nacimiento, nacionalidad, estudios, situación laboral, ingresos…) se recogen con una ficha configurable más (`TipoFicha`), no con una tabla de formulario fijo. Para que los campos codificados usen clasificaciones estándar sin teclear cientos de opciones a mano, se amplía `catalogos_sistema` con catálogos versionados que se cargan desde ficheros oficiales, y se añade un tipo de campo «selector de catálogo».
 **Requisito previo:** bloque B de `docs/instrucciones-cli/2026-11-encargo-actuaciones.md` cerrado (extrae el guardado de fichas a un servicio y añade `fichas.derivacion_id`). Si no lo está, **detente y pregunta**.
 **Tests:** TF-SDE-01 a TF-SDE-34 (al final de este documento).
-**Estado:** revisado por el desarrollador el 26 nov 2026. Paso 0 y bloques A y B hechos el 26 y 27 nov 2026. Las claves especiales de `comun.pais` (OACI) y `equivalencias.ine` quedan aplazadas por decisión del desarrollador (BACKLOG).
+**Estado:** revisado por el desarrollador el 26 nov 2026. Paso 0 y bloques A, B y C hechos el 26 y 27 nov 2026. Las claves especiales de `comun.pais` (OACI) y `equivalencias.ine` quedan aplazadas por decisión del desarrollador (BACKLOG).
 
 **Alcance:**
 - **A.** Catálogos versionados en `catalogos_sistema` y carga desde fuentes oficiales.
@@ -160,6 +160,13 @@ Si al descargarlas encuentras una fuente mejor o más actual que las de la tabla
 4. Permisos (SD-10): migración de datos que crea `ciudadano.leer_fichas_persona` y `ciudadano.registrar_fichas_persona` y los asigna; `RolesSeeder` los añade. `FichaPolicy` (o la policy vigente de fichas): vía de lectura y escritura para fichas de persona según el permiso, el ámbito habitual y la regla de personas protegidas.
 5. Auditoría: lectura y escritura registradas con el `ciudadano_id` correcto.
 
+**Hecho el 27 nov 2026.** Migraciones `2026_11_27_100001` (cifrado), `100002` (`ciudadano_id`, `no_contesta`, CHECK) y `100003` (permisos), que se aplican con el despliegue. Decisiones:
+- **Cifrado de todas las fichas (decisión del desarrollador del 27 nov):** `datos` (`encrypted:array`, la columna pasa de jsonb a texto) y `notas` (`encrypted`). La migración cifra las fichas existentes y esos dos valores en sus versiones. `Versionable` y `AuditObserver` guardaban el estado anterior **descifrado** (`getOriginal()`); ahora copian los atributos cifrados tal cual están en la BD (`App\Support\Cifrado\OriginalSinDescifrar`). Eso también afecta a la auditoría de `Ciudadano` (sus `datos_antes` de campos cifrados pasan a ir cifrados, como ya iban sus `datos_despues`). `no_contesta` (lista de ids de campo) no se cifra.
+- **CHECK `fichas_persona_sin_historia`:** una ficha con `ciudadano_id` no tiene `historia_id`, `valoracion_id` ni `derivacion_id`. Lo que el CHECK no puede ver (el uso del tipo) lo garantiza una guarda del modelo (`Ficha::exigirCoherenciaDePersona()`, en `saving`): tipo persona ⇔ `ciudadano_id`. Así ninguna vía (valoración, solicitud, creación directa) mete una ficha de la persona en una Historia. `ValoracionService` y `SolicitudPrestacionService::crear()` además lo rechazan con un mensaje propio.
+- **`FichaPersonaService`** (`registrar`, `corregir`, `registrarLectura`): exige RN-15 (`exigirActuacion`, R1), valida tipos (`ValidadorDatosFicha::validarTipos()`, nuevo) y claves de catálogo; los campos de `no_contesta` se guardan nulos aunque se envíe un valor; `corregir` usa el `schema_snapshot` de la ficha; un borrador se completa al corregirlo y una completada no vuelve a borrador.
+- **Policy (`FichaPolicy`):** `verDePersona`, `crearDePersona`, `corregirDePersona` y la vía persona de `view`, siempre dentro de `CiudadanoPolicy::view`. Personas protegidas, **por permisos y no por rol**: leer exige `historia.leer` o `colectivo_protegido.aprobar_acceso`; registrar, `historia.leer`. Así la consulta básica no las ve (SD-10) y la supervisión sí las lee.
+- TF-SDE-26 y 28 se prueban ya en la policy; la parte de interfaz (tarjeta y ruta) va en el bloque D. La vista de «No desea contestar» (TF-SDE-23) también va en D.
+
 ## Bloque D — Interfaz
 
 1. `FichaCiudadanoPage`: tarjeta «Datos sociodemográficos» (en general, una por cada `TipoFicha` activo de uso persona), visible con `ciudadano.leer_fichas_persona`. Muestra la situación vigente (resumen de campos con `ValorCampo::mostrar()`, fecha y autor), o «Sin datos registrados»; los campos «No desea contestar» aparecen como tales.
@@ -252,6 +259,6 @@ Lógica condicional mínima, si el schema la admite ya: `anio_llegada_espana` so
 |---|---|---|
 | A — Catálogos | TF-SDE-01..08 (+07 bis) | Hecho (26 nov; negativos 04, 05 y 06 comprobados) |
 | B — Tipo de campo «catálogo» | TF-SDE-09..17 (+09 bis) y TF-SDE-31 | Hecho (27 nov; negativos 10, 11, 13, 16 y 17 comprobados) |
-| C — Fichas de persona | TF-SDE-18..25 | Pendiente |
+| C — Fichas de persona | TF-SDE-18..25 (+24 bis), 26 y 28 en la policy, cifrado | Hecho (27 nov; negativos 19, 23, 26, 28 y cifrado comprobados) |
 | D — Permisos e interfaz | TF-SDE-26..31 | Pendiente |
 | E — Ficha inicial | TF-SDE-32..34 | Pendiente |

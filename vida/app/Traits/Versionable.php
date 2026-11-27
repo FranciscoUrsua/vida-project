@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\Version;
+use App\Support\Cifrado\OriginalSinDescifrar;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
@@ -32,7 +33,8 @@ trait Versionable
             Version::create([
                 'versionable_type' => $model->getMorphClass(),
                 'versionable_id' => $model->getKey(),
-                'datos' => $model->getOriginal(),
+                // Los atributos cifrados se copian cifrados (CLAUDE.md §3): getOriginal() los descifra
+                'datos' => OriginalSinDescifrar::de($model),
                 'usuario_id' => auth()->id(),
             ]);
         });

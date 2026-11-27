@@ -381,6 +381,28 @@ class TipoFicha extends Model
     }
 
     /**
+     * Solo fichas de la persona (SD-7): pertenecen al ciudadano, no a una Historia Social.
+     *
+     * @param Builder<self> $query
+     *
+     * @return Builder<self>
+     */
+    public function scopeDePersona(Builder $query): Builder
+    {
+        return $query->where($query->qualifyColumn('uso'), 'persona');
+    }
+
+    /**
+     * Si es un tipo de ficha de la persona.
+     *
+     * @return bool
+     */
+    public function esDePersona(): bool
+    {
+        return $this->uso === 'persona';
+    }
+
+    /**
      * Solo formularios de solicitud de prestación (fase 3 bis, RN-04).
      *
      * @param Builder<self> $query

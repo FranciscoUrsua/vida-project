@@ -1,8 +1,10 @@
 # SESSION — Estado actual del proyecto VIDA 360
 
-**Última actualización:** 2026-11-27 (ficha sociodemográfica: bloque B)
+**Última actualización:** 2026-11-27 (ficha sociodemográfica: bloque C)
 
 ---
+
+**Última tarea (27 nov, 2):** ficha sociodemográfica, bloque C: fichas de la persona (`fichas.ciudadano_id`, `no_contesta`, CHECK y guarda del modelo, `FichaPersonaService`, permisos `ciudadano.leer_fichas_persona` y `ciudadano.registrar_fichas_persona`, `FichaPolicy` con protegidas por permisos, auditoría) y **cifrado de `datos` y `notas` de todas las fichas** (decisión del desarrollador), con `Versionable` y `AuditObserver` copiando los cifrados sin descifrar. TF-SDE-18 a 25 (y 26/28 en la policy) en verde, con negativos; regresión de 57 ficheros en verde. Migraciones `2026_11_27_100001` a `100003` **no aplicadas en local**: se aplican con el despliegue (la de cifrado reescribe las fichas de la BD compartida). Suite completa lanzada a mano tras el push: revisar. **Siguiente paso:** bloque D (tarjeta por tipo de ficha de persona en `FichaCiudadanoPage`, «Registrar»/«Actualizar»/«Historial», página de registro con «No desea contestar» y aviso del pre-relleno, cabecera de `ver-ficha-page` para fichas de la persona; TF-SDE-26 a 31 en interfaz).
 
 **Última tarea (27 nov, 1):** ficha sociodemográfica, bloque B: tipo de campo `catalogo` en `TipoFicha` y `TipoFichaResource` (con `codigo` y uso `persona`), selector con búsqueda `App\Livewire\Fichas\SelectorCatalogo` en `<x-ficha.campos>`, validación de claves en el servidor (`ValidadorDatosFicha`, en valoración y solicitud), `ValorCampo::mostrar()` en las cinco vistas de fichas guardadas y `Ficha::prerellenarConAvisos()`. TF-SDE-09 a 17, 09 bis y 31 en verde, con negativos; regresión de fichas en verde; `ui:auditar` sin infracciones. Migración `2026_11_26_200003` **no aplicada en local**: se aplica con el despliegue. Suite nocturna lanzada a mano tras el push (el bloque B toca el renderizado común de fichas): revisar el resultado. **Siguiente paso:** bloque C (fichas de persona: `fichas.ciudadano_id`, `no_contesta`, `CHECK` o validación de SD-7, `Ficha::dePersona()`/`vigentePara()`, `FichaPersonaService`, permisos `ciudadano.leer_fichas_persona` y `ciudadano.registrar_fichas_persona` con migración de datos y `RolesSeeder`, policy y auditoría; TF-SDE-18 a 25).
 

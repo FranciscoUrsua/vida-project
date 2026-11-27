@@ -4,6 +4,20 @@
 
 ---
 
+## 2026-11-27 — Ficha sociodemográfica: fichas de la persona y cifrado de fichas (bloque C)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-ficha-sociodemografica.md`, bloque C.
+
+- **Cifrado de todas las fichas** (decisión del desarrollador): `datos` (`encrypted:array`, columna de jsonb a texto) y `notas` (`encrypted`). Migración `2026_11_27_100001`, que cifra las fichas existentes y sus versiones.
+- **`Versionable` y `AuditObserver`** copian el estado anterior con los atributos cifrados sin descifrar (`App\Support\Cifrado\OriginalSinDescifrar`); antes `getOriginal()` los dejaba en claro en `versiones` y en `audits.datos_antes`.
+- **Fichas de la persona:** migración `2026_11_27_100002` (`fichas.ciudadano_id`, `no_contesta`, CHECK `fichas_persona_sin_historia`); `Ficha::ciudadano()`, `dePersona()`, `vigentePara()`, `esDePersona()`, guarda `exigirCoherenciaDePersona()`; `TipoFicha::dePersona()`.
+- **`FichaPersonaService`** (`registrar`, `corregir`, `registrarLectura`), con RN-15, validación de tipos (`ValidadorDatosFicha::validarTipos()`) y de claves, «No desea contestar» y sin apunte. `ValoracionService` y `SolicitudPrestacionService::crear()` rechazan los tipos de uso persona.
+- **Permisos:** `ciudadano.leer_fichas_persona` (intervención, supervisión, consulta básica) y `ciudadano.registrar_fichas_persona` (intervención, consulta básica); migración `2026_11_27_100003`, `PermisosSeeder` y `RolesSeeder`. **`FichaPolicy`:** vía persona; protegidas por permisos (`historia.leer` o `colectivo_protegido.aprobar_acceso` para leer, `historia.leer` para registrar).
+- **Tests:** `FichaPersonaTest` (TF-SDE-18 a 25, 24 bis, 26 y 28 en la policy, cifrado), en verde; negativos comprobados. `FichaVersionadoTest` I03 adaptado (la versión guarda los datos cifrados). Regresión de 57 ficheros (fichas, versiones, auditoría, permisos): 562 en verde.
+- Al BACKLOG: auditorías antiguas con `datos_antes` en claro y analítica que tendrá que descifrar.
+
+---
+
 ## 2026-11-27 — Ficha sociodemográfica: tipo de campo «catálogo» (bloque B)
 
 Instrucciones: `docs/instrucciones-cli/2026-11-ficha-sociodemografica.md`, bloque B.

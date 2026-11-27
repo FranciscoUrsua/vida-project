@@ -3,10 +3,12 @@
 namespace Modules\Intervencion\Models;
 
 use App\Models\CatalogoSistema;
+use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
 use App\Support\Fichas\ValorCampo;
 use App\Traits\Auditable;
 use App\Traits\Versionable;
+use DomainException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,11 +19,18 @@ use Modules\Intervencion\Database\Factories\FichaFactory;
 /**
  * @use HasFactory<FichaFactory>
  *
- * Ficha de datos reales de una valoración.
+ * Ficha de datos reales: de una valoración, de un formulario de solicitud o de la persona.
  *
  * Cada ficha corresponde a un TipoFicha y almacena los valores
  * introducidos por el profesional. El campo datos es un JSON libre;
  * el campo notas permite texto sin estructura durante la entrevista.
+ * `datos` y `notas` se guardan **cifrados** (datos personales, CLAUDE.md §3; decisión del
+ * 27 nov 2026): no se pueden consultar por SQL.
+ *
+ * Las fichas de uso `persona` (SD-7, ficha sociodemográfica) pertenecen al ciudadano
+ * (`ciudadano_id`), sin Historia, valoración ni encargo (CHECK `fichas_persona_sin_historia`),
+ * y no generan apunte. La situación vigente es la última completada de cada tipo
+ * (`vigentePara()`); actualizarla es una ficha nueva, corregirla es una versión (Versionable).
  *
  * historia_id se usa cuando la ficha se crea desde RegistrarValoracionPage
  * antes de existir una Valoracion formal (valoracion_id nullable).
@@ -29,12 +38,14 @@ use Modules\Intervencion\Database\Factories\FichaFactory;
  *
  * @property int $id
  * @property int|null $historia_id
+ * @property int|null $ciudadano_id Persona dueña de una ficha de uso persona (SD-7); nulo en el resto.
  * @property int|null $valoracion_id
  * @property int $tipo_ficha_id
  * @property array<string, mixed>|null $schema_snapshot Copia del schema del TipoFicha al crear la ficha
  * @property int|null $profesional_id
- * @property array<string, mixed>|null $datos
- * @property string|null $notas
+ * @property array<string, mixed>|null $datos Cifrado.
+ * @property list<string>|null $no_contesta campo_id que la persona no ha querido contestar (SD-9).
+ * @property string|null $notas Cifrado.
  * @property bool $completada
  * @property int|null $derivacion_id Encargo profesional desde el que se registra (EA-5).
  * @property Carbon $created_at
@@ -53,20 +64,62 @@ class Ficha extends Model
 
     protected $table = 'fichas';
 
+    /**
+     * Registra la guarda de las fichas de la persona en cada guardado.
+     *
+     * @return void
+     *
+     * @throws DomainException Si una ficha de uso persona no tiene `ciudadano_id` o al revés (desde exigirCoherenciaDePersona()).
+     */
+    protected static function booted(): void
+    {
+        static::saving(fn (Ficha $ficha) => $ficha->exigirCoherenciaDePersona());
+    }
+
+    /**
+     * SD-7, venga de donde venga: una ficha de un tipo de uso persona pertenece a un ciudadano
+     * (y el CHECK impide que además cuelgue de una Historia), y una ficha con `ciudadano_id`
+     * es de un tipo de uso persona. Así una ficha de la persona no puede entrar por la
+     * valoración o la solicitud, ni una de valoración quedarse sin Historia.
+     *
+     * @return void
+     *
+     * @throws DomainException
+     */
+    public function exigirCoherenciaDePersona(): void
+    {
+        if (! $this->isDirty(['tipo_ficha_id', 'ciudadano_id'])) {
+            return;
+        }
+
+        $dePersona = TipoFicha::whereKey($this->tipo_ficha_id)->value('uso') === 'persona';
+
+        if ($dePersona && $this->ciudadano_id === null) {
+            throw new DomainException('Una ficha de la persona tiene que pertenecer a un ciudadano.');
+        }
+        if (! $dePersona && $this->ciudadano_id !== null) {
+            throw new DomainException('Solo las fichas de la persona pertenecen directamente a un ciudadano.');
+        }
+    }
+
     protected $fillable = [
         'historia_id',
+        'ciudadano_id',
         'valoracion_id',
         'tipo_ficha_id',
         'schema_snapshot',
         'profesional_id',
         'datos',
+        'no_contesta',
         'notas',
         'completada',
         'derivacion_id',
     ];
 
     protected $casts = [
-        'datos' => 'array',
+        'datos' => 'encrypted:array',
+        'notas' => 'encrypted',
+        'no_contesta' => 'array',
         'schema_snapshot' => 'array',
         'completada' => 'boolean',
     ];
@@ -108,11 +161,69 @@ class Ficha extends Model
     }
 
     /**
-     * Resuelve el ciudadano_id para el sistema de auditoría a través de la historia social.
+     * Persona dueña de una ficha de uso persona (SD-7).
+     *
+     * @return BelongsTo<Ciudadano, $this>
+     */
+    public function ciudadano(): BelongsTo
+    {
+        return $this->belongsTo(Ciudadano::class, 'ciudadano_id');
+    }
+
+    /**
+     * Resuelve el ciudadano_id para la auditoría: el de la ficha de persona o el de su historia.
+     *
+     * @return int|null
      */
     public function getCiudadanoId(): ?int
     {
-        return $this->historia?->ciudadano_id;
+        if ($this->ciudadano_id !== null) {
+            return (int) $this->ciudadano_id;
+        }
+
+        return $this->historia()->withoutGlobalScopes()->value('ciudadano_id');
+    }
+
+    /**
+     * Si es una ficha de la persona (no de una Historia Social).
+     *
+     * @return bool
+     */
+    public function esDePersona(): bool
+    {
+        return $this->ciudadano_id !== null;
+    }
+
+    /**
+     * Fichas de la persona de un ciudadano, de un tipo si se indica, de la más reciente a la más antigua.
+     *
+     * @param Builder<self> $query Consulta base.
+     * @param int $ciudadanoId Persona.
+     * @param int|null $tipoFichaId Tipo de ficha, o todos.
+     *
+     * @return Builder<self>
+     */
+    public function scopeDePersona(Builder $query, int $ciudadanoId, ?int $tipoFichaId = null): Builder
+    {
+        return $query
+            ->where('ciudadano_id', $ciudadanoId)
+            ->when($tipoFichaId !== null, fn (Builder $q) => $q->where('tipo_ficha_id', $tipoFichaId))
+            ->orderByDesc('created_at')
+            ->orderByDesc('id');
+    }
+
+    /**
+     * Situación vigente de una persona para un tipo de ficha: su última ficha completada (SD-8).
+     * Los borradores no cuentan.
+     *
+     * @param int $ciudadanoId Persona.
+     * @param int $tipoFichaId Tipo de ficha de uso persona.
+     *
+     * @return self|null
+     */
+    public static function vigentePara(int $ciudadanoId, int $tipoFichaId): ?self
+    {
+        return static::query()->dePersona($ciudadanoId, $tipoFichaId)->where('completada', true)->first();
     }
 
     /**

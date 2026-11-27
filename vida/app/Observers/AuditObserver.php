@@ -5,6 +5,7 @@ namespace App\Observers;
 use App\Contracts\AuditableModel;
 use App\Enums\AccionAuditEnum;
 use App\Services\AuditService;
+use App\Support\Cifrado\OriginalSinDescifrar;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
@@ -69,7 +70,8 @@ class AuditObserver
             return;
         }
 
-        $originales = array_intersect_key($model->getOriginal(), array_flip(array_keys($cambios)));
+        // Cifrados tal cual están en la BD, como ya llegan en getChanges() (CLAUDE.md §3)
+        $originales = array_intersect_key(OriginalSinDescifrar::de($model), array_flip(array_keys($cambios)));
 
         $this->service->registrarAcceso(
             user: Auth::user(),

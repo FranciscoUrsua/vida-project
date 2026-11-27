@@ -39,11 +39,16 @@ class ValoracionService
      *
      * @return Ficha
      *
-     * @throws DomainException Si no puede actuar (RN-15, EA-4) o la ficha no es del área del encargo.
+     * @throws DomainException Si no puede actuar (RN-15, EA-4), la ficha no es del área del encargo o es de uso persona.
      * @throws ValidationException Si un campo de catálogo no trae una clave vigente de su grupo.
      */
     public function registrar(ContextoActuacion $contexto, TipoFicha $tipoFicha, array $datos, ?string $notas = null): Ficha
     {
+        // Las fichas de la persona entran solo por FichaPersonaService (SD-7)
+        if ($tipoFicha->esDePersona()) {
+            throw new DomainException('Esa ficha es de la persona, no de valoración: se registra desde la ficha del ciudadano.');
+        }
+
         if ($contexto->encargo !== null && ! $this->caja->ofreceFicha($contexto->encargo, $tipoFicha->id)) {
             throw new DomainException('Esa ficha de valoración no es del área del encargo.');
         }

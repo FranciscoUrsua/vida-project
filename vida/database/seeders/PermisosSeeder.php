@@ -139,6 +139,10 @@ class PermisosSeeder extends Seeder
         ['derivacion.ver_asignadas', 'Entrar en «Mis derivaciones»: los encargos profesionales asignados'],
         ['derivacion.registrar_resultado', 'Recibir encargos profesionales, registrar su resultado y cerrarlos'],
         ['ciudadano.leer_por_encargo', 'Ver en lectura la ficha de las personas de sus encargos profesionales'],
+
+        // Fichas de la persona: datos sociodemográficos… (docs/instrucciones-cli/2026-11-ficha-sociodemografica.md, SD-10)
+        ['ciudadano.leer_fichas_persona', 'Ver las fichas de la persona (datos sociodemográficos y similares) en su ficha'],
+        ['ciudadano.registrar_fichas_persona', 'Registrar, actualizar y corregir las fichas de la persona (datos sociodemográficos y similares)'],
     ];
 
     /**

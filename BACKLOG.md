@@ -9,6 +9,13 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Cifrado de fichas: auditorías antiguas en claro y analítica** — 2026-11-27
+Intervención (fichas) / Auditoría / seguridad
+- Desde el 27 nov, `fichas.datos` y `fichas.notas` van cifrados y `Versionable`/`AuditObserver` copian los atributos cifrados sin descifrar. La migración cifró las fichas y sus versiones, pero **no** las filas antiguas de `audits`: las ediciones anteriores de fichas, y de cualquier modelo con campos cifrados (p. ej. `Ciudadano`), tienen en `datos_antes` los valores descifrados. Decidir si se cifran o se purgan esos `datos_antes` (la tabla de auditoría se trata como inmutable).
+- La analítica de las fichas (BigQuery, decisiones técnicas §19.2) tendrá que descifrar en la aplicación: no hay consultas SQL posibles sobre `datos`.
+
+---
+
 **Ficha sociodemográfica: pendientes de datos y de schema** — 2026-11-26
 Catálogos / Intervención (fichas de persona)
 - `comun.pais` sin `equivalencias.ine` (código de país del padrón): la tabla de Países/Nacionalidades de IDA-Padrón solo se descarga desde su utilidad web y `arce.ine.es` no respondía desde el entorno de desarrollo. Decisión del desarrollador: seguir sin ella. Cuando haya fichero, añadirlo a `database/data/catalogos/fuentes/`, rellenar `ine` en la normalización y volver a cargar (la carga es idempotente). Con ese fichero entra también Taiwán, que M49 no incluye.

@@ -122,6 +122,10 @@ class SolicitudPrestacionService
         return DB::transaction(function () use ($ciudadano, $prestacion, $ts, $plan, $objetivo, $centro, $seguimiento, $historia): SolicitudPrestacion {
             $prestacion->loadMissing(['documentosExigidos.tipoDocumental', 'formularioSolicitud']);
             $formulario = $prestacion->formularioSolicitud;
+            // Las fichas de la persona entran solo por FichaPersonaService (SD-7)
+            if ($formulario?->esDePersona()) {
+                throw new DomainException('El formulario de solicitud de esta prestación es una ficha de la persona: revisa su configuración.');
+            }
 
             $ficha = $formulario === null ? null : Ficha::create([
                 'historia_id' => $historia->id,

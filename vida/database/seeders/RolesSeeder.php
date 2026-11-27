@@ -88,6 +88,8 @@ class RolesSeeder extends Seeder
             'ciudadano.ver_ficha',
             'ciudadano.ver_datos_contacto',
             'ciudadano.leer',
+            // Fichas de la persona en lectura (SD-10)
+            'ciudadano.leer_fichas_persona',
             // Sin `plan.leer` (fase 3, decisión del 14 nov 2026) ni `historia.leer`, `apunte.leer`,
             // `apunte.leer_ajeno` y `documento.ver_carpeta` (R2, 23 nov 2026): la supervisión sola
             // ve la ficha en lectura; quien necesite la Historia Social tiene además `intervencion`.
@@ -126,6 +128,9 @@ class RolesSeeder extends Seeder
             'ciudadano.ver_ficha',
             'ciudadano.ver_datos_contacto',
             'ciudadano.leer',
+            // Fichas de la persona (SD-10)
+            'ciudadano.leer_fichas_persona',
+            'ciudadano.registrar_fichas_persona',
             'ciudadano.crear',
             'ciudadano.editar',
             'historia.leer',
@@ -213,6 +218,9 @@ class RolesSeeder extends Seeder
             'ciudadano.ver_ficha',
             'ciudadano.ver_datos_contacto',
             'ciudadano.leer',
+            // Fichas de la persona: se pueden recoger en la acogida (SD-10)
+            'ciudadano.leer_fichas_persona',
+            'ciudadano.registrar_fichas_persona',
             'ciudadano.editar',  // Modificar datos de identificación básicos
             'atencion.crear',
             'atencion.leer',

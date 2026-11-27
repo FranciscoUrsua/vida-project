@@ -6,6 +6,7 @@ use App\Models\HistoriaSocial;
 use App\Models\Version;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Validation\ValidationException;
 use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\TipoFicha;
@@ -121,8 +122,11 @@ class FichaVersionadoTest extends TestCase
 
         $this->assertNotNull($version, 'Debe existir una versión Versionable tras la corrección.');
 
+        // La versión guarda los datos cifrados, como la ficha (CLAUDE.md §3, 27 nov 2026)
         $datosAnteriores = $version->datos;
-        $this->assertEquals(800, $datosAnteriores['datos']['campo_a'] ?? null);
+        $this->assertIsString($datosAnteriores['datos']);
+        $this->assertStringNotContainsString('800', $datosAnteriores['datos']);
+        $this->assertEquals(800, json_decode(Crypt::decryptString($datosAnteriores['datos']), true)['campo_a'] ?? null);
         $this->assertEquals(950, $ficha->fresh()->datos['campo_a']);
     }
 

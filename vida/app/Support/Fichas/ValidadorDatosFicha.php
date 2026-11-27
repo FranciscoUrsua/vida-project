@@ -50,4 +50,59 @@ final class ValidadorDatosFicha
             throw ValidationException::withMessages($errores);
         }
     }
+
+    /**
+     * Comprueba que cada valor tiene la forma de su tipo de campo (número, fecha, sí/no,
+     * opción de la lista, texto). La usan las fichas de la persona, que entran por un servicio
+     * propio (`FichaPersonaService`); los catálogos los comprueba `validar()`.
+     *
+     * @param array<int, array<string, mixed>> $campos Campos del schema con el que se guarda.
+     * @param array<string, mixed> $datos Valores por id de campo.
+     * @param string $prefijo Prefijo de las claves de error.
+     *
+     * @return void
+     *
+     * @throws ValidationException Si algún valor no tiene la forma de su tipo.
+     */
+    public static function validarTipos(array $campos, array $datos, string $prefijo = 'datos'): void
+    {
+        $errores = [];
+
+        foreach ($campos as $campo) {
+            $id = $campo['id'] ?? null;
+            if (! is_string($id) || ! ValorCampo::tieneValor($datos[$id] ?? null)) {
+                continue;
+            }
+
+            $error = self::errorDeTipo($campo, $datos[$id]);
+            if ($error !== null) {
+                $errores["{$prefijo}.{$id}"] = $error;
+            }
+        }
+
+        if ($errores !== []) {
+            throw ValidationException::withMessages($errores);
+        }
+    }
+
+    /**
+     * Mensaje de error si el valor no tiene la forma de su tipo; null si es válido.
+     *
+     * @param array<string, mixed> $campo Definición del campo.
+     * @param mixed $valor Valor (no vacío).
+     *
+     * @return string|null
+     */
+    private static function errorDeTipo(array $campo, mixed $valor): ?string
+    {
+        return match ($campo['tipo'] ?? 'texto') {
+            'numero', 'escala' => is_numeric($valor) ? null : 'Escribe un número.',
+            'fecha' => is_string($valor) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $valor) && checkdate((int) substr($valor, 5, 2), (int) substr($valor, 8, 2), (int) substr($valor, 0, 4))
+                ? null : 'Escribe una fecha válida.',
+            'booleano' => in_array($valor, [true, false, 1, 0, '1', '0'], true) ? null : 'Elige sí o no.',
+            'select' => in_array($valor, $campo['opciones'] ?? [], true) ? null : 'Elige una opción de la lista.',
+            'catalogo' => is_string($valor) ? null : 'Elige un valor de la lista.',
+            default => is_scalar($valor) ? null : 'Valor no válido.',
+        };
+    }
 }
