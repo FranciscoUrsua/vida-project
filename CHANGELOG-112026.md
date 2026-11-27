@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-11-27 — Test inestable de versiones de Prestaciones
+
+Área: Prestaciones (tests). Sin migraciones.
+
+- Suite nocturna 45981771939 (sobre `038bec5`): 1 fallo de 1905, `PrestacionesTest::multiples_ediciones_generan_multiples_versiones`. `Versionable::versiones()` ordena por `created_at` desc y el `orderBy('id')` del test solo desempataba; si las ediciones caían en segundos distintos, el orden salía invertido. Corregido con `reorder('id')` en el test. En verde.
+
+---
+
 ## 2026-11-27 — «¿Olvidaste tu contraseña?»: aviso a la supervisión del centro
 
 Área: autenticación / Mensajes. Sin migraciones.

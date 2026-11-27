@@ -399,7 +399,8 @@ class PrestacionesTest extends TestCase
 
         $this->assertDatabaseCount('versiones', 3);
 
-        $versiones = $prestacion->versiones()->orderBy('id')->get();
+        // reorder(): versiones() ya ordena por created_at desc y las tres ediciones pueden caer en segundos distintos.
+        $versiones = $prestacion->versiones()->reorder('id')->get();
 
         $this->assertEquals('Versión 0', $versiones[0]->datos['nombre']);
         $this->assertEquals('Versión 1', $versiones[1]->datos['nombre']);
