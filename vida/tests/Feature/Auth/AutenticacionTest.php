@@ -324,9 +324,15 @@ class AutenticacionTest extends TestCase
         $respuesta = $this->followingRedirects()->actingAs($this->usuario)->get('/');
 
         $respuesta->assertStatus(200);
-        $respuesta->assertSee('JL');
-        $respuesta->assertDontSee('JU');
-        $respuesta->assertDontSee('JLG');
+
+        // Solo el contenido de los avatares: buscar en toda la página encontraba «JU» en el
+        // token CSRF aleatorio y el test fallaba de vez en cuando (BACKLOG, 25 nov)
+        preg_match_all('/<span[^>]*class="[^"]*\bop-avatar\b[^"]*"[^>]*>([^<]*)<\/span>/', $respuesta->getContent(), $m);
+        $iniciales = array_map('trim', $m[1]);
+        $this->assertNotEmpty($iniciales, 'La página tiene que mostrar el avatar del usuario.');
+        $this->assertContains('JL', $iniciales);
+        $this->assertNotContains('JU', $iniciales);
+        $this->assertNotContains('JLG', $iniciales);
     }
 
     #[Test]

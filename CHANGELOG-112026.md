@@ -4,6 +4,14 @@
 
 ---
 
+## 2026-11-27 — Test inestable TF-AUTH-17
+
+Área: autenticación (tests). Sin migraciones.
+
+- Suite completa tras el push de la usabilidad (run 46017543318): 1 fallo de 1934, TF-AUTH-17, el test inestable anotado en el BACKLOG (`assertDontSee('JU')` encontraba «JU» en el token CSRF aleatorio). Ahora compara solo el contenido de los avatares (`op-avatar`). Retirado del BACKLOG.
+
+---
+
 ## 2026-11-27 — Usabilidad de la Historia Social, ronda 1 (U1 a U5)
 
 Área: Intervención, Centro (prescripciones), Auditoría, transversal (nombres). Sin migraciones. Instrucciones: `docs/instrucciones-cli/2026-11-usabilidad-historia-social.md` (revisión del Delegado Digital del 27 nov sobre la HS 906 con `ts1.ciam`).

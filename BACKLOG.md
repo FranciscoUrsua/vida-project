@@ -72,7 +72,6 @@ Actualizar con fecha y contexto breve al añadir cada entrada. Lo cerrado se ret
 - Reducir el baseline (523 entradas el 27 nov) en cada refactor.
 
 **Tests inestables o incompletos** (2026-06-01)
-- TF-AUTH-17: `assertDontSee('JU')` busca en toda la página (token CSRF incluido); acotarlo al avatar.
 - `CuadranteSupervisorTest`: 2 tests dependen de la fecha; `Carbon::setTestNow()`.
 - TF-LW-NAV-03 (`markTestIncomplete`): necesita datos de plan activo.
 - Local: subir `max_locks_per_transaction` (p. ej. 256) o usar 2 procesos de paratest.
