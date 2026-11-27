@@ -31,7 +31,9 @@ use Modules\Agenda\Services\Citas\AtencionCitaService;
 use Modules\Atencion\Models\RegistroAtencion;
 use Modules\Centro\Models\AsignacionCentro;
 use Modules\Centro\Models\Centro;
+use Modules\Centro\Services\Asignacion\AsignacionCentroService;
 use Modules\Centro\Services\Asignacion\CentroDeUsuario;
+use Modules\Centro\Services\ConfiguracionEfectivaCentro;
 use Modules\Ciudadania\Models\CiudadanoIdentificador;
 use Modules\Ciudadania\Models\CiudadanoPrestacionResumen;
 use Modules\Ciudadania\Models\CiudadanoRelacion;
@@ -71,6 +73,7 @@ use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
  * @property-read bool $puedeVerHistorialCitas
  * @property-read bool $puedeVerFichasPersona
  * @property-read Collection<int, AsignacionCentro> $asignacionesCentro
+ * @property-read Centro|null $centroParaAsignar
  * @property-read Collection<int, AsignacionProfesional> $asignacionesReferencia
  * @property-read Collection<int, CiudadanoIdentificador> $documentos
  * @property-read UnidadConvivencia|null $ucVigente
@@ -312,6 +315,67 @@ class FichaCiudadanoPage extends Component
             ->orderByDesc('id')
             ->get()
             ->toBase();
+    }
+
+    /**
+     * Centro al que el usuario puede asignar a la persona desde la ficha («Asignar a este centro»).
+     *
+     * Solo su centro activo y solo si es de libre elección (el CIAM): registrar que la persona
+     * lo elige no contradice RN-04 ni RN-09. Los centros por domicilio siguen pasando por la
+     * bandeja del supervisor (decisión del desarrollador, 27 nov 2026). Exige además poder editar
+     * a la persona, poder actuar en ese centro (RN-15) y que la persona no tenga ningún centro
+     * vigente, que es cuando la ficha dice «Sin centro asignado».
+     *
+     * @return Centro|null
+     */
+    #[Computed]
+    public function centroParaAsignar(): ?Centro
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        if ($user === null || $this->soloPorEncargo || ! $this->puedeEditar) {
+            return null;
+        }
+
+        if ($this->asignacionesCentro->whereNull('fecha_fin')->isNotEmpty()) {
+            return null;
+        }
+
+        $centros = app(CentroDeUsuario::class);
+        $centro = $centros->centroActivo($user);
+
+        if ($centro === null
+            || ! $centros->puedeActuar($user, $centro)
+            || ! app(ConfiguracionEfectivaCentro::class)->inscripcionLibre($centro)) {
+            return null;
+        }
+
+        return $centro;
+    }
+
+    /**
+     * Asigna la persona al centro activo del usuario por libre elección.
+     *
+     * @return void
+     *
+     * @throws AuthorizationException Si el usuario no puede asignarla a su centro.
+     */
+    public function asignarAEsteCentro(): void
+    {
+        // Se recalcula en el servidor: el botón oculto no basta como control
+        unset($this->asignacionesCentro, $this->centroParaAsignar);
+        $centro = $this->centroParaAsignar;
+
+        if ($centro === null) {
+            throw new AuthorizationException('No puedes asignar a esta persona a tu centro.');
+        }
+
+        /** @var User $user */
+        $user = auth()->user();
+        app(AsignacionCentroService::class)->asignarPorEleccion($this->ciudadano, $centro, $user);
+
+        unset($this->asignacionesCentro, $this->centroParaAsignar);
     }
 
     /**

@@ -4,6 +4,17 @@
 
 ---
 
+## 2026-11-27 — «Asignar a este centro» en la ficha del ciudadano
+
+Área: Ciudadanía / asignación de centro. Sin migraciones.
+
+- Con «Sin centro asignado», la tarjeta «Centro y referencia» de la ficha ofrece «Asignar a este centro» (con confirmación). Asigna la persona al centro activo del usuario por libre elección (`AsignacionCentroService::asignarPorEleccion`, modo `eleccion`, con quién la registró).
+- **Decisión del desarrollador:** solo en centros de libre elección (CIAM). En los centros por domicilio no se ofrece: siguen RN-04 y RN-09 (bandeja del supervisor).
+- **Decisiones de implementación:** exige además poder editar a la persona (`update` de `CiudadanoPolicy`) y poder actuar en el centro (RN-15); no se ofrece al profesional de encargo ni si la persona tiene algún centro vigente; el servidor recalcula la condición en la acción (403 si no se cumple). Documentado en `modulo-asignacion.md`, RN-01.
+- **Tests:** `Modules/Centro/tests/Feature/Asignacion/AsignarDesdeFichaTest.php` (3), en verde; el negativo falla si se quita la condición de libre elección. Regresión de la ficha (`FichaCiudadanoPageTest`, `FichaPorRolTest`, `FichaAtencionTest`) en verde; `ui:auditar` sin infracciones.
+
+---
+
 ## 2026-11-27 — Test inestable de versiones de Prestaciones
 
 Área: Prestaciones (tests). Sin migraciones.

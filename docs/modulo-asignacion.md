@@ -31,6 +31,7 @@ Tres ideas vertebran el diseño:
 **RN-01 — Dos formas de asignar centro.** Cada centro está configurado como:
 - **Adscripción por domicilio** (`inscripcion_libre = false`): la persona pertenece al centro cuyo ámbito territorial incluye su dirección. Caso general de los centros de servicios sociales.
 - **Libre elección** (`inscripcion_libre = true`): la persona elige a qué centro acude. Caso de los CIAM.
+  La elección se registra al abrir la Historia Social en el centro o, si la ficha de la persona dice «Sin centro asignado», con el botón «Asignar a este centro» (`FichaCiudadanoPage::asignarAEsteCentro`): solo el centro activo del usuario, solo si es de libre elección, con permiso para editar a la persona y para actuar en el centro (RN-15). En los centros por domicilio no hay botón: la persona sin centro sigue en la bandeja del supervisor (RN-09). Decisión del desarrollador, 27 nov 2026.
 
 Las soluciones mixtas (elegir centro dentro del distrito) quedan fuera de la v1.
 

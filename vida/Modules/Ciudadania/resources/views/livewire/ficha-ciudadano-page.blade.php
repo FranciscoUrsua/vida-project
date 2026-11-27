@@ -489,7 +489,19 @@
                         </dd>
                     @empty
                         <dt class="text-body-secondary fw-normal">Centro</dt>
-                        <dd class="mb-2">Sin centro asignado</dd>
+                        <dd class="mb-2">
+                            Sin centro asignado
+                            {{-- Solo el centro activo del usuario y si es de libre elección --}}
+                            @if($centroAsignable = $this->centroParaAsignar)
+                                <button type="button" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 mt-2"
+                                        wire:click="asignarAEsteCentro" wire:loading.attr="disabled"
+                                        wire:confirm="¿Asignar a esta persona a {{ $centroAsignable->nombre }}?"
+                                        title="{{ $centroAsignable->nombre }}">
+                                    <x-heroicon-o-building-office class="icon-16" aria-hidden="true"/>
+                                    Asignar a este centro
+                                </button>
+                            @endif
+                        </dd>
                     @endforelse
 
                     @if($historiaSocial && $this->puedeVerDetalleHistoria)
