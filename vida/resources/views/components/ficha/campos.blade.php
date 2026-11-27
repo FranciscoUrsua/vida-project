@@ -1,6 +1,8 @@
-{{-- Campos de una ficha a partir de su esquema (valoraciones y formularios de solicitud, fase 3 bis).
-     Props: campos (lista del esquema), prefijo (ruta wire:model de los datos), deshabilitado. --}}
-@props(['campos' => [], 'prefijo' => 'datos', 'deshabilitado' => false])
+{{-- Campos de una ficha a partir de su esquema (valoraciones, formularios de solicitud y fichas de la persona).
+     Props: campos (lista del esquema), prefijo (ruta wire:model de los datos), deshabilitado,
+     noContesta (null: sin la opción; array campo_id => bool: casilla «No desea contestar» por campo,
+     enlazada a prefijoNoContesta; marcada, el campo se deshabilita, SD-9 de la ficha sociodemográfica). --}}
+@props(['campos' => [], 'prefijo' => 'datos', 'deshabilitado' => false, 'noContesta' => null, 'prefijoNoContesta' => 'noContesta'])
 
 <fieldset @disabled($deshabilitado)>
 @foreach($campos as $campo)
@@ -8,6 +10,7 @@
                     $tipo = $campo['tipo'] ?? 'texto';
                     $idCampo = 'campo-'.$campo['id'];
                     $conError = $errors->has("{$prefijo}.{$campo['id']}");
+                    $noContestaMarcado = is_array($noContesta) && ! empty($noContesta[$campo['id']]);
                 @endphp
                 <div class="mb-3">
                     <label for="{{ $idCampo }}" class="form-label small fw-semibold mb-1">
@@ -21,6 +24,8 @@
                         <p class="form-text mt-0 mb-1">{{ $campo['descripcion'] }}</p>
                     @endif
 
+                    {{-- Un fieldset por campo: «No desea contestar» deshabilita también el selector de catálogo anidado --}}
+                    <fieldset @disabled($noContestaMarcado)>
                     @if($tipo === 'texto')
                         <textarea id="{{ $idCampo }}" wire:model.live="{{ $prefijo }}.{{ $campo['id'] }}" rows="2"
                                   @class(['form-control form-control-sm', 'is-invalid' => $conError])></textarea>
@@ -76,6 +81,15 @@
                             <input id="{{ $idCampo }}" type="number" min="0" wire:model.live="{{ $prefijo }}.{{ $campo['id'] }}"
                                    @class(['form-control form-control-sm w-auto', 'is-invalid' => $conError])>
                             <span class="small text-body-secondary">puntuación total</span>
+                        </div>
+                    @endif
+                    </fieldset>
+
+                    @if(is_array($noContesta))
+                        <div class="form-check mt-1">
+                            <input class="form-check-input" type="checkbox" id="{{ $idCampo }}-no-contesta"
+                                   wire:model.live="{{ $prefijoNoContesta }}.{{ $campo['id'] }}">
+                            <label class="form-check-label small text-body-secondary" for="{{ $idCampo }}-no-contesta">No desea contestar</label>
                         </div>
                     @endif
 

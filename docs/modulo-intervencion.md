@@ -244,6 +244,12 @@ campos), `activo`.
 
 `fichas`: ver sección 4.5.
 
+**Ampliaciones de la ficha sociodemográfica (26 y 27 nov 2026, `docs/instrucciones-cli/2026-11-ficha-sociodemografica.md`):**
+- **Tipo de campo `catalogo`:** el campo guarda en el schema el grupo de `catalogos_sistema` (`catalogo`) y la ficha guarda la **clave**, nunca la etiqueta. El grupo debe tener al menos dos valores vigentes; con fichas asociadas no se cambia el grupo de un campo. Selector con búsqueda (`App\Livewire\Fichas\SelectorCatalogo`), validación de claves en el servidor (`App\Support\Fichas\ValidadorDatosFicha`) y visualización única con `App\Support\Fichas\ValorCampo::mostrar()` (la etiqueta actual, aunque la clave ya no esté vigente).
+- **`tipo_fichas.codigo`:** identificador estable (minúsculas, cifras y guion bajo; único; inmutable con fichas). Es la referencia que usa el código y la analítica (§4.3).
+- **`uso = persona`:** fichas de la persona, no de una Historia Social (ver §4.5). Ningún campo puede ser obligatorio. La ficha inicial «Datos sociodemográficos» (`codigo = sociodemografica`) la siembra la migración `2026_11_27_200001` (`FichaSociodemograficaSeeder`, que no pisa un tipo ya existente). No se ofrecen como valoración en ningún centro.
+- **La lógica condicional del nivel 2 no está implementada** (ni en el schema ni en el formulario): pendiente en el BACKLOG.
+
 ### 4.3 Frontera de la configurabilidad
 
 La configuración de fichas y campos define estructura y presentación. No puede definir
@@ -281,6 +287,17 @@ La `Ficha` es el registro de datos que un profesional cumplimenta al aplicar un
 | `created_at` / `updated_at` | timestamp | |
 
 El modelo `Ficha` usa el trait `Versionable`. Ver sección 4.6.
+
+**Cifrado (27 nov 2026):** `datos` (`encrypted:array`, columna de texto) y `notas` (`encrypted`) se guardan cifrados en todas las fichas; también en sus versiones y en la auditoría. No admiten consultas SQL sobre su contenido.
+
+**Fichas de la persona (27 nov 2026, SD-7 a SD-10):** una ficha de un tipo de uso `persona` lleva `ciudadano_id` y no lleva `historia_id`, `valoracion_id` ni `derivacion_id` (CHECK `fichas_persona_sin_historia` y guarda del modelo). No genera apunte. Columnas propias:
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `ciudadano_id` | bigint FK nullable | Persona dueña de la ficha (solo uso persona) |
+| `no_contesta` | jsonb nullable | Lista de `campo_id` que la persona no ha querido contestar; su valor en `datos` es nulo. Distingue «no contesta» de «no se preguntó» |
+
+La situación vigente es la última ficha completada de cada tipo (`Ficha::vigentePara()`). Actualizarla es una ficha nueva pre-rellenada desde la anterior (las claves de catálogo ya no vigentes se vacían y se avisa, `Ficha::prerellenarConAvisos()`); corregir un error es la corrección `Versionable`. Todo pasa por `FichaPersonaService` (RN-15, validación, auditoría) y `FichaPolicy` (permisos `ciudadano.leer_fichas_persona` y `ciudadano.registrar_fichas_persona`). Interfaz: tarjeta por tipo en la ficha del ciudadano (`FichasPersona`), registro (`RegistrarFichaPersonaPage`, con «No desea contestar» por campo y un solo borrador por tipo) y lectura (`VerFichaPersonaPage`).
 
 #### El campo `schema_snapshot`
 

@@ -610,6 +610,8 @@ Fecha de decisión: 2026-11-26
 
 **Comprobado (2026-11-26):** `campo_id` se genera desde la etiqueta solo cuando el campo es nuevo (`TipoFichaResource::dehydrateStateUsing`). Renombrar la etiqueta no lo cambia. De esa estabilidad depende toda la explotación histórica.
 
+**Hecho (26 y 27 nov 2026, `docs/instrucciones-cli/2026-11-ficha-sociodemografica.md`):** catálogos versionados en la propia `catalogos_sistema` cargados desde fuentes oficiales (`comun.pais`, `comun.nivel_estudios`, `comun.situacion_laboral`, `comun.idioma`); tipo de campo `catalogo`; `tipo_fichas.codigo`; fichas de la persona (`uso = persona`, `fichas.ciudadano_id`, `no_contesta`), sin Historia Social y sin apunte, con permisos propios; cifrado de `datos` y `notas` de todas las fichas; tarjeta en la ficha del ciudadano y ficha inicial «Datos sociodemográficos». Aplazado: claves especiales de país de la OACI, `equivalencias.ine` y `hsu`, y la lógica condicional (BACKLOG).
+
 **[pendiente]** Las opciones de los campos `select` se guardan como texto plano (`normalizarOpcionesParaSchema`), y ese texto es a la vez etiqueta y valor guardado. Corregir la redacción de una opción cambia el valor de las fichas nuevas y rompe las series. Hay que separar código estable y etiqueta, o tratar los selects con valor analítico como selectores de catálogo.
 
 ### 19.2 Exportación a la capa analítica (BigQuery / Power BI)

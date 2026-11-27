@@ -54,13 +54,16 @@ class TipoFichaTest extends TestCase
     #[Test]
     public function tipo_ficha_con_schema_valido_se_guarda_correctamente(): void
     {
+        // Sin contar la ficha inicial de la persona que siembra la migración (bloque E de la ficha sociodemográfica)
+        $antes = TipoFicha::count();
+
         TipoFicha::create([
             'nombre' => 'Test',
             'schema' => $this->schemaValido(),
             'activo' => true,
         ]);
 
-        $this->assertEquals(1, TipoFicha::count());
+        $this->assertEquals($antes + 1, TipoFicha::count());
     }
 
     /**

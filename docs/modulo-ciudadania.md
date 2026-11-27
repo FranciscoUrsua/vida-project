@@ -207,6 +207,8 @@ En la **ficha del ciudadano** (FichaCiudadanoPage) la UC se muestra en **modo so
 
 ### 3.5 Situación social (Capa 2)
 
+> **Datos sociodemográficos (27 nov 2026):** no van en `ciudadano_fichas`, sino en las **fichas de la persona** del módulo de Intervención (`TipoFicha` de uso `persona`, `fichas.ciudadano_id`; `modulo-intervencion.md` §4.5). En la ficha del ciudadano aparece una tarjeta por tipo («Datos sociodemográficos» y los que se configuren) con la situación vigente, fecha y autor, «Registrar»/«Actualizar»/«Continuar borrador» e historial (`Modules\Intervencion\Http\Livewire\FichasPersona`). La ven quienes tienen `ciudadano.leer_fichas_persona` (intervención, supervisión, consulta básica) y registran quienes tienen `ciudadano.registrar_fichas_persona` (intervención, consulta básica). Con una persona protegida, la consulta básica no la ve. Todo es voluntario y cada campo admite «No desea contestar».
+
 Los registros de situación social reflejan el estado del mundo en un momento dado. Son versionados: cada cambio genera una nueva versión.
 
 > **Clase PHP:** `CiudadanoSituacion` (renombrada desde `CiudadanoFicha`). La tabla en base de datos mantiene el nombre `ciudadano_fichas` por compatibilidad con migraciones existentes, pero toda referencia en código nuevo debe usar `CiudadanoSituacion`.

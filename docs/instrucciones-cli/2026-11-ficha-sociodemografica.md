@@ -3,7 +3,7 @@
 **Origen:** decisión del 26 nov 2026, `docs/decisiones-tecnicas.md` sección 19.1. Los datos sociodemográficos de la persona (país de nacimiento, nacionalidad, estudios, situación laboral, ingresos…) se recogen con una ficha configurable más (`TipoFicha`), no con una tabla de formulario fijo. Para que los campos codificados usen clasificaciones estándar sin teclear cientos de opciones a mano, se amplía `catalogos_sistema` con catálogos versionados que se cargan desde ficheros oficiales, y se añade un tipo de campo «selector de catálogo».
 **Requisito previo:** bloque B de `docs/instrucciones-cli/2026-11-encargo-actuaciones.md` cerrado (extrae el guardado de fichas a un servicio y añade `fichas.derivacion_id`). Si no lo está, **detente y pregunta**.
 **Tests:** TF-SDE-01 a TF-SDE-34 (al final de este documento).
-**Estado:** revisado por el desarrollador el 26 nov 2026. Paso 0 y bloques A, B y C hechos el 26 y 27 nov 2026. Las claves especiales de `comun.pais` (OACI) y `equivalencias.ine` quedan aplazadas por decisión del desarrollador (BACKLOG).
+**Estado:** revisado por el desarrollador el 26 nov 2026. Paso 0 y bloques A a E hechos el 26 y 27 nov 2026: **instrucciones cerradas**. Las claves especiales de `comun.pais` (OACI) y `equivalencias.ine` quedan aplazadas por decisión del desarrollador (BACKLOG).
 
 **Alcance:**
 - **A.** Catálogos versionados en `catalogos_sistema` y carga desde fuentes oficiales.
@@ -175,6 +175,17 @@ Si al descargarlas encuentras una fuente mejor o más actual que las de la tabla
 4. Textos para el profesional (consulta básica incluida): breves, sin jerga técnica; recordar arriba que todos los datos son voluntarios.
 5. Bootstrap y componentes `op-*` según el design system; `php artisan ui:auditar` en verde.
 
+**Hecho el 27 nov 2026.** Sin migraciones. Decisiones de implementación:
+- La tarjeta es un componente propio del módulo de Intervención, `FichasPersona` (`<livewire:intervencion.fichas-persona>`), incrustado en `FichaCiudadanoPage` con el computed `puedeVerFichasPersona` (`FichaPolicy::verDePersona`). Muestra una tarjeta por tipo de uso persona **activo y, además, los inactivos de los que la persona ya tiene fichas** (en lectura, sin botón), para que desactivar un tipo no oculte datos ya recogidos.
+- La tarjeta resume solo los campos con respuesta o «No desea contestar» (con «Ver completa» a la ficha entera). Mostrar la situación vigente cuenta como lectura: se audita al abrir la ficha del ciudadano (`FichaPersonaService::registrarLectura`).
+- **Borradores:** si la ficha más reciente de un tipo es un borrador, la tarjeta lo avisa y el botón pasa a «Continuar borrador»; la página de registro lo retoma (con su `schema_snapshot`, vía `corregir`) en vez de abrir otro, para no acumular borradores. Cualquiera que pueda registrar lo continúa.
+- El botón exige además poder actuar en el centro (`CentroDeUsuario::puedeActuar`, R1); la página lo vuelve a exigir al abrir (`exigirActuacionAlAbrir`).
+- Rutas (en `Modules/Intervencion/routes/web.php`, bajo el ciudadano): `intervencion.fichas-persona.registrar` (`/ciudadania/ciudadano/{ciudadano}/fichas/{tipoFicha}/registrar`, permiso `ciudadano.registrar_fichas_persona`) e `intervencion.fichas-persona.ver` (`…/fichas/ver/{ficha}`, permiso `ciudadano.leer_fichas_persona`). Cada página autoriza además con `FichaPolicy`.
+- Al actualizar se mantienen marcados los «No desea contestar» de la ficha anterior (se pueden desmarcar); las notas no se copian.
+- `<x-ficha.campos>` admite `noContesta` (casilla por campo; marcada, el campo va en un `fieldset` deshabilitado, que también deshabilita el selector de catálogo anidado). Sin la prop, las vistas existentes no cambian.
+- La lectura reutiliza `ver-ficha-page` con `MuestraFicha` (`VerFichaPersonaPage`): cabecera «Datos de la persona» (`rotuloFicha()`), marca «Borrador», «No desea contestar» y sin «Escribir mensaje». La lógica de campos pasa a `Ficha::camposConValor()`.
+- Corregido de paso: `Ficha` no tenía la relación `profesional()`, así que `ver-ficha-page` mostraba siempre «—» como autor.
+
 ## Bloque E — Ficha inicial «Datos sociodemográficos»
 
 Seeder idempotente `FichaSociodemograficaSeeder` (por `codigo`) más migración de datos. Si el tipo ya existe, **no** se sobrescribe su schema (puede haberse editado en el backoffice).
@@ -193,6 +204,11 @@ Seeder idempotente `FichaSociodemograficaSeeder` (por `codigo`) más migración 
 | `fecha_referencia_ingresos` | fecha | Ayuda: «Mes o fecha a la que corresponden los ingresos» |
 
 Lógica condicional mínima, si el schema la admite ya: `anio_llegada_espana` solo cuando `pais_nacimiento` no es `ESP`. Si no la admite para campos de catálogo, no la añadas: anótalo en BACKLOG.
+
+**Hecho el 27 nov 2026.** Migración `2026_11_27_200001` (`FichaSociodemograficaSeeder`, también en `DatabaseSeeder`), que se aplica con el despliegue. Decisiones:
+- Idempotente por `codigo`: si el tipo existe, aunque esté desactivado, no se toca (ni schema, ni nombre, ni `activo`).
+- Lógica condicional: el schema no la admite, así que `anio_llegada_espana` no es condicional (ayuda: «Solo si nació fuera de España»); sigue en el BACKLOG desde el paso 0. El tipo `numero` no tiene mínimo ni máximo: el «año con cuatro cifras» va en la ayuda, sin validar (BACKLOG).
+- La ficha inicial existe en todas las BD de test (la siembra la migración): `TipoFichaTest` H01 y `ConfiguracionTest` G02 ya no cuentan todos los tipos, y `FichaPersonaInterfazTest` la desactiva para que las tarjetas solo muestren el tipo de prueba.
 
 ---
 
@@ -260,5 +276,5 @@ Lógica condicional mínima, si el schema la admite ya: `anio_llegada_espana` so
 | A — Catálogos | TF-SDE-01..08 (+07 bis) | Hecho (26 nov; negativos 04, 05 y 06 comprobados) |
 | B — Tipo de campo «catálogo» | TF-SDE-09..17 (+09 bis) y TF-SDE-31 | Hecho (27 nov; negativos 10, 11, 13, 16 y 17 comprobados) |
 | C — Fichas de persona | TF-SDE-18..25 (+24 bis), 26 y 28 en la policy, cifrado | Hecho (27 nov; negativos 19, 23, 26, 28 y cifrado comprobados) |
-| D — Permisos e interfaz | TF-SDE-26..31 | Pendiente |
-| E — Ficha inicial | TF-SDE-32..34 | Pendiente |
+| D — Permisos e interfaz | TF-SDE-26..30 (+29 bis y ter); 31 en B | Hecho (27 nov; negativos 27, 28 y «No desea contestar» comprobados) |
+| E — Ficha inicial | TF-SDE-32..34 | Hecho (27 nov; negativo 33 comprobado) |

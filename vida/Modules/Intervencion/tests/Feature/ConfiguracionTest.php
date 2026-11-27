@@ -44,9 +44,10 @@ class ConfiguracionTest extends TestCase
     #[Test]
     public function seeder_produce_exactamente_los_registros_esperados(): void
     {
+        // La migración ya siembra la ficha inicial de la persona: se cuentan solo las de valoración
         $this->seed(IntervencionSeeder::class);
 
-        $countFichas = TipoFicha::count();
+        $countFichas = TipoFicha::deValoracion()->count();
         $countValoraciones = TipoValoracion::count();
         $countPivot = TipoValoracionFicha::count();
 
@@ -69,7 +70,8 @@ class ConfiguracionTest extends TestCase
         TipoFicha::factory()->create(['activo' => true,  'nombre' => 'Ficha activa']);
         TipoFicha::factory()->create(['activo' => false, 'nombre' => 'Ficha inactiva']);
 
-        $activas = TipoFicha::activos()->get();
+        // Sin la ficha inicial de la persona que siembra la migración
+        $activas = TipoFicha::activos()->whereNull('codigo')->get();
 
         $this->assertCount(1, $activas, 'El scope activos debe devolver solo los tipos de ficha activos');
         $this->assertEquals('Ficha activa', $activas->first()->nombre);

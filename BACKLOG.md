@@ -9,6 +9,18 @@ Actualizar con fecha y contexto breve al añadir cada entrada.
 
 ---
 
+**Campos `numero` de las fichas sin mínimo ni máximo** — 2026-11-27
+Intervención (fichas) / ficha sociodemográfica
+- El tipo `numero` del schema de `TipoFicha` no admite límites. En la ficha «Datos sociodemográficos», `anio_llegada_espana` («año con cuatro cifras») y `numero_pagas` aceptan cualquier número; solo lo indica la ayuda. Valorar `min`/`max` en el schema, en `TipoFichaResource`, en `<x-ficha.campos>` y en `ValidadorDatosFicha::validarTipos()`.
+
+---
+
+**Formato de fecha abreviado: «14 mar. 2026» frente al design system** — 2026-11-27
+UI operativa / transversal
+- `translatedFormat('j M Y')` con el locale `es` de Carbon pinta el mes con punto («14 mar. 2026»), y el design system fija «14 abr 2026». Lo usan muchas vistas (ficha en lectura, tarjetas de la ficha del ciudadano…). Decidir si se corrige con un helper de formato común o se acepta el punto y se actualiza el design system. Visto al escribir los tests del bloque D de la ficha sociodemográfica (comparan con el mismo formato, no con un literal).
+
+---
+
 **Cifrado de fichas: auditorías antiguas en claro y analítica** — 2026-11-27
 Intervención (fichas) / Auditoría / seguridad
 - Desde el 27 nov, `fichas.datos` y `fichas.notas` van cifrados y `Versionable`/`AuditObserver` copian los atributos cifrados sin descifrar. La migración cifró las fichas y sus versiones, pero **no** las filas antiguas de `audits`: las ediciones anteriores de fichas, y de cualquier modelo con campos cifrados (p. ej. `Ciudadano`), tienen en `datos_antes` los valores descifrados. Decidir si se cifran o se purgan esos `datos_antes` (la tabla de auditoría se trata como inmutable).

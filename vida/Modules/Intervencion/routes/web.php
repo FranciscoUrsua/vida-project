@@ -11,10 +11,12 @@ use Modules\Intervencion\Http\Livewire\MisEncargosPage;
 use Modules\Intervencion\Http\Livewire\PlanPage;
 use Modules\Intervencion\Http\Livewire\RecursosPage;
 use Modules\Intervencion\Http\Livewire\RegistrarEscalaPage;
+use Modules\Intervencion\Http\Livewire\RegistrarFichaPersonaPage;
 use Modules\Intervencion\Http\Livewire\RegistrarValoracionPage;
 use Modules\Intervencion\Http\Livewire\ValoracionEncargoPage;
 use Modules\Intervencion\Http\Livewire\VerFichaEncargoPage;
 use Modules\Intervencion\Http\Livewire\VerFichaPage;
+use Modules\Intervencion\Http\Livewire\VerFichaPersonaPage;
 use Modules\Mensajes\Http\Livewire\BandejaAlertasYMensajes;
 
 /*
@@ -52,6 +54,15 @@ Route::middleware(['web', 'auth', 'tiene.rol', 'permission:derivacion.ver_asigna
     Route::get('/encargos/{encargo}/valoracion', ValoracionEncargoPage::class)->whereNumber('encargo')->name('encargos.valoracion');
     Route::get('/encargos/{encargo}/escala', EscalaEncargoPage::class)->whereNumber('encargo')->name('encargos.escala');
     Route::get('/encargos/{encargo}/ficha/{ficha}', VerFichaEncargoPage::class)->whereNumber(['encargo', 'ficha'])->name('encargos.ficha');
+});
+
+// Fichas de la persona (bloque D de 2026-11-ficha-sociodemografica.md): bajo el ciudadano, por
+// permiso; cada página autoriza además con FichaPolicy (ámbito y personas protegidas)
+Route::middleware(['web', 'auth', 'tiene.rol'])->prefix('ciudadania/ciudadano/{ciudadano}/fichas')->whereNumber('ciudadano')->name('intervencion.fichas-persona.')->group(function () {
+    Route::get('/{tipoFicha}/registrar', RegistrarFichaPersonaPage::class)->whereNumber('tipoFicha')
+        ->middleware('permission:ciudadano.registrar_fichas_persona')->name('registrar');
+    Route::get('/ver/{ficha}', VerFichaPersonaPage::class)->whereNumber('ficha')
+        ->middleware('permission:ciudadano.leer_fichas_persona')->name('ver');
 });
 
 // Historia Social, plan y actuaciones: siguen con `role:` hasta el barrido de rutas (BACKLOG)

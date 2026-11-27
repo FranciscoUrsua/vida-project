@@ -419,6 +419,11 @@
             </div>
             @endif
 
+            {{-- ——— Fichas de la persona: datos sociodemográficos y otros tipos de uso persona (SD-10) ——— --}}
+            @if($this->puedeVerFichasPersona)
+                <livewire:intervencion.fichas-persona :ciudadano-id="$ciudadanoId" :key="'fichas-persona-'.$ciudadanoId" />
+            @endif
+
             {{-- ——— Documentos (módulo Documentos, custodia v2) ——— --}}
             @if($this->puedeVerDocumentos)
                 <livewire:documentos.documentos-ciudadano :ciudadano-id="$ciudadanoId" :key="'documentos-'.$ciudadanoId" />

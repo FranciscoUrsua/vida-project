@@ -4,6 +4,32 @@
 
 ---
 
+## 2026-11-27 — Ficha sociodemográfica: ficha inicial (bloque E) y cierre de las instrucciones
+
+Instrucciones: `docs/instrucciones-cli/2026-11-ficha-sociodemografica.md`, bloque E y cierre (instrucciones cerradas: paso 0 y bloques A a E).
+
+- **`FichaSociodemograficaSeeder`** (Intervención, también en `DatabaseSeeder`): tipo «Datos sociodemográficos», `codigo = sociodemografica`, uso persona, diez campos voluntarios (país de nacimiento, nacionalidad y segunda nacionalidad sobre `comun.pais`, año de llegada, idioma principal, estudios, situación laboral, ingresos netos mensuales en €, número de pagas y fecha de referencia de los ingresos). Idempotente por `codigo`: no toca un tipo ya existente.
+- **Migración de datos** `2026_11_27_200001`, que la siembra al desplegar (después de los catálogos oficiales).
+- **Tests:** `FichaInicialTest` (TF-SDE-32 a 34), en verde; negativo de 33 comprobado. Adaptados `TipoFichaTest` H01 y `ConfiguracionTest` G02 y G03 (contaban todos los tipos de ficha; ahora existe la inicial en toda BD) y `FichaPersonaInterfazTest` (desactiva la inicial).
+- **Documentación de cierre:** `modulo-intervencion.md` §4.2 y §4.5 (tipo `catalogo`, `codigo`, uso persona, `ciudadano_id`, `no_contesta`, cifrado), `modulo-ciudadania.md` §3.5 (tarjeta y permisos), `modulo-usuarios-permisos.md` §4.4, `roles-consulta-basica-tramitacion.md` §3.1 y §5, `documentacion-proyecto.md` (catálogos), `decisiones-tecnicas.md` §19.1 (hecho y aplazado), `CLAUDE.md` §6.
+- **Decisiones:** sin lógica condicional (el schema no la admite) y sin límites en los números (año de llegada): BACKLOG.
+
+---
+
+## 2026-11-27 — Ficha sociodemográfica: interfaz de las fichas de la persona (bloque D)
+
+Instrucciones: `docs/instrucciones-cli/2026-11-ficha-sociodemografica.md`, bloque D. Sin migraciones.
+
+- **Tarjeta en la ficha del ciudadano:** componente `Modules\Intervencion\Http\Livewire\FichasPersona` (`<livewire:intervencion.fichas-persona>`), una tarjeta por tipo de uso persona (activos, y los inactivos con fichas de la persona, en lectura). Situación vigente con etiquetas, fecha y autor, o «Sin datos registrados»; «No desea contestar»; aviso de borrador; botón «Registrar», «Actualizar» o «Continuar borrador» (con `crearDePersona` y centro en el que actuar, R1); historial desplegable. `FichaCiudadanoPage::puedeVerFichasPersona` (`FichaPolicy::verDePersona`). Mostrar la situación vigente queda auditado como lectura.
+- **Página de registro** `RegistrarFichaPersonaPage` (ruta `intervencion.fichas-persona.registrar`, permiso `ciudadano.registrar_fichas_persona`): aviso de que todo es voluntario, pre-relleno desde la vigente con aviso de valores de catálogo que ya no se pueden elegir, retoma del borrador pendiente, «No desea contestar» por campo (vacía y deshabilita el campo), notas, «Completar» y «Guardar borrador».
+- **Página de lectura** `VerFichaPersonaPage` (ruta `intervencion.fichas-persona.ver`, permiso `ciudadano.leer_fichas_persona`), sobre `ver-ficha-page`: cabecera «Datos de la persona» (`MuestraFicha::rotuloFicha()`), marca «Borrador» y «No desea contestar». Ficha de otra persona → 404; lectura auditada.
+- **`<x-ficha.campos>`:** prop opcional `noContesta` (casilla por campo con `fieldset` deshabilitado). **`Ficha::camposConValor()`** (con `no_contesta`), usado por `MuestraFicha` y la tarjeta.
+- **Corregido:** `Ficha` no tenía relación `profesional()`; la ficha en lectura mostraba siempre «—» como autor.
+- **Tests:** `FichaPersonaInterfazTest` (TF-SDE-26 a 30, 29 bis y 29 ter), en verde; negativos de 27, 28 y «No desea contestar» comprobados. Regresión de fichas, valoración, ficha en lectura, solicitudes, encargo y ficha del ciudadano. `ui:auditar` sin infracciones.
+- **Decisiones de implementación:** ver «Hecho el 27 nov 2026» del bloque D en las instrucciones (tipos inactivos con fichas, un solo borrador por tipo, se mantienen los «No desea contestar» al actualizar, las notas no se copian).
+
+---
+
 ## 2026-11-27 — Ficha sociodemográfica: fichas de la persona y cifrado de fichas (bloque C)
 
 Instrucciones: `docs/instrucciones-cli/2026-11-ficha-sociodemografica.md`, bloque C.

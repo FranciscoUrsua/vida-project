@@ -1,4 +1,4 @@
-{{-- Ficha en lectura desde la Historia Social (VerFichaPage) o desde un encargo (VerFichaEncargoPage) --}}
+{{-- Ficha en lectura desde la Historia Social (VerFichaPage), desde un encargo (VerFichaEncargoPage) o de la persona (VerFichaPersonaPage) --}}
 <div class="op-page">
 <div class="row justify-content-center g-0 p-3 p-lg-4">
 <div class="col-12 col-lg-9 col-xl-7">
@@ -17,8 +17,13 @@
 
     {{-- Cabecera --}}
     <header class="mb-4">
-        <p class="small text-uppercase fw-semibold text-body-secondary mb-1">Ficha de valoración</p>
-        <h1 class="h5 fw-bold mb-1">{{ $this->nombreFicha() }}</h1>
+        <p class="small text-uppercase fw-semibold text-body-secondary mb-1">{{ $this->rotuloFicha() }}</p>
+        <h1 class="h5 fw-bold mb-1">
+            {{ $this->nombreFicha() }}
+            @unless($ficha->completada)
+                <span class="badge bg-warning-subtle text-warning-emphasis align-middle ms-1">Borrador</span>
+            @endunless
+        </h1>
         <p class="small text-body-secondary mb-0">
             Guardada el {{ $ficha->created_at->translatedFormat('j M Y') }}
             @if($ficha->profesional_id)
@@ -39,7 +44,9 @@
                     <p class="small text-uppercase fw-semibold text-body-secondary mb-1">
                         {{ $campo['etiqueta'] }}
                     </p>
-                    @if($campo['texto'] !== '')
+                    @if($campo['no_contesta'])
+                        <p class="small text-body-secondary fst-italic mb-0">No desea contestar</p>
+                    @elseif($campo['texto'] !== '')
                         <p class="mb-0">
                             {{ $campo['texto'] }}
                             @if($campo['unidad'] && ! in_array($campo['tipo'], ['booleano', 'fecha'], true))

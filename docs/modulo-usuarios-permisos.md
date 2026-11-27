@@ -485,6 +485,15 @@ documento.gestionar_propios  # ver, sustituir, recatalogar y retirar los documen
 | `adm_sistema` | `documento.ver_carpeta`, `documento.subir` |
 | `consulta_profesional` | `documento.ver_carpeta` (retirado el 25 nov 2026 con el encargo profesional) |
 
+Permisos de las fichas de la persona (ficha sociodemográfica, 27 nov 2026). En una BD ya sembrada los añade la migración `2026_11_27_100003`:
+
+```
+ciudadano.leer_fichas_persona      # ver las fichas de la persona (tarjeta de la ficha y lectura): intervencion, supervision, consulta_basica
+ciudadano.registrar_fichas_persona # registrar y corregir fichas de la persona: intervencion, consulta_basica
+```
+
+Con una persona protegida, `FichaPolicy` exige además `historia.leer` (o `colectivo_protegido.aprobar_acceso` para leer): la consulta básica no ve ni registra sus fichas.
+
 `RolesSeeder` es **aditivo** desde la fase 4: añade a cada rol los permisos que le falten y no quita los configurados en el backoffice. Retirar un permiso de un rol se hace con una migración de datos.
 
 Los **roles** son configurables desde el backoffice: el administrador del sistema puede ver qué permisos tiene cada rol, añadir o quitar permisos de un rol, y crear nuevos roles asignándoles permisos existentes. Crear un permiso nuevo sigue requiriendo código porque implica implementar la verificación correspondiente en el sistema.

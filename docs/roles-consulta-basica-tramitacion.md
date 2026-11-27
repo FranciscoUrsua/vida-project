@@ -33,6 +33,7 @@ Perfil: ordenanzas, personal de información y control, personal auxiliar de pro
 | Prestaciones | Sin acceso | El widget de prestaciones no se muestra |
 | Situación social (Capa 2) | Sin acceso | — |
 | Accesos recientes al expediente | Sin acceso | Como hoy |
+| Datos sociodemográficos (fichas de la persona) | Lectura y registro | Se pueden recoger en la acogida; todo voluntario, con «No desea contestar». Con una persona protegida no se muestran (27 nov 2026) |
 
 ### 3.2 Colectivos especialmente protegidos
 
@@ -107,6 +108,8 @@ Lista cerrada en la fase 4 (`modulo-usuarios-permisos.md` §4.4):
 | `documento.subir` | Subir a carpeta o a solicitud | ✅ | ✅ |
 | `documento.gestionar_propios` | Ver, sustituir, recatalogar y retirar los propios del día (nuevo) | ✅ | ✅ |
 | `documento.ver_carpeta` | Carpeta completa (nuevo, fase 4; lo tienen los demás roles que la veían) | — | — |
+| `ciudadano.leer_fichas_persona` | Ver los datos sociodemográficos y demás fichas de la persona (27 nov 2026) | ✅ | — |
+| `ciudadano.registrar_fichas_persona` | Registrarlas y corregirlas (27 nov 2026) | ✅ | — |
 
 Implementados en la fase 4; la lista definitiva por rol está en `modulo-usuarios-permisos.md` §4.4.
 

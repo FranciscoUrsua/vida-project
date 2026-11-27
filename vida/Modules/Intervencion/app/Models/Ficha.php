@@ -5,6 +5,7 @@ namespace Modules\Intervencion\Models;
 use App\Models\CatalogoSistema;
 use App\Models\Ciudadano;
 use App\Models\HistoriaSocial;
+use App\Models\User;
 use App\Support\Fichas\ValorCampo;
 use App\Traits\Auditable;
 use App\Traits\Versionable;
@@ -135,6 +136,16 @@ class Ficha extends Model
     }
 
     /**
+     * Usuario que cumplimentó la ficha (autor en las vistas de lectura y en la tarjeta de la persona).
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function profesional(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'profesional_id');
+    }
+
+    /**
      * Historia social a la que pertenece esta ficha (flujo directo, sin valoracion formal).
      *
      * @return BelongsTo<HistoriaSocial, $this>
@@ -224,6 +235,42 @@ class Ficha extends Model
     public static function vigentePara(int $ciudadanoId, int $tipoFichaId): ?self
     {
         return static::query()->dePersona($ciudadanoId, $tipoFichaId)->where('completada', true)->first();
+    }
+
+    /**
+     * Campos del `schema_snapshot` con su valor, listos para mostrar en lectura (pantalla de la
+     * ficha y resumen de la tarjeta de la persona). `texto` es el valor formateado con
+     * `ValorCampo::mostrar()` (cadena vacía si no hay respuesta) y `no_contesta` marca los campos
+     * que la persona no ha querido contestar (SD-9), que no es lo mismo que no haberse preguntado.
+     *
+     * @return list<array{id: string, etiqueta: string, tipo: string, valor: mixed, texto: string, unidad: string|null, obligatorio: bool, no_contesta: bool}>
+     */
+    public function camposConValor(): array
+    {
+        $campos = $this->schema_snapshot['campos'] ?? [];
+        $datos = is_array($this->datos) ? $this->datos : [];
+        $noContesta = is_array($this->no_contesta) ? $this->no_contesta : [];
+
+        $resultado = [];
+        foreach (is_array($campos) ? $campos : [] as $campo) {
+            if (! is_array($campo) || ! is_string($campo['id'] ?? null)) {
+                continue;
+            }
+
+            $valor = $datos[$campo['id']] ?? null;
+            $resultado[] = [
+                'id' => $campo['id'],
+                'etiqueta' => (string) ($campo['etiqueta'] ?? $campo['id']),
+                'tipo' => (string) ($campo['tipo'] ?? 'texto'),
+                'valor' => $valor,
+                'texto' => ValorCampo::mostrar($campo, $valor),
+                'unidad' => $campo['unidad'] ?? null,
+                'obligatorio' => (bool) ($campo['obligatorio'] ?? false),
+                'no_contesta' => in_array($campo['id'], $noContesta, true),
+            ];
+        }
+
+        return $resultado;
     }
 
     /**

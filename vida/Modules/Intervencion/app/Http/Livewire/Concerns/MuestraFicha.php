@@ -2,14 +2,13 @@
 
 namespace Modules\Intervencion\Http\Livewire\Concerns;
 
-use App\Support\Fichas\ValorCampo;
 use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Models\TipoFicha;
 
 /**
- * Presentación en lectura de una ficha de valoración, compartida por la ficha vista desde la
- * Historia Social (`VerFichaPage`) y desde un encargo profesional (`VerFichaEncargoPage`). Las
- * dos usan la misma vista.
+ * Presentación en lectura de una ficha, compartida por la ficha de valoración vista desde la
+ * Historia Social (`VerFichaPage`) o desde un encargo profesional (`VerFichaEncargoPage`) y por
+ * la ficha de la persona (`VerFichaPersonaPage`). Las tres usan la misma vista.
  *
  * Renderiza los campos con `schema_snapshot`, por lo que es coherente aunque el TipoFicha haya
  * evolucionado desde que se guardó la ficha. La autorización la hace cada página.
@@ -45,28 +44,23 @@ trait MuestraFicha
     abstract public function conMensaje(): bool;
 
     /**
-     * Devuelve los campos del schema_snapshot con su valor correspondiente
-     * en datos[], listos para renderizar. `texto` es el valor formateado con
-     * `ValorCampo::mostrar()` (cadena vacía si no hay respuesta).
+     * Campos del schema_snapshot con su valor, listos para renderizar (`Ficha::camposConValor()`).
      *
-     * @return array<int, array{etiqueta: string, tipo: string, valor: mixed, texto: string, unidad: string|null, obligatorio: bool}>
+     * @return list<array{id: string, etiqueta: string, tipo: string, valor: mixed, texto: string, unidad: string|null, obligatorio: bool, no_contesta: bool}>
      */
     public function camposConValor(): array
     {
-        $ficha = $this->fichaMostrada();
-        $campos = $ficha->schema_snapshot['campos'] ?? [];
-        $datos = $ficha->datos ?? [];
+        return $this->fichaMostrada()->camposConValor();
+    }
 
-        return array_map(function (array $campo) use ($datos): array {
-            return [
-                'etiqueta' => $campo['etiqueta'] ?? $campo['id'],
-                'tipo' => $campo['tipo'] ?? 'texto',
-                'valor' => $datos[$campo['id']] ?? null,
-                'texto' => ValorCampo::mostrar($campo, $datos[$campo['id']] ?? null),
-                'unidad' => $campo['unidad'] ?? null,
-                'obligatorio' => $campo['obligatorio'] ?? false,
-            ];
-        }, $campos);
+    /**
+     * Rótulo de la cabecera: una ficha de la persona no es una ficha de valoración.
+     *
+     * @return string
+     */
+    public function rotuloFicha(): string
+    {
+        return $this->fichaMostrada()->esDePersona() ? 'Datos de la persona' : 'Ficha de valoración';
     }
 
     /**

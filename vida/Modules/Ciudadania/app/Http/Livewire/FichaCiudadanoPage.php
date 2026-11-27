@@ -40,6 +40,7 @@ use Modules\Ciudadania\Models\UnidadConvivencia;
 use Modules\Ciudadania\Models\UnidadConvivenciaMiembro;
 use Modules\Ciudadania\Services\NormalizadorCiudadano;
 use Modules\Intervencion\Models\AsignacionProfesional;
+use Modules\Intervencion\Models\Ficha;
 use Modules\Intervencion\Services\AperturaHistoriaService;
 use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
 
@@ -68,6 +69,7 @@ use Modules\Intervencion\Services\Asignacion\AsignacionReferenciaService;
  * @property-read bool $puedeVerPrestaciones
  * @property-read bool $soloPorEncargo
  * @property-read bool $puedeVerHistorialCitas
+ * @property-read bool $puedeVerFichasPersona
  * @property-read Collection<int, AsignacionCentro> $asignacionesCentro
  * @property-read Collection<int, AsignacionProfesional> $asignacionesReferencia
  * @property-read Collection<int, CiudadanoIdentificador> $documentos
@@ -454,6 +456,18 @@ class FichaCiudadanoPage extends Component
     public function puedeVerPrestaciones(): bool
     {
         return auth()->user()->can('solicitud.ver');
+    }
+
+    /**
+     * Si el usuario ve las fichas de la persona («Datos sociodemográficos» y demás tipos de uso
+     * persona): `FichaPolicy::verDePersona` (permiso, ámbito y personas protegidas, SD-10).
+     *
+     * @return bool
+     */
+    #[Computed]
+    public function puedeVerFichasPersona(): bool
+    {
+        return Gate::allows('verDePersona', [Ficha::class, $this->ciudadano]);
     }
 
     /**
